@@ -4,7 +4,8 @@
   "description": "API for My Visa Angel",
   "main": ".mongorc.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "NODE_ENV=dev node server.js",
+    "test": "mocha --timeout 10000"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,9 @@
   },
   "homepage": "https://github.com/mokolodi1/myvisaangel#readme",
   "devDependencies": {
+    "chai": "^4.1.1",
+    "chai-http": "^3.0.0",
+    "mocha": "^3.5.0",
     "nodemon": "^1.11.0"
   },
   "dependencies": {

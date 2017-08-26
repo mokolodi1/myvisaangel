@@ -30,7 +30,7 @@ git add -A
 # helpful if you have to go back and change stuff!
 # Good commit messages are less than 50 characters, so be
 # descriptive but not verbose.
-git commit -m "fixed incorrect salary information"
+git commit -m "fixed incorrect salary information for Algerians"
 
 # Get the latest code from GitHub
 # You might get a scary message that you need to merge. If
@@ -54,13 +54,17 @@ npm start
 
 ### Testing
 
+Use the following commands to test the API:
+
 ```
-#
+# Run the test suite
+npm test
 ```
 
 ## Setting up a new API server
 
 Open the command line and connect to the AWS box:
+
 ```sh
 # TODO
 ```

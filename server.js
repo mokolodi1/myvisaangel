@@ -10,6 +10,7 @@ app.route('/v1/helloworld').get(function(req, res) {
   });
 });
 
-app.listen(port);
+var server = app.listen(port);
+module.exports = server
 
-console.log("My Visa Angel API started on port " + port);
+console.log("started My Visa Angel API on port " + port);
