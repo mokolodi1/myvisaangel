@@ -41,6 +41,17 @@ git pull origin master --rebase
 git push origin master
 ```
 
+Here's a couple more useful git commands you should try out
+
+```
+# View the current status of git - this will likely be
+# your most useful command
+git status
+
+# In order to see what you've changed before you do `git add -A`:
+git diff
+```
+
 ## Starting the server
 
 Download the code and then:
