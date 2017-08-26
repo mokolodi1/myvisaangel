@@ -68,3 +68,4 @@ Open the command line and connect to the AWS box:
 ```sh
 # TODO
 ```
+hi my name is Paola
