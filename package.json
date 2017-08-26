@@ -1,0 +1,25 @@
+{
+  "name": "mokolodi1",
+  "version": "1.0.0",
+  "description": "API for My Visa Angel",
+  "main": ".mongorc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mokolodi1/myvisaangel.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mokolodi1/myvisaangel/issues"
+  },
+  "homepage": "https://github.com/mokolodi1/myvisaangel#readme",
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  },
+  "dependencies": {
+    "express": "^4.15.4"
+  }
+}
