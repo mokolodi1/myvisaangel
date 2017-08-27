@@ -34,7 +34,7 @@ app.route('/v1/calculate_sum').get(function(req, res) {
   }
 
   res.json({
-    sum: first + second
+    result: first + second
   });
 });
 
