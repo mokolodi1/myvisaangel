@@ -52,7 +52,7 @@ git status
 git diff
 ```
 
-## Starting the server
+## Starting the API server
 
 Download the code and then:
 ```
@@ -72,11 +72,29 @@ Use the following commands to test the API:
 npm test
 ```
 
-## Setting up a new API server
+## Connecting to the AWS box
 
 Open the command line and connect to the AWS box:
 
 ```sh
-# TODO
+# Change the permissions for the .pem file - it yells at
+# you if you don't do this.
+chmod 500 ~/work/important-files/myvisaangel-prod.pem
+
+# Connect to the box
+# Don't forget to modify the path to the .pem file so it
+# points to the right place.
+ssh -i ~/work/important-files/myvisaangel-prod.pem ubuntu@api.myvisaangel.com
+
+# Connect to the tmux session
+tmux a
 ```
-hi my name is Paola
+
+## Setting up a new AWS box
+
+```
+# Install node and npm
+# TODO: unclear if we need both nodejs and nodejs-legacy
+sudo apt-get install -y nodejs nodejs-legacy npm
+
+```
