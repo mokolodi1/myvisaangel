@@ -27,7 +27,7 @@ app.route('/v1/calculate_sum').get(function(req, res) {
   var first = parseInt(req.query.first)
   var second = parseInt(req.query.second)
 
-  if (first === NaN || second === NaN) {
+  if (isNaN(first) || isNaN(second)) {
     res.status(400); // 400 = bad request
     res.send("You didn't put the right parameters!");
   }
