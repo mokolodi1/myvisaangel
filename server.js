@@ -30,6 +30,7 @@ app.route('/v1/calculate_sum').get(function(req, res) {
   if (isNaN(first) || isNaN(second)) {
     res.status(400); // 400 = bad request
     res.send("You didn't put the right parameters!");
+    return;
   }
 
   res.json({
