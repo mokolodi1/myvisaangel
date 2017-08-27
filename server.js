@@ -1,3 +1,5 @@
+"use strict"
+
 var express = require("express");
 var app = express();
 var port = process.env.PORT || 3000;
@@ -10,14 +12,23 @@ app.route('/v1/helloworld').get(function(req, res) {
   });
 });
 
-app.route('/v1/visa_type').get(function(req, res) {
+/*
+ * All of the stuff about the request to the website is
+ * stored in the variable req, so don't hesitate to poke
+ * around inside it to see what's there:
+ * console.log(req). You'll find a lot of useful
+ * information online about how routes work if you Google
+ * "express node routes".
+ */
+app.route('/v1/calculate_sum').get(function(req, res) {
   console.log("Someone's requesting information!");
+  console.log("req.query:", req.query);
 
-  console.log("req:", req);
-  console.log("Object.keys(req):", Object.keys(req));
+  var first = Integer.parseInt(req.query.first)
+  var second = Integer.parseInt(req.query.second)
 
   res.json({
-    such: "wow"
+    sum: first + second
   });
 });
 
