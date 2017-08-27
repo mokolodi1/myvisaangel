@@ -1,6 +1,8 @@
 # My Visa Angel API
 
-## Downloading this code
+## Getting started
+
+### Downloading this code
 
 ```sh
 # Take the code from GitHub and clone it to your local computer
@@ -13,7 +15,7 @@ cd myvisaangel
 open .
 ```
 
-## Editing this repo
+### Editing this repo
 
 First, make the changes you'd like to the API, either locally or on the
 Amazon box.
@@ -52,7 +54,7 @@ git status
 git diff
 ```
 
-## Starting the API server
+### Starting the API server
 
 Download the code and then:
 ```
@@ -72,7 +74,9 @@ Use the following commands to test the API:
 npm test
 ```
 
-## Connecting to the AWS box
+## AWS box
+
+### How to connect to the AWS box
 
 Open the command line and connect to the AWS box:
 
@@ -91,16 +95,27 @@ ssh -i ~/work/important-files/myvisaangel-prod.pem ubuntu@api.myvisaangel.com
 tmux a
 ```
 
-## Setting up a new AWS box
+### Updating the code
 
-```
+Once connected to the AWS box, go to the shell that isn't currently running the server and run `git pull origin master` to pull all the latest code down from GitHub. Then you can go to the shell running the server and restart it by doing C-c (hold control and press C) and then calling the command to start the server (`sudo PORT=80 npm start`).
+
+### Setting up a new box
+
+```sh
 # Install node and npm
 # TODO: unclear if we need both nodejs and nodejs-legacy
 sudo apt-get install -y nodejs nodejs-legacy npm
 
+# Grab the code from GitHub and go into the code's folder
+git clone https://github.com/mokolodi1/myvisaangel
+cd myvisaangel
+
 # Start a new tmux session so the command keeps running
 # after you close the window
 tmux
+
+# Do C-b " to split the tmux window into two.
+# (Hold control and press B, then press ")
 
 # Start it up!
 sudo PORT=80 npm start
