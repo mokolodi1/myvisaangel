@@ -40,6 +40,10 @@ app.route('/v1/calculate_sum').get(function(req, res) {
 
 app.route('/v1/visa_type').get(function (req, res) {
   console.log("req.query:", req.query);
+
+  res.json({
+    ping: "pong"
+  });
 })
 
 var server = app.listen(port);
