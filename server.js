@@ -38,6 +38,10 @@ app.route('/v1/calculate_sum').get(function(req, res) {
   });
 });
 
+app.route('/v1/visa_type').get(function (req, res) {
+  console.log("req.query:", req.query);
+})
+
 var server = app.listen(port);
 module.exports = server
 
