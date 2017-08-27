@@ -78,12 +78,13 @@ Open the command line and connect to the AWS box:
 
 ```sh
 # Change the permissions for the .pem file - it yells at
-# you if you don't do this.
+# you if you don't do this. You only have to do this once
+# for every time you download it.
+# Don't forget to modify the path to the .pem file so it
+# points to the right place.
 chmod 500 ~/work/important-files/myvisaangel-prod.pem
 
 # Connect to the box
-# Don't forget to modify the path to the .pem file so it
-# points to the right place.
 ssh -i ~/work/important-files/myvisaangel-prod.pem ubuntu@api.myvisaangel.com
 
 # Connect to the tmux session
@@ -97,4 +98,10 @@ tmux a
 # TODO: unclear if we need both nodejs and nodejs-legacy
 sudo apt-get install -y nodejs nodejs-legacy npm
 
+# Start a new tmux session so the command keeps running
+# after you close the window
+tmux
+
+# Start it up!
+sudo PORT=80 npm start
 ```
