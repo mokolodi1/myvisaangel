@@ -5,6 +5,7 @@ let chai = require('chai');
 let chaiHttp = require('chai-http');
 let server = require('../server');
 let should = chai.should();
+var Data = require('../data.js');
 
 chai.use(chaiHttp);
 
@@ -61,6 +62,82 @@ describe('My Visa Bot API', () => {
           res.should.have.status(200);
           res.body.should.be.a('object');
           res.body.should.have.property('result').eql(3000);
+          done();
+      });
+    });
+  });
+
+  describe('/GET /v1/aps_conditions', () => {
+    it('should not work if the parameters are wrong', (done) => {
+      chai.request(server)
+        .get('/v1/aps_conditions')
+        .end((err, res) => {
+          res.should.have.status(400);
+          done();
+      });
+    });
+
+    it('should work for Algeria', (done) => {
+      chai.request(server)
+        .get('/v1/aps_conditions?pays=Algérie')
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a('object');
+          res.body.should.be.deep.eql({
+            applicable: false
+          });
+
+          done();
+      });
+    });
+
+    it('should work for an EEE country (Italie)', (done) => {
+      chai.request(server)
+        .get('/v1/aps_conditions?pays=Italie')
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a('object');
+          res.body.should.be.deep.eql({
+            applicable: false
+          });
+
+          done();
+      });
+    });
+
+    it('should work for an non-EEE country (USA)', (done) => {
+      chai.request(server)
+        .get('/v1/aps_conditions?pays=Etats-Unis')
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a('object');
+          res.body.should.be.deep.eql({
+            applicable: true,
+            accord_special: false,
+            condition_de_diplome: Data.apsAgreements.masters,
+            condition_de_duree: 12,
+            renouvellement: false,
+          });
+
+          done();
+      });
+    });
+
+    it('should work for a special country (Burkina Faso)', (done) => {
+      chai.request(server)
+        .get('/v1/aps_conditions?pays=Burkina Faso')
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.be.a('object');
+          res.body.should.be.deep.eql({
+            applicable: true,
+            accord_special: true,
+            condition_de_diplome: Data.apsAgreements.mastersLicenseProNotFrance,
+            condition_de_duree: 6,
+            renouvellement: true,
+            renouvellement_count: 1,
+          });
+
           done();
       });
     });
