@@ -4,7 +4,8 @@ var express = require("express");
 var app = express();
 var port = process.env.PORT || 3000;
 
-var _ = require("underscore");
+// we don't need this just yet, but I'm going to keep it here until we do
+// var _ = require("underscore");
 
 var Data = require('./data.js');
 
