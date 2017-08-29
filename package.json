@@ -24,6 +24,7 @@
     "nodemon": "^1.11.0"
   },
   "dependencies": {
-    "express": "^4.15.4"
+    "express": "^4.15.4",
+    "underscore": "^1.8.3"
   }
 }
