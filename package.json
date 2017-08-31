@@ -4,8 +4,8 @@
   "description": "API for My Visa Angel",
   "main": ".mongorc.js",
   "scripts": {
-    "start": "NODE_ENV=dev node server.js",
-    "test": "mocha --timeout 10000"
+    "start": "NODE_ENV=dev node src/server.js",
+    "test": "mocha --timeout 10000 src/tests"
   },
   "repository": {
     "type": "git",
