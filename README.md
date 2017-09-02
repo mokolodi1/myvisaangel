@@ -70,6 +70,9 @@ npm start
 Use the following commands to test the API:
 
 ```
+# Make sure the dependancies have installed correctly
+npm install
+
 # Run the test suite
 npm test
 ```
