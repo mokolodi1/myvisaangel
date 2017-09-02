@@ -76,6 +76,8 @@ app.route('/v1/aps_conditions').get(function (request, response) {
 Figure out whether the user is eligible for an APS
 */
 app.route('/v1/eligible_for_aps').get(function(request, response) {
+  console.log("Asked whether eligible for APS:", request.query);
+
   var currentTDS = request.query.currentTDS;
   var nationality = request.query.nationality;
   var diploma = request.query.diploma;
