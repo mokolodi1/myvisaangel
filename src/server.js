@@ -110,7 +110,7 @@ app.route('/v1/eligible_for_aps').get(function(request, response) {
     response.json({
       "messages": [
         {
-          "text": "Attention, ton pays a un accord spécial avec la " +
+          "text": "Attention ⚠️, ton pays a un accord spécial avec la " +
               "France qui change les choses suivantes pour l'APS :\n" +
               changesToNormalAPS,
         },
