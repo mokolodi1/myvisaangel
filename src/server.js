@@ -114,13 +114,13 @@ app.route('/v1/eligible_for_aps').get(function(request, response) {
               "France qui change les choses suivantes pour l'APS :\n" +
               changesToNormalAPS,
         },
-        {
-          "attachment": {
-            "type": "show_block",
-            "block_name": "APS",
-            "title": "WTF"
-          }
-        }
+        // {
+        //   "attachment": {
+        //     "type": "show_block",
+        //     "block_name": "APS",
+        //     "title": "WTF"
+        //   }
+        // }
       ]
     });
   } else {
