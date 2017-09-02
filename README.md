@@ -104,10 +104,21 @@ Once connected to the AWS box, go to the shell that isn't currently running the 
 
 ### Setting up a new box
 
+Work in progress!
+
+Add port 80 (HTTP) to the inbound rules for the security group.
+
+Run these commands after connecting to your new AWS box.
+
 ```sh
-# Install node and npm
+# Install node, npm, tmux
 # TODO: unclear if we need both nodejs and nodejs-legacy
-sudo apt-get install -y nodejs nodejs-legacy npm
+sudo apt-get update
+sudo apt-get install -y nodejs nodejs-legacy npm tmux
+
+# Install Teo's tmux conf file
+git clone https://github.com/mokolodi1/dotfiles
+cp dotfiles/tilde_tmux.conf .tmux.conf
 
 # Grab the code from GitHub and go into the code's folder
 git clone https://github.com/mokolodi1/myvisaangel
@@ -119,6 +130,9 @@ tmux
 
 # Do C-b " to split the tmux window into two.
 # (Hold control and press B, then press ")
+
+# Install dependancies
+npm install --no-optional
 
 # Start it up!
 sudo PORT=80 npm start
