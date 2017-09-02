@@ -24,10 +24,10 @@ describe('My Visa Bot API', () => {
     it('it should return { hello: "world" }', (done) => {
       chai.request(server)
         .get('/v1/helloworld')
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.body.should.be.a('object');
-          res.body.should.have.property('hello').eql('world');
+        .end((err, response) => {
+          response.should.have.status(200);
+          response.body.should.be.a('object');
+          response.body.should.have.property('hello').eql('world');
 
           done();
       });
@@ -38,8 +38,8 @@ describe('My Visa Bot API', () => {
     it('it should not work if the parameters are wrong', (done) => {
       chai.request(server)
         .get('/v1/calculate_sum')
-        .end((err, res) => {
-          res.should.have.status(400);
+        .end((err, response) => {
+          response.should.have.status(400);
           done();
       });
     });
@@ -47,10 +47,10 @@ describe('My Visa Bot API', () => {
     it('should calculate the sum correctly', (done) => {
       chai.request(server)
         .get('/v1/calculate_sum?first=1000&second=4000')
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.body.should.be.a('object');
-          res.body.should.have.property('result').eql(5000);
+        .end((err, response) => {
+          response.should.have.status(200);
+          response.body.should.be.a('object');
+          response.body.should.have.property('result').eql(5000);
           done();
       });
     });
@@ -58,10 +58,10 @@ describe('My Visa Bot API', () => {
     it('should deal with negative numbers', (done) => {
       chai.request(server)
         .get('/v1/calculate_sum?first=-1000&second=4000')
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.body.should.be.a('object');
-          res.body.should.have.property('result').eql(3000);
+        .end((err, response) => {
+          response.should.have.status(200);
+          response.body.should.be.a('object');
+          response.body.should.have.property('result').eql(3000);
           done();
       });
     });
@@ -71,8 +71,8 @@ describe('My Visa Bot API', () => {
     it('should not work if the parameters are wrong', (done) => {
       chai.request(server)
         .get('/v1/aps_conditions')
-        .end((err, res) => {
-          res.should.have.status(400);
+        .end((err, response) => {
+          response.should.have.status(400);
           done();
       });
     });
@@ -80,10 +80,10 @@ describe('My Visa Bot API', () => {
     it('should work for Algeria', (done) => {
       chai.request(server)
         .get('/v1/aps_conditions?pays=Algérie')
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.body.should.be.a('object');
-          res.body.should.be.deep.eql({
+        .end((err, response) => {
+          response.should.have.status(200);
+          response.body.should.be.a('object');
+          response.body.should.be.deep.eql({
             applicable: false
           });
 
@@ -94,10 +94,10 @@ describe('My Visa Bot API', () => {
     it('should work for an EEE country (Italie)', (done) => {
       chai.request(server)
         .get('/v1/aps_conditions?pays=Italie')
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.body.should.be.a('object');
-          res.body.should.be.deep.eql({
+        .end((err, response) => {
+          response.should.have.status(200);
+          response.body.should.be.a('object');
+          response.body.should.be.deep.eql({
             applicable: false
           });
 
@@ -108,10 +108,10 @@ describe('My Visa Bot API', () => {
     it('should work for an non-EEE country (USA)', (done) => {
       chai.request(server)
         .get('/v1/aps_conditions?pays=Etats-Unis')
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.body.should.be.a('object');
-          res.body.should.be.deep.eql({
+        .end((err, response) => {
+          response.should.have.status(200);
+          response.body.should.be.a('object');
+          response.body.should.be.deep.eql({
             applicable: true,
             accord_special: false,
             condition_de_diplome: Data.apsAgreements.masters,
@@ -126,10 +126,10 @@ describe('My Visa Bot API', () => {
     it('should work for a special country (Burkina Faso)', (done) => {
       chai.request(server)
         .get('/v1/aps_conditions?pays=Burkina Faso')
-        .end((err, res) => {
-          res.should.have.status(200);
-          res.body.should.be.a('object');
-          res.body.should.be.deep.eql({
+        .end((err, response) => {
+          response.should.have.status(200);
+          response.body.should.be.a('object');
+          response.body.should.be.deep.eql({
             applicable: true,
             accord_special: true,
             condition_de_diplome: Data.apsAgreements.mastersLicenseProNotFrance,
@@ -142,4 +142,79 @@ describe('My Visa Bot API', () => {
       });
     });
   });
+
+  describe('/GET /v1/eligible_for_aps', () => {
+    it('should return not eligible for Algerians', (done) => {
+      chai.request(server)
+        .get('/v1/eligible_for_aps?nationality=Algérienne')
+        .end((err, response) => {
+          response.should.have.status(200);
+          response.body.should.be.deep.eql({
+            "type": "show_block",
+            "block_name": "No recommendation",
+            "title": "WTF"
+          });
+
+          done();
+      });
+    });
+
+    it("should return eligible for countries with a Special Agreement " +
+        "(only condition_de_duree qui change)", (done) => {
+      chai.request(server)
+        .get('/v1/eligible_for_aps?nationality=Congo')
+        .end((err, response) => {
+          response.should.have.status(200);
+          response.body.should.be.deep.eql({
+            "messages": [
+              {
+                "text": "Attention, ton pays a un accord spécial avec la " +
+                    "France qui change les choses suivantes pour l'APS :\n" +
+                    "Condition de durée : 9 mois a la place de 12\n"
+                    // TODO: we'll pretend we don't need to specify what
+                    // kind of diploma they need
+              },
+              {
+                "attachment": {
+                  "type": "show_block",
+                  "block_name": "APS",
+                  "title": "WTF"
+                }
+              }
+            ]
+          });
+
+          done();
+      });
+    });
+
+    it("should return eligible for countries with a Special Agreement " +
+        "(condition_de_duree et renouvellement qui changent)", (done) => {
+      chai.request(server)
+        .get('/v1/eligible_for_aps?nationality=Gabon')
+        .end((err, response) => {
+          response.should.have.status(200);
+          response.body.should.be.deep.eql({
+            "messages": [
+              {
+                "text": "Attention, ton pays a un accord spécial avec la " +
+                    "France qui change les choses suivantes pour l'APS :\n" +
+                    "Condition de durée : 9 mois a la place de 12\n" +
+                    "Renouvellement : renouvelable une fois\n"
+              },
+              {
+                "attachment": {
+                  "type": "show_block",
+                  "block_name": "APS",
+                  "title": "WTF"
+                }
+              }
+            ]
+          });
+
+          done();
+      });
+    });
+  })
+
 });
