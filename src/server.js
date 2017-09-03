@@ -83,7 +83,7 @@ app.route('/v1/eligible_for_aps').get(function(request, response) {
   var diploma = request.query.diploma;
   var employmentSituation = request.query.employmentSituation;
 
-  // TODO: error handling for variables not being defined
+  // TODO: error handling for variables (such as nationality) not being defined
 
   var apsSpecialInfo = Data.apsSpecialCountries[nationality];
 
@@ -129,7 +129,64 @@ app.route('/v1/eligible_for_aps').get(function(request, response) {
     });
   }
 
+  /*
+  Figure out whether the user is eligible for a Vie Privée et Familiale
+  */
+  app.route('/v1/eligible_for_vpf').get(function(request, response) {
+    console.log("Asked whether eligible for VPF:", request.query);
 
+    var familySituation = request.query.familySituation;
+
+    // TODO: error handling for variables not being defined
+
+    var vpfFamilySituation = Data.vpfFamilySituation[familySituation];
+
+    if (vpfFamilySituation) {
+      response.json({
+        "type": "show_block",
+        "block_name": "Vie privée et familiale",
+        "title": "WTF"
+      });
+    } else {
+      response.json({
+        hello: "world"
+      });
+    }
+
+    /*
+    Figure out whether the user is eligible for a Passeport Talent salarié qualifié
+    */
+    app.route('/v1/eligible_for_ptsq').get(function(request, response) {
+      console.log("Asked whether eligible for PT salarié qualifié:", request.query);
+
+      var nationality = request.query.nationality;
+      var diploma = request.query.diploma;
+      var employmentSituation = request.query.employmentSituation;
+      var salary = request.query.salary;
+
+      // TODO: error handling for variables not being defined
+
+      var ptsqDiploma = Data.ptsqDiploma[diploma];
+      var ptsqEmploymentSituation = Data.ptsqEmploymentSituation[employmentSituation];
+      var ptsqSalary = Data.ptsqSalary[salary];
+
+      if (nationality === "Algérienne") {
+        response.json({
+          "type": "show_block",
+          "block_name": "No recommendation",
+          "title": "WTF"
+        });
+      } else if (ptsqDiploma && ptsqEmploymentSituation && ptsqSalary) {
+        response.json({
+          "type": "show_block",
+          "block_name": "Passeport Talent Salarié Qualifié",
+          "title": "WTF"
+        });
+      } else {
+        response.json({
+          hello: "world"
+        });
+      }
 
 
   // else if (currentTDS === "Étudiant" &&

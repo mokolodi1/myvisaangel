@@ -36,7 +36,7 @@ module.exports.eeeCountries = [
   "Norvège",
 ];
 
-// See here for original data:
+// APS See here for original data:
 // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
 var apsAgreements = {
   masters: "Diplôme au moins équivalent au master obtenu dans un établissement français",
@@ -214,3 +214,20 @@ module.exports.apsSpecialCountries = {
     renouvellement_count: 1,
   },
 };
+
+// VPF See here for original data:
+// https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
+var vpfFamilySituation = {
+  pacsed: "Pacsé à un français",
+  married: "Marié à un français",
+  withKids: "Avec enfant français",
+};
+module.exports.vpfFamilySituation = vpfFamilySituation
+
+// PTSQ See here for original data:
+// https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
+var ptsqDiploma = {
+  master: "Master",
+  masterEquivalent: "Équivalent au Master",
+};
+module.exports.ptsqDiploma = ptsqDiploma
