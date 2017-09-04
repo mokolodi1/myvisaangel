@@ -86,6 +86,8 @@ app.route('/v1/eligible_for_aps').get(function(request, response) {
   // TODO: error handling for variables (such as nationality) not being defined
 
   var apsSpecialInfo = Data.apsSpecialCountries[nationality];
+  var apsCurrentTDS = Data.apsCurrentTDS[currentTDS];
+  var apsDiploma = Data.apsDiploma[diploma];
 
   if (nationality === "Algérienne") {
     response.json({
@@ -98,19 +100,23 @@ app.route('/v1/eligible_for_aps').get(function(request, response) {
 
     if (apsSpecialInfo.condition_de_duree !== 12) {
       changesToNormalAPS += "Condition de durée : " +
-          apsSpecialInfo.condition_de_duree + " mois a la place de 12\n";
+          apsSpecialInfo.condition_de_duree + " mois à la place de 12\n";
     }
 
-    if (apsSpecialInfo.renouvellement) {
+    if (apsSpecialInfo.renouvellement === true) {
       changesToNormalAPS += "Renouvellement : renouvelable une fois\n";
     }
 
-    // TODO: special agreement diploma requirements
+// TODO: special agreement diploma requirements
 
+    if (apsSpecialInfo.condition_de_diplome) {
+      changesToNormalAPS += "Condition de diplôme : " +
+           apsSpecialInfo.condition_de_diplome +".\n"
+    }
     response.json({
       "messages": [
         {
-          "text": "Attention ⚠️, ton pays a un accord spécial avec la " +
+          "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
               "France qui change les choses suivantes pour l'APS :\n" +
               changesToNormalAPS,
         },
@@ -122,6 +128,12 @@ app.route('/v1/eligible_for_aps').get(function(request, response) {
         //   }
         // }
       ]
+    });
+  } else if (apsCurrentTDS && apsDiploma) {
+    response.json({
+      "type": "show_block",
+      "block_name": "APS",
+      "title": "WTF"
     });
   } else {
     response.json({
@@ -187,6 +199,69 @@ app.route('/v1/eligible_for_aps').get(function(request, response) {
           hello: "world"
         });
       }
+
+      /*
+      Figure out whether the user is eligible for a Titre de séjour salarié
+      */
+      app.route('/v1/eligible_for_salarie').get(function(request, response) {
+        console.log("Asked whether eligible for salarie:", request.query);
+
+        var employmentSituation = request.query.employmentSituation;
+        var salary = request.query.salary;
+
+        // TODO: error handling for variables not being defined
+
+        var salarieEmploymentSituation = Data.salarieEmploymentSituation[employmentSituation];
+        var salarieSalary = Data.salarieSalary[salary];
+
+        if (nationality === "Algérienne") {
+          response.json({
+            "type": "show_block",
+            "block_name": "No recommendation",
+            "title": "WTF"
+          });
+        } else if (salarieEmploymentSituation && salarieSalary) {
+          response.json({
+            "type": "show_block",
+            "block_name": "Salarié/TT",
+            "title": "WTF"
+          });
+        } else {
+          response.json({
+            hello: "world"
+          });
+        }
+
+        /*
+        Figure out whether the user is eligible for a Titre de séjour commerçant
+        */
+        app.route('/v1/eligible_for_commerçant').get(function(request, response) {
+          console.log("Asked whether eligible for commerçant:", request.query);
+
+          var employmentSituation = request.query.employmentSituation;
+
+          // TODO: error handling for variables not being defined
+
+          var commerçantEmploymentSituation = Data.commerçantEmploymentSituation[employmentSituation];
+
+          if (nationality === "Algérienne") {
+            response.json({
+              "type": "show_block",
+              "block_name": "No recommendation",
+              "title": "WTF"
+            });
+          } else if (commerçantEmploymentSituation) {
+            response.json({
+              "type": "show_block",
+              "block_name": "Commerçant",
+              "title": "WTF"
+            });
+          } else {
+            response.json({
+              hello: "world"
+            });
+          }
+
 
 
   // else if (currentTDS === "Étudiant" &&

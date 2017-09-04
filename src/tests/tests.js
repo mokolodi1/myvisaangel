@@ -143,6 +143,8 @@ describe('My Visa Bot API', () => {
     });
   });
 
+  // Tests for APS
+
   describe('/GET /v1/eligible_for_aps', () => {
     it('should return not eligible for Algerians', (done) => {
       chai.request(server)
@@ -170,7 +172,7 @@ describe('My Visa Bot API', () => {
               {
                 "text": "Attention, ton pays a un accord spécial avec la " +
                     "France qui change les choses suivantes pour l'APS :\n" +
-                    "Condition de durée : 9 mois a la place de 12\n"
+                    "Condition de durée : 9 mois à la place de 12\n"
                     // TODO: we'll pretend we don't need to specify what
                     // kind of diploma they need
               },
@@ -197,9 +199,9 @@ describe('My Visa Bot API', () => {
           response.body.should.be.deep.eql({
             "messages": [
               {
-                "text": "Attention, ton pays a un accord spécial avec la " +
+                "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
                     "France qui change les choses suivantes pour l'APS :\n" +
-                    "Condition de durée : 9 mois a la place de 12\n" +
+                    "Condition de durée : 9 mois à la place de 12\n" +
                     "Renouvellement : renouvelable une fois\n"
               },
               {
@@ -214,7 +216,181 @@ describe('My Visa Bot API', () => {
 
           done();
       });
+      it('should return eligible for Colombians', (done) => {
+        chai.request(server)
+          .get('/v1/eligible_for_aps?nationality=Colombienne')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql({
+              "type": "show_block",
+              "block_name": "APS",
+              "title": "WTF"
+            });
+
+            done();
+        });
+      });
     });
   })
 
+// Tests for Vie Privée et familiale
+describe('/GET /v1/eligible_for_vpf', () => {
+  it('should return eligible for Pacsed people', (done) => {
+    chai.request(server)
+      .get('/v1/eligible_for_vpf?familySituation=Pacsé à un français')
+      .end((err, response) => {
+        response.should.have.status(200);
+        response.body.should.be.deep.eql({
+          "type": "show_block",
+          "block_name": "Vie privée et familiale",
+          "title": "WTF"
+        });
+
+        done();
+    });
+  });
+  // I don't know what it should return, it should simply continue looking for a match
+  it('should return not eligible for single people', (done) => {
+    chai.request(server)
+      .get('/v1/eligible_for_vpf?familySituation=Célibataire')
+      .end((err, response) => {
+        response.should.have.status(200);
+        response.body.should.be.deep.eql({
+          //"type": "show_block",
+          //"block_name": "Vie privée et familiale",
+          //"title": "WTF"
+        });
+
+        done();
+    });
+  });
 });
+
+//TODO: review all this tests, they are incomplete
+// Tests for Passeport Talent Salarié Qualifié
+describe('/GET /v1/eligible_for_ptsq', () => {
+  it('should return eligible for Master, CDI, >35526,4€ (2x SMIC) people', (done) => {
+    chai.request(server)
+      .get('/v1/eligible_for_ptsq?diploma=')
+      .end((err, response) => {
+        response.should.have.status(200);
+        response.body.should.be.deep.eql({
+          "type": "show_block",
+          "block_name": "Passeport Talent",
+          "title": "WTF"
+        });
+
+        done();
+    });
+  });
+  // I don't know what it should return, it should simply continue looking for a match
+  it('should return not eligible for Master, CDI, >35526,4€ (2x SMIC) people', (done) => {
+    chai.request(server)
+      .get('/v1/eligible_for_ptsq?diploma=')
+      .end((err, response) => {
+        response.should.have.status(200);
+        response.body.should.be.deep.eql({
+          //"type": "show_block",
+          //"block_name": "Vie privée et familiale",
+          //"title": "WTF"
+        });
+
+        done();
+    });
+  });
+
+  // Tests for Salarié in CDI
+  describe('/GET /v1/eligible_for_salarie', () => {
+    it('should return eligible for CDI, >26645€ (1,5x SMIC) people', (done) => {
+      chai.request(server)
+        .get('/v1/eligible_for_salarie?employmentSituation=CDI')
+        .end((err, response) => {
+          response.should.have.status(200);
+          response.body.should.be.deep.eql({
+            "type": "show_block",
+            "block_name": "Salarié/TT",
+            "title": "WTF"
+          });
+
+          done();
+      });
+    });
+    // I don't know what it should return, it should simply continue looking for a match
+    it('should return not eligible for Entrepreneur', (done) => {
+      chai.request(server)
+        .get('/v1/eligible_for_salarie?employmentSituation=Entrepreneur')
+        .end((err, response) => {
+          response.should.have.status(200);
+          response.body.should.be.deep.eql({
+            //"type": "show_block",
+            //"block_name": "Vie privée et familiale",
+            //"title": "WTF"
+          });
+
+          done();
+      });
+    });
+
+    // Tests for Salarié in CDD
+    describe('/GET /v1/eligible_for_salarie', () => {
+      it('should return eligible for CDD, >26645€ (1,5x SMIC) people', (done) => {
+        chai.request(server)
+          .get('/v1/eligible_for_salarie?employmentSituation=CDD')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql({
+              "type": "show_block",
+              "block_name": "Salarié/TT",
+              "title": "WTF"
+            });
+
+            done();
+        });
+      });
+      // I don't know what it should return, it should simply continue looking for a match
+      it('should return not eligible for CDD, >17764,2€ (1 SMIC) people', (done) => {
+        chai.request(server)
+          .get('/v1/eligible_for_ptsq?familySituation=Célibataire')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql({
+              //"type": "show_block",
+              //"block_name": "Vie privée et familiale",
+              //"title": "WTF"
+            });
+
+            done();
+        });
+      });
+
+      // Tests for Commerçant
+      describe('/GET /v1/eligible_for_commerçant', () => {
+        it('should return eligible for Entrepreneur', (done) => {
+          chai.request(server)
+            .get('/v1/eligible_for_commerçant?employmentSituation=Entrepreneur')
+            .end((err, response) => {
+              response.should.have.status(200);
+              response.body.should.be.deep.eql({
+                "type": "show_block",
+                "block_name": "Salarié/TT",
+                "title": "WTF"
+              });
+
+              done();
+          });
+        });
+        // I don't know what it should return, it should simply continue looking for a match
+        it('should return not eligible for I dont know', (done) => {
+          chai.request(server)
+            .get('/v1/eligible_for_commerçant?employmentSituation=Je ne sais pas')
+            .end((err, response) => {
+              response.should.have.status(200);
+              response.body.should.be.deep.eql({
+                //"type": "show_block",
+                //"block_name": "Vie privée et familiale",
+                //"title": "WTF"
+              });
+
+              done();
+          });
+        });
