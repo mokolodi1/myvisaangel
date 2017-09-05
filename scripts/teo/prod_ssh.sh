@@ -1,2 +1,2 @@
 #!/bin/bash
-ssh -i ~/work/important-files/myvisaangel-prod.pem ubuntu@api.myvisaangel.com
+ssh -i ~/work/important-files/paola-my-visa-angel-prod.pem ubuntu@api.myvisaangel.com
