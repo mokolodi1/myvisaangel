@@ -119,11 +119,11 @@ app.route('/v1/eligible_for_aps').get(function(request, response) {
           "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
               "France qui change les choses suivantes pour l'APS :\n" +
               changesToNormalAPS,
-        },
-        {
+        }
+      ],
           "redirect_to_blocks": ["APS"]
         }
-      ]
+      
     });
   } else if (apsCurrentTDS && apsDiploma) {
     response.json({

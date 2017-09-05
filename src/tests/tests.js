@@ -203,15 +203,10 @@ describe('My Visa Bot API', () => {
                     "France qui change les choses suivantes pour l'APS :\n" +
                     "Condition de durée : 9 mois à la place de 12\n" +
                     "Renouvellement : renouvelable une fois\n"
-              },
-              {
-                "attachment": {
-                  "type": "show_block",
-                  "block_name": "APS",
-                  "title": "WTF"
-                }
               }
-            ]
+              ],
+              { "redirect_to_blocks": ["APS"]
+            }
           });
 
           done();
