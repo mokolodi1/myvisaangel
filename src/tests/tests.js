@@ -152,9 +152,7 @@ describe('My Visa Bot API', () => {
         .end((err, response) => {
           response.should.have.status(200);
           response.body.should.be.deep.eql({
-            "type": "show_block",
-            "block_name": "No recommendation",
-            "title": "WTF"
+            "redirect_to_blocks": [ "No recommendation" ]
           });
 
           done();
@@ -170,20 +168,14 @@ describe('My Visa Bot API', () => {
           response.body.should.be.deep.eql({
             "messages": [
               {
-                "text": "Attention, ton pays a un accord spécial avec la " +
+                "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
                     "France qui change les choses suivantes pour l'APS :\n" +
-                    "Condition de durée : 9 mois à la place de 12\n"
-                    // TODO: we'll pretend we don't need to specify what
-                    // kind of diploma they need
+                    "Condition de durée : 9 mois à la place de 12\n" +
+                    "Condition de diplôme : Diplôme au moins équivalent " +
+                    "au master obtenu dans un établissement français.\n"
               },
-              {
-                "attachment": {
-                  "type": "show_block",
-                  "block_name": "APS",
-                  "title": "WTF"
-                }
-              }
-            ]
+            ],
+            "redirect_to_blocks": ["APS"]
           });
 
           done();
@@ -202,7 +194,10 @@ describe('My Visa Bot API', () => {
                 "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
                     "France qui change les choses suivantes pour l'APS :\n" +
                     "Condition de durée : 9 mois à la place de 12\n" +
-                    "Renouvellement : renouvelable une fois\n"
+                    "Renouvellement : renouvelable une fois\n" +
+                    "Condition de diplôme : Licence professionnelle ou " +
+                    "diplôme au moins équivalent au master obtenus dans un " +
+                    "établissement français.\n"
               }
             ],
             "redirect_to_blocks": ["APS"]
