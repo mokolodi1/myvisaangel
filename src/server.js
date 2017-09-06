@@ -91,7 +91,7 @@ app.route('/v1/eligible_for_aps').get(function(request, response) {
 
   if (nationality === "Algérienne") {
     response.json({
-        "redirect_to_blocks": ["No recommendation"]
+        "redirect_to_blocks": {"No recommendation"}
     });
   } else if (apsSpecialInfo && apsSpecialInfo.applicable) {
     var changesToNormalAPS = "";
