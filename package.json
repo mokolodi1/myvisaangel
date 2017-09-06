@@ -5,7 +5,9 @@
   "main": ".mongorc.js",
   "scripts": {
     "start": "NODE_ENV=dev node src/server.js",
-    "test": "mocha --timeout 10000 src/tests"
+    "test": "mocha --timeout 3000 src/tests",
+    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha src/tests",
+    "hello": "echo hi"
   },
   "repository": {
     "type": "git",
@@ -18,12 +20,15 @@
   },
   "homepage": "https://github.com/mokolodi1/myvisaangel#readme",
   "devDependencies": {
-    "chai": "^4.1.1",
+    "chai": "^4.1.2",
     "chai-http": "^3.0.0",
+    "isparta": "^4.0.0",
+    "istanbul": "^0.4.5",
     "mocha": "^3.5.0",
     "nodemon": "^1.11.0"
   },
   "dependencies": {
+    "babel-cli": "^6.26.0",
     "express": "^4.15.4",
     "underscore": "^1.8.3"
   }

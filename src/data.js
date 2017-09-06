@@ -36,8 +36,20 @@ module.exports.eeeCountries = [
   "Norvège",
 ];
 
-// See here for original data:
+// APS See here for original data:
 // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
+var apsDiploma = {
+  licencePro: "Licence pro",
+  master: "Master",
+  masterEquivalent: "Équivalent au Master",
+};
+module.exports.apsDiploma = apsDiploma
+
+var apsCurrentTDS = {
+  student: "Étudiant",
+};
+module.exports.apsCurrentTDS = apsCurrentTDS
+
 var apsAgreements = {
   masters: "Diplôme au moins équivalent au master obtenu dans un établissement français",
   mastersOrLicensePro: "Licence professionnelle ou diplôme au moins équivalent au master obtenus dans un établissement français",
@@ -214,3 +226,51 @@ module.exports.apsSpecialCountries = {
     renouvellement_count: 1,
   },
 };
+
+// VPF See here for original data:
+// https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
+var vpfFamilySituation = {
+  pacsed: "Pacsé à un français",
+  married: "Marié à un français",
+  withKids: "Avec enfant français",
+};
+module.exports.vpfFamilySituation = vpfFamilySituation
+
+// Passeport Talent Salarié Qualifié See here for original data:
+// https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
+var ptsqDiploma = {
+  master: "Master",
+  masterEquivalent: "Équivalent au Master",
+};
+module.exports.ptsqDiploma = ptsqDiploma
+
+var ptsqEmploymentSituation = {
+  cdi: "CDI"
+};
+module.exports.ptsqEmploymentSituation = ptsqEmploymentSituation
+
+var ptsqSalary = {
+  "smicx2": ">35526,4€ (2x SMIC)",
+  "smicx3": ">53289,6€ (3x SMIC)",
+};
+module.exports.ptsqSalary = ptsqSalary
+
+// Salarié See here for original data:
+// https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
+var salarieEmploymentSituation = {
+  cdi: "CDI",
+  cdd: "CDD",
+};
+module.exports.salarieEmploymentSituation = salarieEmploymentSituation
+
+var salarieSalary = {
+  "smicx1,5": ">26645€ (1,5x SMIC)",
+};
+module.exports.salarieSalary = salarieSalary
+
+// Commerçant See here for original data:
+// https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
+var commerçantEmploymentSituation = {
+  entrepreneur: "Entrepreneur",
+};
+module.exports.commerçantEmploymentSituation = commerçantEmploymentSituation
