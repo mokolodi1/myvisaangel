@@ -250,8 +250,8 @@ var ptsqEmploymentSituation = {
 module.exports.ptsqEmploymentSituation = ptsqEmploymentSituation
 
 var ptsqSalary = {
-  smicx2: ">35526,4€ (2x SMIC)"
-  smicx3: ">53289,6€ (3x SMIC)"
+  "smicx2": ">35526,4€ (2x SMIC)",
+  "smicx3": ">53289,6€ (3x SMIC)",
 };
 module.exports.ptsqSalary = ptsqSalary
 
@@ -264,7 +264,7 @@ var salarieEmploymentSituation = {
 module.exports.salarieEmploymentSituation = salarieEmploymentSituation
 
 var salarieSalary = {
-  smicx1,5: ">26645€ (1,5x SMIC)",
+  "smicx1,5": ">26645€ (1,5x SMIC)",
 };
 module.exports.salarieSalary = salarieSalary
 
