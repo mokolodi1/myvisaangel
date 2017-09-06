@@ -91,9 +91,7 @@ app.route('/v1/eligible_for_aps').get(function(request, response) {
 
   if (nationality === "Algérienne") {
     response.json({
-      "type": "show_block",
-      "block_name": "No recommendation",
-      "title": "WTF"
+        "redirect_to_blocks": ["No recommendation"]
     });
   } else if (apsSpecialInfo && apsSpecialInfo.applicable) {
     var changesToNormalAPS = "";
@@ -119,11 +117,10 @@ app.route('/v1/eligible_for_aps').get(function(request, response) {
           "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
               "France qui change les choses suivantes pour l'APS :\n" +
               changesToNormalAPS,
-        }
-      ],
+        }],
+        {
           "redirect_to_blocks": ["APS"]
         }
-      
     });
   } else if (apsCurrentTDS && apsDiploma) {
     response.json({
