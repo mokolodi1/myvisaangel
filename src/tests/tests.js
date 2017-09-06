@@ -205,19 +205,23 @@ describe('My Visa Bot API', () => {
 
           done();
       });
-      it('should return eligible for Colombians', (done) => {
-        chai.request(server)
-          .get('/v1/eligible_for_aps?nationality=Colombienne')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.deep.eql({
-              "type": "show_block",
-              "block_name": "APS",
-              "title": "WTF"
-            });
+    });
 
-            done();
-        });
+    console.log("about to run");
+    it('should return eligible for Colombians', (done) => {
+      console.log("requeseting");
+      chai.request(server)
+        .get('/v1/eligible_for_aps?nationality=Colombienne')
+        .end((err, response) => {
+          console.log("I'm here");
+          response.should.have.status(200);
+          response.body.should.be.deep.eql({
+            "type": "show_block",
+            "block_name": "APS",
+            "title": "WTF"
+          });
+
+          done();
       });
     });
   });

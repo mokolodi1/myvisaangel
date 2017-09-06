@@ -105,8 +105,6 @@ app.route('/v1/eligible_for_aps').get(function(request, response) {
       changesToNormalAPS += "Renouvellement : renouvelable une fois\n";
     }
 
-    // TODO: special agreement diploma requirements
-
     if (apsSpecialInfo.condition_de_diplome) {
       changesToNormalAPS += "Condition de diplôme : " +
            apsSpecialInfo.condition_de_diplome +".\n"
@@ -128,7 +126,6 @@ app.route('/v1/eligible_for_aps').get(function(request, response) {
       "title": "WTF"
     });
   } else {
-    // TODO: what should happen here?
     response.status(200);
     response.send("Don't know what to do here");
   }
