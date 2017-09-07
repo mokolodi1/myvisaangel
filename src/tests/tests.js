@@ -216,16 +216,12 @@ describe('My Visa Bot API', () => {
           console.log("I'm here");
           response.should.have.status(200);
           response.body.should.be.deep.eql({
-            "type": "show_block",
-            "block_name": "APS",
-            "title": "WTF"
+            "redirect_to_blocks": ["APS"]
           });
 
           done();
       });
     });
-  });
-});
 
 // // Tests for Vie Privée et familiale
 // describe('/GET /v1/eligible_for_vpf', () => {

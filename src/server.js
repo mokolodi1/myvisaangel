@@ -121,140 +121,108 @@ app.route('/v1/eligible_for_aps').get(function(request, response) {
     });
   } else if (apsCurrentTDS && apsDiploma) {
     response.json({
-      "type": "show_block",
-      "block_name": "APS",
-      "title": "WTF"
+      "redirect_to_blocks": ["APS"]
     });
   } else {
-    response.status(200);
-    response.send("Don't know what to do here");
+    response.json({
+      "redirect_to_blocks": ["JSON VPF analysis"]
+    });
   }
-});
 
-// /*
+
 // Figure out whether the user is eligible for a Vie Privée et Familiale
-// */
-// app.route('/v1/eligible_for_vpf').get(function(request, response) {
-//   console.log("Asked whether eligible for VPF:", request.query);
-//
-//   var familySituation = request.query.familySituation;
-//
-//   // TODO: error handling for variables not being defined
-//
-//   var vpfFamilySituation = Data.vpfFamilySituation[familySituation];
-//
-//   if (vpfFamilySituation) {
-//     response.json({
-//       "type": "show_block",
-//       "block_name": "Vie privée et familiale",
-//       "title": "WTF"
-//     });
-//   } else {
-//     response.json({
-//       hello: "world"
-//     });
-//   }
-// });
-//
-// /*
+
+app.route('/v1/eligible_for_vpf').get(function(request, response) {
+  console.log("Asked whether eligible for VPF:", request.query);
+
+  var familySituation = request.query.familySituation;
+
+   // TODO: error handling for variables not being defined
+
+  var vpfFamilySituation = Data.vpfFamilySituation[familySituation];
+
+  if (vpfFamilySituation) {
+   response.json({
+     "redirect_to_blocks": ["Vie privée et familiale"]
+   });
+  } else {
+   response.json({
+     "redirect_to_blocks": ["JSON PTSQ analysis"]
+   });
+ }
+
 // Figure out whether the user is eligible for a Passeport Talent salarié qualifié
-// */
-// app.route('/v1/eligible_for_ptsq').get(function(request, response) {
-//   console.log("Asked whether eligible for PT salarié qualifié:", request.query);
-//
-//   var nationality = request.query.nationality;
-//   var diploma = request.query.diploma;
-//   var employmentSituation = request.query.employmentSituation;
-//   var salary = request.query.salary;
-//
-//   // TODO: error handling for variables not being defined
-//
-//   var ptsqDiploma = Data.ptsqDiploma[diploma];
-//   var ptsqEmploymentSituation = Data.ptsqEmploymentSituation[employmentSituation];
-//   var ptsqSalary = Data.ptsqSalary[salary];
-//
-//   if (nationality === "Algérienne") {
-//     response.json({
-//       "type": "show_block",
-//       "block_name": "No recommendation",
-//       "title": "WTF"
-//     });
-//   } else if (ptsqDiploma && ptsqEmploymentSituation && ptsqSalary) {
-//     response.json({
-//       "type": "show_block",
-//       "block_name": "Passeport Talent Salarié Qualifié",
-//       "title": "WTF"
-//     });
-//   } else {
-//     response.json({
-//       hello: "world"
-//     });
-//   }
-// });
-//
-// /*
+app.route('/v1/eligible_for_ptsq').get(function(request, response) {
+  console.log("Asked whether eligible for PT salarié qualifié:", request.query);
+
+  var nationality = request.query.nationality;
+  var diploma = request.query.diploma;
+  var employmentSituation = request.query.employmentSituation;
+  var salary = request.query.salary;
+
+   // TODO: error handling for variables not being defined
+
+  var ptsqDiploma = Data.ptsqDiploma[diploma];
+  var ptsqEmploymentSituation = Data.ptsqEmploymentSituation[employmentSituation];
+  var ptsqSalary = Data.ptsqSalary[salary];
+
+  if (nationality === "Algérienne") {
+    response.json({
+      "redirect_to_blocks": [ "No recommendation" ]
+    });
+  } else if (ptsqDiploma && ptsqEmploymentSituation && ptsqSalary) {
+    response.json({
+      "redirect_to_blocks": [ "Passeport Talent Salarié Qualifié" ]
+    });
+  } else {
+    response.json({
+      "redirect_to_blocks": ["JSON salarie analysis"]
+    });
+  }
+
+
 // Figure out whether the user is eligible for a Titre de séjour salarié
-// */
-// app.route('/v1/eligible_for_salarie').get(function(request, response) {
-//   console.log("Asked whether eligible for salarie:", request.query);
-//
-//   var employmentSituation = request.query.employmentSituation;
-//   var salary = request.query.salary;
-//
-//   // TODO: error handling for variables not being defined
-//
-//   var salarieEmploymentSituation = Data.salarieEmploymentSituation[employmentSituation];
-//   var salarieSalary = Data.salarieSalary[salary];
-//
-//   if (nationality === "Algérienne") {
-//     response.json({
-//       "type": "show_block",
-//       "block_name": "No recommendation",
-//       "title": "WTF"
-//     });
-//   } else if (salarieEmploymentSituation && salarieSalary) {
-//     response.json({
-//       "type": "show_block",
-//       "block_name": "Salarié/TT",
-//       "title": "WTF"
-//     });
-//   } else {
-//     response.json({
-//       hello: "world"
-//     });
-//   }
-// });
-//
-// /*
+app.route('/v1/eligible_for_salarie').get(function(request, response) {
+  console.log("Asked whether eligible for salarie:", request.query);
+
+  var employmentSituation = request.query.employmentSituation;
+  var salary = request.query.salary;
+
+  // TODO: error handling for variables not being defined
+
+  var salarieEmploymentSituation = Data.salarieEmploymentSituation[employmentSituation];
+  var salarieSalary = Data.salarieSalary[salary];
+
+  if (salarieEmploymentSituation && salarieSalary) {
+    response.json({
+      "redirect_to_blocks": [ "Salarié/TT" ]
+    });
+  } else {
+    response.json({
+      "redirect_to_blocks": ["JSON salarie analysis"]
+    });
+  }
+
+
 // Figure out whether the user is eligible for a Titre de séjour commerçant
-// */
-// app.route('/v1/eligible_for_commerçant').get(function(request, response) {
-//   console.log("Asked whether eligible for commerçant:", request.query);
-//
-//   var employmentSituation = request.query.employmentSituation;
-//
-//   // TODO: error handling for variables not being defined
-//
-//   var commerçantEmploymentSituation = Data.commerçantEmploymentSituation[employmentSituation];
-//
-//   if (nationality === "Algérienne") {
-//     response.json({
-//       "type": "show_block",
-//       "block_name": "No recommendation",
-//       "title": "WTF"
-//     });
-//   } else if (commerçantEmploymentSituation) {
-//     response.json({
-//       "type": "show_block",
-//       "block_name": "Commerçant",
-//       "title": "WTF"
-//     });
-//   } else {
-//     response.json({
-//       hello: "world"
-//     });
-//   }
-// });
+app.route('/v1/eligible_for_commerçant').get(function(request, response) {
+  console.log("Asked whether eligible for commerçant:", request.query);
+
+  var employmentSituation = request.query.employmentSituation;
+
+   // TODO: error handling for variables not being defined
+
+  var commerçantEmploymentSituation = Data.commerçantEmploymentSituation[employmentSituation];
+
+  if (commerçantEmploymentSituation) {
+    response.json({
+      "redirect_to_blocks": ["Commerçant"]
+    });
+  } else {
+    response.json({
+      "redirect_to_blocks": ["No recommendation"]
+    });
+  }
 
 
 
