@@ -75,6 +75,9 @@ npm install
 
 # Run the test suite
 npm test
+
+# Checking test coverage
+npm run coverage
 ```
 
 ## AWS box
