@@ -125,7 +125,7 @@ describe('My Visa Bot API', () => {
 
     it('should work for a special country (Burkina Faso)', (done) => {
       chai.request(server)
-        .get('/v1/aps_conditions?pays=Burkina Faso')
+        .get('/v1/aps_conditions?pays=Burkina Faso&currentTDS=Étudiant&diploma=Master')
         .end((err, response) => {
           response.should.have.status(200);
           response.body.should.be.a('object');
@@ -211,7 +211,7 @@ describe('My Visa Bot API', () => {
     it('should return eligible for Colombians', (done) => {
       console.log("requeseting");
       chai.request(server)
-        .get('/v1/eligible_for_aps?nationality=Colombienne')
+        .get('/v1/eligible_for_aps?nationality=Colombienne&')
         .end((err, response) => {
           console.log("I'm here");
           response.should.have.status(200);
@@ -222,73 +222,69 @@ describe('My Visa Bot API', () => {
           done();
       });
     });
+  });
 
-// // Tests for Vie Privée et familiale
-// describe('/GET /v1/eligible_for_vpf', () => {
-//   it('should return eligible for Pacsed people', (done) => {
-//     chai.request(server)
-//       .get('/v1/eligible_for_vpf?familySituation=Pacsé à un français')
-//       .end((err, response) => {
-//         response.should.have.status(200);
-//         response.body.should.be.deep.eql({
-//           "type": "show_block",
-//           "block_name": "Vie privée et familiale",
-//           "title": "WTF"
-//         });
-//
-//         done();
-//     });
-//   });
-//   // I don't know what it should return, it should simply continue looking for a match
-//   it('should return not eligible for single people', (done) => {
-//     chai.request(server)
-//       .get('/v1/eligible_for_vpf?familySituation=Célibataire')
-//       .end((err, response) => {
-//         response.should.have.status(200);
-//         response.body.should.be.deep.eql({
-//           //"type": "show_block",
-//           //"block_name": "Vie privée et familiale",
-//           //"title": "WTF"
-//         });
-//
-//         done();
-//     });
-//   });
-// });
-//
-// //TODO: review all this tests, they are incomplete
-// // Tests for Passeport Talent Salarié Qualifié
-// describe('/GET /v1/eligible_for_ptsq', () => {
-//   it('should return eligible for Master, CDI, >35526,4€ (2x SMIC) people', (done) => {
-//     chai.request(server)
-//       .get('/v1/eligible_for_ptsq?diploma=')
-//       .end((err, response) => {
-//         response.should.have.status(200);
-//         response.body.should.be.deep.eql({
-//           "type": "show_block",
-//           "block_name": "Passeport Talent",
-//           "title": "WTF"
-//         });
-//
-//         done();
-//     });
-//   });
-//   // I don't know what it should return, it should simply continue looking for a match
-//   it('should return not eligible for Master, CDI, >35526,4€ (2x SMIC) people', (done) => {
-//     chai.request(server)
-//       .get('/v1/eligible_for_ptsq?diploma=')
-//       .end((err, response) => {
-//         response.should.have.status(200);
-//         response.body.should.be.deep.eql({
-//           //"type": "show_block",
-//           //"block_name": "Vie privée et familiale",
-//           //"title": "WTF"
-//         });
-//
-//         done();
-//     });
-//   });
-// });
+// Tests for Vie Privée et familiale
+ describe('/GET /v1/eligible_for_vpf', () => {
+  it('should return eligible for Pacsed people', (done) => {
+    chai.request(server)
+      .get('/v1/eligible_for_vpf?familySituation=Pacsé à un français')
+      .end((err, response) => {
+        response.should.have.status(200);
+         response.body.should.be.deep.eql({
+           "redirect_to_blocks": ["Vie privée et familiale"]
+         });
+
+         done();
+     });
+   });
+ });
+
+// It should simply continue looking for a match
+   it('should return not eligible for single people', (done) => {
+     chai.request(server)
+       .get('/v1/eligible_for_vpf?familySituation=Célibataire')
+       .end((err, response) => {
+         response.should.have.status(200);
+         response.body.should.be.deep.eql({
+           "redirect_to_blocks": ["JSON PTSQ analysis"]
+         });
+
+         done();
+     });
+   });
+ });
+
+ //TODO: review all this tests, they are incomplete
+ // Tests for Passeport Talent Salarié Qualifié
+ describe('/GET /v1/eligible_for_ptsq', () => {
+   it('should return eligible for Master, CDI, >35526,4€ (2x SMIC) people', (done) => {
+     chai.request(server)
+       .get('/v1/eligible_for_ptsq?diploma=Master')
+       .end((err, response) => {
+         response.should.have.status(200);
+         response.body.should.be.deep.eql({
+           "redirect_to_blocks": [ "Passeport Talent Salarié Qualifié" ]
+         });
+
+         done();
+     });
+   });
+
+   // It should simply continue looking for a match
+   it('should return not eligible for Equivalent au Master, CDI, >26645€ (1,5x SMIC) people', (done) => {
+     chai.request(server)
+       .get('/v1/eligible_for_ptsq?diploma=Master&')
+       .end((err, response) => {
+         response.should.have.status(200);
+         response.body.should.be.deep.eql({
+           "redirect_to_blocks": [ "JSON salarie analysis" ]
+         });
+
+         done();
+     });
+   });
+ });
 
 // // Tests for Salarié in CDI
 // describe('/GET /v1/eligible_for_salarie', () => {
