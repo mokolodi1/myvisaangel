@@ -16,7 +16,7 @@ function aps(query) {
 
   var apsSpecialInfo = data.apsSpecialCountries[nationality];
 
-  if (nationality === "Algérienne") {
+  if (nationality === "algeria") {
     return;
   }
 
@@ -72,7 +72,7 @@ function ptsq(query) {
     nationality, diploma, employmentSituation, smicMultiplier
   } = query;
 
-  if (nationality !== "Algérienne" &&
+  if (nationality !== "algeria" &&
       _.contains(["masters", "masters_equiv"], diploma) &&
       employmentSituation === "cdi" &&
       smicMultiplier >= 2) {
