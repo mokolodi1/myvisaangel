@@ -249,15 +249,32 @@ describe('My Visa Bot API', () => {
   });
 
   describe("Make sure the API works...", () => {
-    // test the hello route
     describe('/GET /v1/ping', () => {
-      it('it should return { pong: "It works!" }', (done) => {
+      it('should return { pong: "It works!" }', (done) => {
         chai.request(server)
           .get('/v1/ping')
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.have.property('pong').eql('It works!');
+
+            done();
+        });
+      });
+    });
+
+    describe('/GET /v1/parse_nationality', () => {
+      it('should work for usa', (done) => {
+        chai.request(server)
+          .get('/v1/parse_nationality?nationality=usa')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                "parsed_nationality": "usa"
+              }
+            });
 
             done();
         });

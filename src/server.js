@@ -2,11 +2,14 @@
 
 var _ = require("underscore");
 var express = require("express");
+var Fuse = require("fuse.js");
+
 var app = express();
 var port = process.env.PORT || 3000;
 
 var visaTypes = require("./visaTypes.js");
 var utilities = require("./utilities.js");
+var data = require("./data.js");
 
 app.route('/v1/ping').get(function(request, response) {
   response.json({
@@ -15,7 +18,7 @@ app.route('/v1/ping').get(function(request, response) {
 });
 
 /*
-Figure out whether the user is eligible for visas
+Figure out which visas the user is eligible for
 */
 app.route('/v1/get_visas').get(function(request, response) {
   let cleanedQuery = Utilities.cleanVisaQuery(request.query)
@@ -46,6 +49,35 @@ app.route('/v1/get_visas').get(function(request, response) {
   }
 
   response.json(result)
+});
+
+/*
+** Transform their nationality to standardized lower-case English
+*/
+// declare this here so it's done once and kept in memory
+var countriesFuse = new Fuse(data.countries, {
+  shouldSort: true,
+  threshold: 0.6,
+  location: 0,
+  distance: 100,
+  maxPatternLength: 32,
+  minMatchCharLength: 2,
+  keys: [
+    "french",
+    "english",
+    "alternatives"
+  ]
+});
+app.route('/v1/parse_nationality').get(function(request, response) {
+  let results = countriesFuse.search(request.query.nationality)
+
+  // TODO: what could possibly go wrong??
+
+  response.json({
+    set_attributes: {
+      "parsed_nationality": results[0].english
+    }
+  });
 });
 
 var server = app.listen(port);

@@ -58,7 +58,6 @@ function aps(query) {
 // vie privée et familiale
 // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
 function vpf(query) {
-  console.log("query.familySituation:", query.familySituation);
   if (_.contains(["married", "frenchKids", "pacsed"], query.familySituation)) {
     return {
       "redirect_to_blocks": [ "Vie privée et familiale" ]

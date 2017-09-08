@@ -1,7 +1,7 @@
 // Change things like "CDD" to "cdd", >17764,2€ (1 SMIC)" to smicx1"
 function cleanVisaQuery(query) {
   let {
-    salary, employmentSituation, diploma, familySituation
+    salary, employmentSituation, diploma, familySituation, currentTDS
   } = request.query;
 
   // deal with the salary
@@ -40,7 +40,7 @@ function cleanVisaQuery(query) {
   }[currentTDS];
 
   _.extend(request.query, {
-    smicMultiplier, employmentSituation, diploma, familySituation
+    smicMultiplier, employmentSituation, diploma, familySituation, currentTDS
   });
 }
 
