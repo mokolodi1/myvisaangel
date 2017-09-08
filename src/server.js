@@ -96,7 +96,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
     let quick_replies = _.map(results.slice(0, 5), (result) => {
       return {
         title: result.item.french,
-        block_name: "Nationality",
+        // block_name: "Nationality",
         // url: "http://api.myvisaangel.com/v1/parse_nationality",
         // type: "json_plugin_url"
       };
@@ -112,7 +112,8 @@ app.route('/v1/parse_nationality').get(function(request, response) {
           "text":  "De quel pays est-ce que tu parles ?",
           quick_replies,
         }
-      ]
+      ],
+      redirect_to_blocks: [ "Nationality" ],
     });
   } else {
     let messages = [
