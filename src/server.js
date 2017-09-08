@@ -130,13 +130,14 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       });
     }
 
-    console.log("response:", response);
-    response.json({
+    let tryAgain = {
       messages,
       redirect_to_blocks: [
         "Nationality"
       ]
-    });
+    };
+    console.log("Try again:", tryAgain);
+    response.json(tryAgain);
   }
 });
 
