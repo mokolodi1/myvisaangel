@@ -453,7 +453,7 @@ module.exports.countries = [
   { slug: "ukraine", english: "Ukraine", country_code: "ua", french: "Ukraine" },
   { slug: "uganda", english: "Uganda", country_code: "ug", french: "Ouganda" },
   { slug: "united_states_minor_outlying_islands", english: "United States Minor Outlying Islands", country_code: "um", french: "Îles mineures éloignées des États-Unis" },
-  { slug: "united_states_of_america", english: "United States of America", country_code: "us", french: "États-Unis" },
+  { slug: "usa", english: "United States of America", country_code: "us", french: "États-Unis", alternatives: ["USA", "US", "United States", "America", "American"] },
   { slug: "uruguay", english: "Uruguay", country_code: "uy", french: "Uruguay" },
   { slug: "uzbekistan", english: "Uzbekistan", country_code: "uz", french: "Ouzbékistan" },
   { slug: "holy_see", english: "Holy See", country_code: "va", french: "Saint-Siège (État de la Cité du Vatican)" },

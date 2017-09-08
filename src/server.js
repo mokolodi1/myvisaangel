@@ -75,7 +75,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
 
   response.json({
     set_attributes: {
-      "parsed_nationality": results[0].english
+      "parsed_nationality": results[0].slug
     }
   });
 });
