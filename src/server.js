@@ -96,8 +96,9 @@ app.route('/v1/parse_nationality').get(function(request, response) {
     let quick_replies = _.map(results.slice(0, 5), (result) => {
       return {
         title: result.item.french,
-        url: "http://api.myvisaangel.com/v1/parse_nationality",
-        type: "json_plugin_url"
+        block_name: "Nationality",
+        // url: "http://api.myvisaangel.com/v1/parse_nationality",
+        // type: "json_plugin_url"
       };
     });
 

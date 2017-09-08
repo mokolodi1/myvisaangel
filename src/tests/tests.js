@@ -329,9 +329,9 @@ describe('My Visa Bot API', () => {
         });
       });
 
-      it('should work for Mexicana', (done) => {
+      it('should work for Mexique', (done) => {
         chai.request(server)
-          .get('/v1/parse_nationality?nationality=Mexicana')
+          .get('/v1/parse_nationality?nationality=Mexique')
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
