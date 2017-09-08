@@ -101,6 +101,9 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       };
     });
 
+    let countryOptions = _.pluck(quick_replies, "title").join(", ");
+    console.log("Result country options:", countryOptions);
+
     response.json({
       "messages": [
         {
@@ -125,6 +128,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       });
     }
 
+    console.log("response:", response);
     response.json({
       messages,
       redirect_to_blocks: [
