@@ -77,6 +77,7 @@ var countriesFuse = new Fuse(data.countries, {
   ]
 });
 app.route('/v1/parse_nationality').get(function(request, response) {
+  console.log("request:", request);
   console.log("Parse nationality:", request.originalUrl);
 
   let { nationality } = request.query;
@@ -96,9 +97,8 @@ app.route('/v1/parse_nationality').get(function(request, response) {
     let quick_replies = _.map(results.slice(0, 5), (result) => {
       return {
         title: result.item.french,
-        // block_name: "Nationality",
-        // url: "http://api.myvisaangel.com/v1/parse_nationality",
-        // type: "json_plugin_url"
+        url: "http://api.myvisaangel.com/v1/parse_nationality",
+        type: "json_plugin_url"
       };
     });
 
