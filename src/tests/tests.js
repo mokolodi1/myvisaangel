@@ -263,6 +263,27 @@ describe('My Visa Bot API', () => {
       });
     });
 
+    describe('/GET /v1/get_visas', () => {
+      it('should work: US, CDI, 2xSMIC, student, masters, single', (done) => {
+        chai.request(server)
+          .get('/v1/get_visas?nationality=usa&currentTDS=Étudiant&diploma=Master&employmentSituation=CDI&familySituation=Célibataire&salary=>35526,4€%20(2x%20SMIC)')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: [
+                'APS',
+                'Passeport Talent Salarié Qualifié',
+                'Salarié/TT'
+              ]
+            })
+
+            done();
+        });
+      });
+    });
+
     describe('/GET /v1/parse_nationality', () => {
       it('should work for usa', (done) => {
         chai.request(server)

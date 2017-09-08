@@ -21,34 +21,40 @@ app.route('/v1/ping').get(function(request, response) {
 Figure out which visas the user is eligible for
 */
 app.route('/v1/get_visas').get(function(request, response) {
-  let cleanedQuery = Utilities.cleanVisaQuery(request.query)
-  console.log("Eligible for visas:", cleanedQuery);
+  console.log("Eligible for visas:", request.query);
+  utilities.cleanVisaQuery(request.query)
 
   var result = {
     messages: [],
     redirect_to_blocks: [],
   }
 
-  _.each(visaTypes, (getVisaInfo) => {
-    let visaInfo = getVisaInfo(cleanedQuery);
+  _.each(visaTypes, (getVisaInfo, visaType) => {
+    let visaInfo = getVisaInfo(request.query);
 
     if (visaInfo) {
       if (Array.isArray(visaInfo.messages)) {
         result.messages = result.concat(visaInfo.messages);
       }
 
-      if (Array.isArray(visaInfo.messages)) {
-        result.redirect_to_blocks = result.concat(visaInfo.redirect_to_blocks);
+      if (Array.isArray(visaInfo.redirect_to_blocks)) {
+        result.redirect_to_blocks =
+            result.redirect_to_blocks.concat(visaInfo.redirect_to_blocks);
       }
     }
   });
 
-  if (redirect_to_blocks.length === 0) {
-    delete result.redirect_to_blocks
-    result.messages.push("You're not eligible for any visas.")
+  if (result.redirect_to_blocks.length === 0) {
+    delete result.redirect_to_blocks;
+    result.messages.push("You're not eligible for any visas.");
   }
 
-  response.json(result)
+  if (result.messages.length === 0) {
+    delete result.messages;
+  }
+
+  console.log("result:", result);
+  response.json(result);
 });
 
 /*
