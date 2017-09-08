@@ -282,6 +282,34 @@ describe('My Visa Bot API', () => {
             done();
         });
       });
+
+      it('should work: tunisia, Étudiant, Licence pro, Je ne sais pas, Célibataire, 1.5x SMIC', (done) => {
+        chai.request(server)
+          .get("/v1/get_visas?nationality=tunisia&currentTDS=%C3%89tudiant&diploma=Licence+pro&employmentSituation=Je+ne+sais+pas&familySituation=C%C3%A9libataire&salary=%3E26645%E2%82%AC+%281%2C5x+SMIC%29")
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "⚠️ Attention, ton pays a un accord spécial avec la " +
+                  "France qui change les choses suivantes pour l\'APS :\n" +
+                  "Condition de durée : 6 mois à la place de 12\n" +
+                  "Renouvellement : renouvelable une fois\n" +
+                  "Condition de diplôme : Licence professionnelle ou " +
+                  "diplôme au moins équivalent au master obtenus dans un " +
+                  "établissement français ou dans un établissement du pays " +
+                  "d\'origine dans le cadre d\'une convention de délivrance " +
+                  "de diplômes en partenariat international.\n"
+                }
+              ],
+              redirect_to_blocks: [ 'APS' ]
+            })
+
+            done();
+        });
+      });
     });
 
     describe('/GET /v1/parse_nationality', () => {

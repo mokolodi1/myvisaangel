@@ -23,8 +23,8 @@ function cleanVisaQuery(query) {
   }[employmentSituation];
 
   diploma = {
-    "License classique": "license_classique",
-    "License pro": "license_pro",
+    "Licence classique": "license_classique",
+    "Licence pro": "license_pro",
     "Master": "masters",
     "Équivalent au Master": "masters_equiv",
   }[diploma];

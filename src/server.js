@@ -23,7 +23,7 @@ Figure out which visas the user is eligible for
 app.route('/v1/get_visas').get(function(request, response) {
   console.log("Get visas:", request.originalUrl);
   utilities.cleanVisaQuery(request.query)
-  console.log("Eligible for visas:", request.query);
+  console.log("Cleaned query:", request.query);
 
   var result = {
     messages: [],
@@ -35,7 +35,7 @@ app.route('/v1/get_visas').get(function(request, response) {
 
     if (visaInfo) {
       if (Array.isArray(visaInfo.messages)) {
-        result.messages = result.concat(visaInfo.messages);
+        result.messages = result.messages.concat(visaInfo.messages);
       }
 
       if (Array.isArray(visaInfo.redirect_to_blocks)) {
@@ -46,15 +46,15 @@ app.route('/v1/get_visas').get(function(request, response) {
   });
 
   if (result.redirect_to_blocks.length === 0) {
-    delete result.redirect_to_blocks;
-    result.messages.push("You're not eligible for any visas.");
+    // TODO: Paola -- feel free to change this text
+    result.redirect_to_blocks.push("No recommendation")
   }
 
   if (result.messages.length === 0) {
     delete result.messages;
   }
 
-  console.log("result:", result);
+  console.log("Result:", result);
   response.json(result);
 });
 
@@ -81,7 +81,6 @@ app.route('/v1/parse_nationality').get(function(request, response) {
 
   let { nationality } = request.query;
   let results = countriesFuse.search(nationality);
-  console.log("results.slice(0, 5):", results.slice(0, 5));
 
   // if the first result isn't great then give them options
   let bestResult = results[0];
