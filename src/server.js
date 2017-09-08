@@ -77,12 +77,16 @@ var countriesFuse = new Fuse(data.countries, {
 });
 app.route('/v1/parse_nationality').get(function(request, response) {
   let results = countriesFuse.search(request.query.nationality)
+  let parsed_nationality = results[0].slug
 
   // TODO: what could possibly go wrong??
 
+  console.log("request.originalUrl:", request.originalUrl);
+  console.log("parsed_nationality:", parsed_nationality);
+
   response.json({
     set_attributes: {
-      "parsed_nationality": results[0].slug
+      parsed_nationality
     }
   });
 });
