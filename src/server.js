@@ -21,8 +21,9 @@ app.route('/v1/ping').get(function(request, response) {
 Figure out which visas the user is eligible for
 */
 app.route('/v1/get_visas').get(function(request, response) {
-  console.log("Eligible for visas:", request.query);
+  console.log("request.originalUrl:", request.originalUrl);
   utilities.cleanVisaQuery(request.query)
+  console.log("Eligible for visas:", request.query);
 
   var result = {
     messages: [],

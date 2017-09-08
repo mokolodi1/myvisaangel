@@ -9,11 +9,11 @@ function cleanVisaQuery(query) {
   } = query;
 
   let smicMultiplier = {
-    ">17764,2¬ (1 SMIC)": 1,
-    ">26645¬ (1,5x SMIC)": 1.5,
-    ">35526,4¬ (2x SMIC)": 2,
-    ">53289,6¬ (3x SMIC)": 3,
-  }[salary];
+    ">17764": 1,
+    ">26645": 1.5,
+    ">35526": 2,
+    ">53289": 3,
+  }[salary.slice(0, ">53289".length)];
 
   employmentSituation = {
     "CDI": "cdi",
