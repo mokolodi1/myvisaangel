@@ -77,7 +77,6 @@ var countriesFuse = new Fuse(data.countries, {
   ]
 });
 app.route('/v1/parse_nationality').get(function(request, response) {
-  console.log("request:", request);
   console.log("Parse nationality:", request.originalUrl);
 
   let { nationality } = request.query;
