@@ -134,6 +134,10 @@ tmux
 # Do C-b " to split the tmux window into two.
 # (Hold control and press B, then press ")
 
+# Install the right version of node (so we can use es6)
+sudo npm install -g n
+sudo n 8.4.0 # might be latest instead of that number
+
 # Install dependancies
 npm install --no-optional
 

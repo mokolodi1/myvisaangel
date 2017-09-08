@@ -4,10 +4,10 @@
   "description": "API for My Visa Angel",
   "main": ".mongorc.js",
   "scripts": {
+    "prod": "PORT=80 /usr/local/n/versions/node/8.4.0/bin/node src/server.js",
     "start": "NODE_ENV=dev node src/server.js",
     "test": "mocha --timeout 3000 src/tests",
-    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha src/tests",
-    "hello": "echo hi"
+    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha src/tests"
   },
   "repository": {
     "type": "git",
@@ -30,6 +30,7 @@
   "dependencies": {
     "babel-cli": "^6.26.0",
     "express": "^4.15.4",
+    "fuse.js": "^3.1.0",
     "underscore": "^1.8.3"
   }
 }
