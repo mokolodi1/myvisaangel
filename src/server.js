@@ -85,11 +85,12 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   // if the first result isn't great then give them options
   let bestResult = results[0];
   if (bestResult && bestResult.score < .25) {
+    nationality = bestResult.item.slug;
     console.log("nationality:", nationality);
 
     response.json({
       set_attributes: {
-        nationality: bestResult.item.slug
+        nationality
       }
     });
   } else if (bestResult && bestResult.score < .4) {
