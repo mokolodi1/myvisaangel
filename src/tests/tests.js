@@ -293,7 +293,23 @@ describe('My Visa Bot API', () => {
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
               set_attributes: {
-                "parsed_nationality": "usa"
+                nationality: "usa"
+              }
+            });
+
+            done();
+        });
+      });
+
+      it('should work for Mexicana', (done) => {
+        chai.request(server)
+          .get('/v1/parse_nationality?nationality=Mexicana')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                nationality: "mexico"
               }
             });
 

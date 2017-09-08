@@ -21,7 +21,7 @@ app.route('/v1/ping').get(function(request, response) {
 Figure out which visas the user is eligible for
 */
 app.route('/v1/get_visas').get(function(request, response) {
-  console.log("request.originalUrl:", request.originalUrl);
+  console.log("Get visas:", request.originalUrl);
   utilities.cleanVisaQuery(request.query)
   console.log("Eligible for visas:", request.query);
 
@@ -65,6 +65,7 @@ app.route('/v1/get_visas').get(function(request, response) {
 var countriesFuse = new Fuse(data.countries, {
   shouldSort: true,
   threshold: 0.6,
+  includeScore: true,
   location: 0,
   distance: 100,
   maxPatternLength: 32,
@@ -76,19 +77,62 @@ var countriesFuse = new Fuse(data.countries, {
   ]
 });
 app.route('/v1/parse_nationality').get(function(request, response) {
-  let results = countriesFuse.search(request.query.nationality)
-  let nationality = results[0].slug
+  console.log("Parse nationality:", request.originalUrl);
 
-  // TODO: what could possibly go wrong??
+  let { nationality } = request.query;
+  let results = countriesFuse.search(nationality);
+  console.log("results.slice(0, 5):", results.slice(0, 5));
 
-  console.log("request.originalUrl:", request.originalUrl);
-  console.log("nationality:", nationality);
+  // if the first result isn't great then give them options
+  let bestResult = results[0];
+  if (bestResult.score < .25) {
+    console.log("nationality:", nationality);
 
-  response.json({
-    set_attributes: {
-      nationality
+    response.json({
+      set_attributes: {
+        nationality: bestResult.item.slug
+      }
+    });
+  } else if (bestResult.score < .4) {
+    let quick_replies = _.map(results.slice(0, 5), (result) => {
+      return {
+        title: result.item.french,
+        url: "http://api.myvisaangel.com/v1/parse_nationality",
+        type: "json_plugin_url"
+      };
+    });
+
+    response.json({
+      "messages": [
+        {
+          // TODO: Paola -- feel free to change this text
+          "text":  "De quel pays est-ce que tu parles ?",
+          quick_replies,
+        }
+      ]
+    });
+  } else {
+    let messages = [
+      {
+        // TODO: Paola -- feel free to change this text
+        text: "Je n'arrive pas à comprendre 😔. Essaye encore s'il te plait."
+      }
+    ];
+
+    // if they put a space tell them to just put the country
+    if (_.contains(nationality, " ")) {
+      messages.push({
+        text: "Essaye d'envoyer seulment le nom du pays"
+      });
     }
-  });
+
+    response.json({
+      messages,
+      redirect_to_blocks: [
+        "Nationality"
+      ]
+    });
+  }
 });
 
 var server = app.listen(port);
