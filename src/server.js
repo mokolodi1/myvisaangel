@@ -96,6 +96,9 @@ app.route('/v1/parse_nationality').get(function(request, response) {
     let quick_replies = _.map(results.slice(0, 5), (result) => {
       return {
         title: result.item.french,
+        set_attributes: {
+          nationality: result.item.slug,
+        },
       };
     });
 
