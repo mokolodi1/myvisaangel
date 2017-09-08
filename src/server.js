@@ -92,7 +92,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
         nationality: bestResult.item.slug
       }
     });
-  } else if (bestResult.score < .4) {
+  } else if (bestResult && bestResult.score < .4) {
     let quick_replies = _.map(results.slice(0, 5), (result) => {
       return {
         title: result.item.french,
