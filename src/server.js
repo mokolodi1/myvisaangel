@@ -84,7 +84,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
 
   // if the first result isn't great then give them options
   let bestResult = results[0];
-  if (bestResult.score < .25) {
+  if (bestResult && bestResult.score < .25) {
     console.log("nationality:", nationality);
 
     response.json({
