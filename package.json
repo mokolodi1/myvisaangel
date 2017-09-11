@@ -7,7 +7,7 @@
     "prod": "PORT=80 /usr/local/n/versions/node/8.4.0/bin/node src/server.js",
     "start": "NODE_ENV=dev node src/server.js",
     "test": "mocha --timeout 3000 src/tests",
-    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec src/tests && codecov"
+    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha src/tests"
   },
   "repository": {
     "type": "git",
