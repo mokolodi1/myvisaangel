@@ -102,6 +102,10 @@ app.route('/v1/parse_nationality').get(function(request, response) {
         },
       };
     });
+    quick_replies.push({
+      title: "Autre",
+      redirect_to_blocks: [ "Nationality" ]
+    });
 
     let countryOptions = _.pluck(quick_replies, "title").join(", ");
     console.log("Result country options:", countryOptions);
@@ -113,7 +117,6 @@ app.route('/v1/parse_nationality').get(function(request, response) {
           quick_replies,
         }
       ],
-      redirect_to_blocks: [ "Nationality" ],
     });
   } else {
     let messages = [
