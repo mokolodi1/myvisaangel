@@ -106,9 +106,10 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       };
     });
     quick_replies.push({
-      title: "Autre",
-      redirect_to_blocks: [ "Nationality" ]
-    });
+              "type": "show_block",
+              "block_name": "Nationality",
+              "title": "Show Block"
+            },);
 
     let countryOptions = _.pluck(quick_replies, "title").join(", ");
     console.log("Result country options:", countryOptions);
