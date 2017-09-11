@@ -5,6 +5,7 @@ let chai = require('chai');
 let chaiHttp = require('chai-http');
 let server = require('../server');
 let should = chai.should();
+var qs = require('qs');
 
 var visaTypes = require("../visaTypes.js");
 
@@ -34,10 +35,12 @@ describe('My Visa Bot API', () => {
         done();
       });
 
-      it("should return eligible for countries with a Special Agreement " +
-          "(only condition_de_duree qui change)", (done) => {
+      it("should return eligible with Special Agreement " +
+          "(condition_de_duree et condition_de_diplome qui changent)", (done) => {
         let result = visaTypes.aps({
-          nationality: "congo"
+          nationality: "congo",
+          currentTDS: "student",
+          diploma: "licence_pro",
         });
 
         result.should.be.deep.eql({
@@ -56,10 +59,12 @@ describe('My Visa Bot API', () => {
         done();
       });
 
-      it("should return eligible for countries with a Special Agreement " +
-          "(condition_de_duree et renouvellement qui changent)", (done) => {
+      it("should return eligible with Special Agreement " +
+          "(condition_de_duree, condition_de_diplome et renouvellement qui changent)", (done) => {
         let result = visaTypes.aps({
-          nationality: "gabon"
+          nationality: "gabon",
+          currentTDS: "student",
+          diploma: "licence_pro",
         });
 
         result.should.be.deep.eql({
@@ -84,7 +89,7 @@ describe('My Visa Bot API', () => {
         let result = visaTypes.aps({
           nationality: "colombia",
           currentTDS: "student",
-          diploma: "license_pro",
+          diploma: "licence_pro",
         });
 
         result.should.be.deep.eql({
@@ -134,7 +139,6 @@ describe('My Visa Bot API', () => {
         done();
       });
 
-      // It should simply continue looking for a match
       it('should return not eligible for Equivalent au Master, CDI, >26645€ (1,5x SMIC) people', (done) => {
         let result = visaTypes.ptsq({
           diploma: "masters",
@@ -148,105 +152,56 @@ describe('My Visa Bot API', () => {
       });
     });
 
-    // // Tests for Salarié in CDI
-    // describe('/GET /v1/eligible_for_salarie', () => {
-    //   it('should return eligible for CDI, >26645€ (1,5x SMIC) people', (done) => {
-    //     chai.request(server)
-    //       .get('/v1/eligible_for_salarie?employmentSituation=CDI')
-    //       .end((err, response) => {
-    //         response.should.have.status(200);
-    //         response.body.should.be.deep.eql({
-    //           "type": "show_block",
-    //           "block_name": "Salarié/TT",
-    //           "title": "WTF"
-    //         });
-    //
-    //         done();
-    //     });
-    //   });
-    //   // I don't know what it should return, it should simply continue looking for a match
-    //   it('should return not eligible for Entrepreneur', (done) => {
-    //     chai.request(server)
-    //       .get('/v1/eligible_for_salarie?employmentSituation=Entrepreneur')
-    //       .end((err, response) => {
-    //         response.should.have.status(200);
-    //         response.body.should.be.deep.eql({
-    //           //"type": "show_block",
-    //           //"block_name": "Vie privée et familiale",
-    //           //"title": "WTF"
-    //         });
-    //
-    //         done();
-    //     });
-    //   });
-    // });
-    //
-    // // Tests for Salarié in CDD
-    // describe('/GET /v1/eligible_for_salarie', () => {
-    //   it('should return eligible for CDD, >26645€ (1,5x SMIC) people', (done) => {
-    //     chai.request(server)
-    //       .get('/v1/eligible_for_salarie?employmentSituation=CDD')
-    //       .end((err, response) => {
-    //         response.should.have.status(200);
-    //         response.body.should.be.deep.eql({
-    //           "type": "show_block",
-    //           "block_name": "Salarié/TT",
-    //           "title": "WTF"
-    //         });
-    //
-    //         done();
-    //     });
-    //   });
-    //   // I don't know what it should return, it should simply continue looking for a match
-    //   it('should return not eligible for CDD, >17764,2€ (1 SMIC) people', (done) => {
-    //     chai.request(server)
-    //       .get('/v1/eligible_for_ptsq?familySituation=Célibataire')
-    //       .end((err, response) => {
-    //         response.should.have.status(200);
-    //         response.body.should.be.deep.eql({
-    //           //"type": "show_block",
-    //           //"block_name": "Vie privée et familiale",
-    //           //"title": "WTF"
-    //         });
-    //
-    //         done();
-    //     });
-    //   });
-    // });
-    //
-    // // Tests for Commerçant
-    // describe('/GET /v1/eligible_for_commerçant', () => {
-    //   it('should return eligible for Entrepreneur', (done) => {
-    //     chai.request(server)
-    //       .get('/v1/eligible_for_commerçant?employmentSituation=Entrepreneur')
-    //       .end((err, response) => {
-    //         response.should.have.status(200);
-    //         response.body.should.be.deep.eql({
-    //           "type": "show_block",
-    //           "block_name": "Salarié/TT",
-    //           "title": "WTF"
-    //         });
-    //
-    //         done();
-    //     });
-    //   });
-    //   // I don't know what it should return, it should simply continue looking for a match
-    //   it('should return not eligible for I dont know', (done) => {
-    //     chai.request(server)
-    //       .get('/v1/eligible_for_commerçant?employmentSituation=Je ne sais pas')
-    //       .end((err, response) => {
-    //         response.should.have.status(200);
-    //         response.body.should.be.deep.eql({
-    //           //"type": "show_block",
-    //           //"block_name": "Vie privée et familiale",
-    //           //"title": "WTF"
-    //         });
-    //
-    //         done();
-    //     });
-    //   });
-    // });
+    describe('Salarié visa', () => {
+      it('should return eligible for CDI', (done) => {
+        let result = visaTypes.salarie({
+          employmentSituation: "cdi",
+          smicMultiplier: 1.5,
+        });
+
+        result.should.be.deep.eql({
+          "redirect_to_blocks": [ "Salarié/TT" ]
+        })
+
+        done();
+      });
+
+      it('should return not eligible for Entrepreneur', (done) => {
+        let result = visaTypes.salarie({
+          employmentSituation: "doesnt_know"
+        });
+
+        should.equal(result, undefined);
+
+        done();
+      });
+    });
+
+    describe('Commercant visa', () => {
+      it('should return eligible for entrepreneur', (done) => {
+        let result = visaTypes.commercant({
+          employmentSituation: "entrepreneur"
+        });
+
+        result.should.be.deep.eql({
+          "redirect_to_blocks": [ "Commerçant" ]
+        })
+
+        done();
+      });
+
+      it('should return not eligible for CDD', (done) => {
+        let result = visaTypes.commercant({
+          employmentSituation: "cdd"
+        });
+
+        should.equal(result, undefined);
+
+        done();
+      });
+    });
   });
+
 
   describe("Make sure the API works...", () => {
     describe('/GET /v1/ping', () => {
@@ -266,7 +221,14 @@ describe('My Visa Bot API', () => {
     describe('/GET /v1/get_visas', () => {
       it('should work: US, CDI, 2xSMIC, student, masters, single', (done) => {
         chai.request(server)
-          .get('/v1/get_visas?nationality=usa&currentTDS=Étudiant&diploma=Master&employmentSituation=CDI&familySituation=Célibataire&salary=>35526,4€%20(2x%20SMIC)')
+          .get('/v1/get_visas?' + qs.stringify({
+            nationality: "usa",
+            currentTDS: "Étudiant",
+            diploma: "Master",
+            employmentSituation: "CDI",
+            familySituation: "Célibataire",
+            salary: ">35526,4€ (2x SMIC)",
+          }))
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
@@ -277,7 +239,7 @@ describe('My Visa Bot API', () => {
                 'Passeport Talent Salarié Qualifié',
                 'Salarié/TT'
               ]
-            })
+            });
 
             done();
         });
@@ -285,7 +247,14 @@ describe('My Visa Bot API', () => {
 
       it('should work: tunisia, Étudiant, Licence pro, Je ne sais pas, Célibataire, 1.5x SMIC', (done) => {
         chai.request(server)
-          .get("/v1/get_visas?nationality=tunisia&currentTDS=%C3%89tudiant&diploma=Licence+pro&employmentSituation=Je+ne+sais+pas&familySituation=C%C3%A9libataire&salary=%3E26645%E2%82%AC+%281%2C5x+SMIC%29")
+          .get('/v1/get_visas?' + qs.stringify({
+            nationality: "tunisia",
+            currentTDS: "Étudiant",
+            diploma: "Licence pro",
+            employmentSituation: "Je ne sais pas",
+            familySituation: "Célibataire",
+            salary: ">26645€ (1,5x SMIC)",
+          }))
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
@@ -305,6 +274,30 @@ describe('My Visa Bot API', () => {
                 }
               ],
               redirect_to_blocks: [ 'APS' ]
+            });
+
+            done();
+        });
+      });
+
+      it('should work: Senegal, je ne sais pas, 1xSMIC, APS, Masters, single', (done) => {
+        chai.request(server)
+          .get('/v1/get_visas?' + qs.stringify({
+            nationality: "senegal",
+            currentTDS: "APS",
+            diploma: "Master",
+            employmentSituation: "Je ne sais pas",
+            familySituation: "Célibataire",
+            salary: ">17764€ (1x SMIC)",
+          }))
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: [
+                'No recommendation'
+              ]
             })
 
             done();

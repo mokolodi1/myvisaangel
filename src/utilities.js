@@ -8,12 +8,15 @@ function cleanVisaQuery(query) {
     salary, employmentSituation, diploma, familySituation, currentTDS
   } = query;
 
-  let smicMultiplier = {
-    ">17764": 1,
-    ">26645": 1.5,
-    ">35526": 2,
-    ">53289": 3,
-  }[salary.slice(0, ">53289".length)];
+  let smicMultiplier;
+  if (salary) {
+    smicMultiplier = {
+      ">17764": 1,
+      ">26645": 1.5,
+      ">35526": 2,
+      ">53289": 3,
+    }[salary.slice(0, ">53289".length)];
+  }
 
   employmentSituation = {
     "CDI": "cdi",
@@ -23,8 +26,8 @@ function cleanVisaQuery(query) {
   }[employmentSituation];
 
   diploma = {
-    "Licence classique": "license_classique",
-    "Licence pro": "license_pro",
+    "Licence classique": "licence_classique",
+    "Licence pro": "licence_pro",
     "Master": "masters",
     "Équivalent au Master": "masters_equiv",
   }[diploma];

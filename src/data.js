@@ -39,14 +39,14 @@ module.exports.eeeCountries = [
 // APS stuff -- see visaTypes.js for spreadsheet
 var apsAgreements = {
   masters: "Diplôme au moins équivalent au master obtenu dans un établissement français",
-  mastersOrLicensePro: "Licence professionnelle ou diplôme au moins équivalent au master obtenus dans un établissement français",
-  mastersLicenseProNotFrance: "Licence professionnelle ou diplôme au moins équivalent au master obtenus dans un établissement " +
+  mastersOrLicencePro: "Licence professionnelle ou diplôme au moins équivalent au master obtenus dans un établissement français",
+  mastersLicenceProNotFrance: "Licence professionnelle ou diplôme au moins équivalent au master obtenus dans un établissement " +
       "français ou dans un établissement du pays d'origine dans le cadre d'une convention de délivrance de diplômes en partenariat international",
 };
 var balticSpecialAgreement = {
   applicable: true,
   accord_special: true,
-  condition_de_diplome: apsAgreements.mastersLicenseProNotFrance,
+  condition_de_diplome: apsAgreements.mastersLicenceProNotFrance,
   condition_de_duree: 12,
   renouvellement: false
 };
@@ -59,7 +59,7 @@ module.exports.apsSpecialCountries = {
   "benin": {
     applicable: true,
     accord_special: true,
-    condition_de_diplome: apsAgreements.mastersOrLicensePro,
+    condition_de_diplome: apsAgreements.mastersOrLicencePro,
     condition_de_duree: 6,
     renouvellement: true,
     renouvellement_count: 1,
@@ -67,7 +67,7 @@ module.exports.apsSpecialCountries = {
   "burkina_faso": {
     applicable: true,
     accord_special: true,
-    condition_de_diplome: apsAgreements.mastersLicenseProNotFrance,
+    condition_de_diplome: apsAgreements.mastersLicenceProNotFrance,
     condition_de_duree: 6,
     renouvellement: true,
     renouvellement_count: 1,
@@ -75,7 +75,7 @@ module.exports.apsSpecialCountries = {
   "cameroon": {
     applicable: true,
     accord_special: false,
-    condition_de_diplome: apsAgreements.mastersOrLicensePro,
+    condition_de_diplome: apsAgreements.mastersOrLicencePro,
     condition_de_duree: 12,
     renouvellement: false,
   },
@@ -103,7 +103,7 @@ module.exports.apsSpecialCountries = {
   "gabon": {
     applicable: true,
     accord_special: true,
-    condition_de_diplome: apsAgreements.mastersOrLicensePro,
+    condition_de_diplome: apsAgreements.mastersOrLicencePro,
     condition_de_duree: 9,
     renouvellement: true,
     renouvellement_count: 1,
@@ -125,28 +125,28 @@ module.exports.apsSpecialCountries = {
   "macedonia": {
     applicable: true,
     accord_special: true,
-    condition_de_diplome: apsAgreements.mastersOrLicensePro,
+    condition_de_diplome: apsAgreements.mastersOrLicencePro,
     condition_de_duree: 12,
     renouvellement: false,
   },
   "mali": {
     applicable: true,
     accord_special: false,
-    condition_de_diplome: apsAgreements.mastersOrLicensePro,
+    condition_de_diplome: apsAgreements.mastersOrLicencePro,
     condition_de_duree: 12,
     renouvellement: false,
   },
   "morocco": {
     applicable: true,
     accord_special: false,
-    condition_de_diplome: apsAgreements.mastersOrLicensePro,
+    condition_de_diplome: apsAgreements.mastersOrLicencePro,
     condition_de_duree: 12,
     renouvellement: false,
   },
   "mauritius": {
     applicable: true,
     accord_special: true,
-    condition_de_diplome: apsAgreements.mastersLicenseProNotFrance,
+    condition_de_diplome: apsAgreements.mastersLicenceProNotFrance,
     condition_de_duree: 6,
     renouvellement: true,
     renouvellement_count: 1,
@@ -154,63 +154,63 @@ module.exports.apsSpecialCountries = {
   "mauritania": {
     applicable: true,
     accord_special: false,
-    condition_de_diplome: apsAgreements.mastersOrLicensePro,
+    condition_de_diplome: apsAgreements.mastersOrLicencePro,
     condition_de_duree: 12,
     renouvellement: false,
   },
   "montenegro": {
     applicable: true,
     accord_special: true,
-    condition_de_diplome: apsAgreements.mastersLicenseProNotFrance,
+    condition_de_diplome: apsAgreements.mastersLicenceProNotFrance,
     condition_de_duree: 12,
     renouvellement: false,
   },
   "niger": {
     applicable: true,
     accord_special: false,
-    condition_de_diplome: apsAgreements.mastersOrLicensePro,
+    condition_de_diplome: apsAgreements.mastersOrLicencePro,
     condition_de_duree: 12,
     renouvellement: false,
   },
   "central_african_republic": {
     applicable: true,
     accord_special: true,
-    condition_de_diplome: apsAgreements.mastersOrLicensePro,
+    condition_de_diplome: apsAgreements.mastersOrLicencePro,
     condition_de_duree: 12,
     renouvellement: false,
   },
   "russia": {
     applicable: true,
     accord_special: false,
-    condition_de_diplome: apsAgreements.mastersOrLicensePro,
+    condition_de_diplome: apsAgreements.mastersOrLicencePro,
     condition_de_duree: 12,
     renouvellement: false,
   },
   "senegal": {
     applicable: true,
     accord_special: false,
-    condition_de_diplome: apsAgreements.mastersOrLicensePro,
+    condition_de_diplome: apsAgreements.mastersOrLicencePro,
     condition_de_duree: 12,
     renouvellement: false,
   },
   "serbia": {
     applicable: true,
     accord_special: true,
-    condition_de_diplome: apsAgreements.mastersLicenseProNotFrance,
+    condition_de_diplome: apsAgreements.mastersLicenceProNotFrance,
     condition_de_duree: 12,
     renouvellement: false,
   },
   "togo": {
     applicable: true,
     accord_special: false,
-    condition_de_diplome: apsAgreements.mastersOrLicensePro,
+    condition_de_diplome: apsAgreements.mastersOrLicencePro,
     condition_de_duree: 12,
     renouvellement: false,
   },
   "tunisia": {
     applicable: true,
     accord_special: true,
-    condition_de_diplome: apsAgreements.mastersLicenseProNotFrance,
+    condition_de_diplome: apsAgreements.mastersLicenceProNotFrance,
     condition_de_duree: 6,
     renouvellement: true,
     renouvellement_count: 1,

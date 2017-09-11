@@ -86,7 +86,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   let bestResult = results[0];
   if (bestResult && bestResult.score < .25) {
     nationality = bestResult.item.slug;
-    console.log("nationality:", nationality);
+    console.log("nationality, score:", nationality, bestResult.score);
 
     response.json({
       set_attributes: {
@@ -110,7 +110,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       "messages": [
         {
           // TODO: Paola -- feel free to change this text
-          "text":  "De quel pays est-ce que tu parles ?",
+          "text":  "De quel pays exactement parles-tu ?",
           quick_replies,
         }
       ],
@@ -120,14 +120,14 @@ app.route('/v1/parse_nationality').get(function(request, response) {
     let messages = [
       {
         // TODO: Paola -- feel free to change this text
-        text: "Je n'arrive pas à comprendre 😔. Essaye encore s'il te plait."
+        text: "Je n'arrive pas à comprendre 😔. Vérifie l'ortographe stp et dis-moi à nouveau de quel pays tu viens."
       }
     ];
 
     // if they put a space tell them to just put the country
     if (_.contains(nationality, " ")) {
       messages.push({
-        text: "Essaye d'envoyer seulment le nom du pays"
+        text: "Essaye d'envoyer seulement le nom de ton pays d'origine"
       });
     }
 
