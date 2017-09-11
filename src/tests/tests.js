@@ -213,7 +213,7 @@ describe('My Visa Bot API', () => {
             response.body.should.be.a('object');
             response.body.should.have.property('pong').eql('It works!');
 
-            done();
+          done();
         });
       });
     });
@@ -241,7 +241,7 @@ describe('My Visa Bot API', () => {
               ]
             });
 
-            done();
+          done();
         });
       });
 
@@ -276,7 +276,7 @@ describe('My Visa Bot API', () => {
               redirect_to_blocks: [ 'APS' ]
             });
 
-            done();
+          done();
         });
       });
 
@@ -299,7 +299,6 @@ describe('My Visa Bot API', () => {
                 'No recommendation'
               ]
             })
-
             done();
         });
       });
@@ -319,7 +318,7 @@ describe('My Visa Bot API', () => {
               }
             });
 
-            done();
+          done();
         });
       });
 
@@ -336,7 +335,7 @@ describe('My Visa Bot API', () => {
               }
             });
 
-            done();
+          done();
         });
       });
 
@@ -359,7 +358,7 @@ describe('My Visa Bot API', () => {
               },
             });
 
-            done();
+          done();
         });
       });
 
@@ -386,7 +385,7 @@ describe('My Visa Bot API', () => {
               },
             });
 
-            done();
+          done();
         });
       });
 
@@ -426,7 +425,7 @@ describe('My Visa Bot API', () => {
               ]
             });
 
-            done();
+          done();
         });
       });
     });
