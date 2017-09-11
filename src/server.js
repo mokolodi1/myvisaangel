@@ -109,7 +109,6 @@ app.route('/v1/parse_nationality').get(function(request, response) {
     response.json({
       "messages": [
         {
-          // TODO: Paola -- feel free to change this text
           "text":  "De quel pays exactement parles-tu ?",
           quick_replies,
         }
@@ -119,15 +118,15 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   } else {
     let messages = [
       {
-        // TODO: Paola -- feel free to change this text
-        text: "Je n'arrive pas à comprendre 😔. Vérifie l'ortographe stp et dis-moi à nouveau de quel pays tu viens."
+        text: "Je n'arrive pas à comprendre 😔. Vérifie l'ortographe stp et " +
+        "dis-moi à nouveau de quel pays tu viens."
       }
     ];
 
     // if they put a space tell them to just put the country
     if (_.contains(nationality, " ")) {
       messages.push({
-        text: "Essaye d'envoyer seulement le nom de ton pays d'origine"
+        text: "Essaye d'envoyer seulement le nom de ton pays d'origine."
       });
     }
 

@@ -337,6 +337,52 @@ describe('My Visa Bot API', () => {
             done();
         });
       });
+
+      it('should ask again if they spell it super wrong', (done) => {
+        chai.request(server)
+          .get('/v1/parse_nationality?nationality=Meiqxiko')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: [ "Nationality" ],
+              messages: [
+                {
+                  text: "Je n'arrive pas à comprendre 😔. Vérifie " +
+                  "l'ortographe stp et dis-moi à nouveau de quel pays " +
+                  "tu viens."
+                }
+              ]
+            });
+
+            done();
+        });
+
+        it('should ask again if they spell it super wrong', (done) => {
+          chai.request(server)
+            .get('/v1/parse_nationality?nationality=Je+suis+de+Meiqxiko')
+            .end((err, response) => {
+              response.should.have.status(200);
+              response.body.should.be.a('object');
+              response.body.should.be.deep.eql({
+                redirect_to_blocks: [ "Nationality" ],
+                messages: [
+                  {
+                    text: "Je n'arrive pas à comprendre 😔. Vérifie " +
+                    "l'ortographe stp et dis-moi à nouveau de quel pays " +
+                    "tu viens."
+                  },
+                  {
+                    text: "Essaye d'envoyer seulement le nom de ton pays " +
+                    "d'origine."
+                  }
+                ]
+              });
+
+              done();
+          });
+        });
+      });
     });
   });
 });
