@@ -11,44 +11,42 @@ function aps(query) {
     currentTDS,
     nationality,
     diploma,
-    employmentSituation,
   } = query;
 
-  var apsSpecialInfo = data.apsSpecialCountries[nationality];
 
-  if (nationality === "algeria") {
-    return;
-  }
 
-  if (apsSpecialInfo && apsSpecialInfo.applicable) {
-    var apsWarnings = "";
+  if (nationality !== "algeria" && currentTDS === "student" &&
+      _.contains(["licence_pro", "masters", "masters_equiv"], diploma)) {
+    var apsSpecialInfo = data.apsSpecialCountries[nationality];
+    if (apsSpecialInfo && apsSpecialInfo.applicable) {
+      var apsWarnings = "";
 
-    if (apsSpecialInfo.condition_de_duree !== 12) {
-      apsWarnings += "Condition de durée : " +
-          apsSpecialInfo.condition_de_duree + " mois à la place de 12\n";
+      if (apsSpecialInfo.condition_de_duree !== 12) {
+        apsWarnings += "Condition de durée : " +
+            apsSpecialInfo.condition_de_duree + " mois à la place de 12\n";
+      }
+
+      if (apsSpecialInfo.renouvellement === true) {
+        apsWarnings += "Renouvellement : renouvelable une fois\n";
+      }
+
+      if (apsSpecialInfo.condition_de_diplome) {
+        apsWarnings += "Condition de diplôme : " +
+             apsSpecialInfo.condition_de_diplome +".\n"
+      }
+
+      return {
+        "messages": [
+          {
+            "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
+                "France qui change les choses suivantes pour l'APS :\n" +
+                apsWarnings,
+          }
+        ],
+        "redirect_to_blocks": ["APS"]
+      }
     }
 
-    if (apsSpecialInfo.renouvellement === true) {
-      apsWarnings += "Renouvellement : renouvelable une fois\n";
-    }
-
-    if (apsSpecialInfo.condition_de_diplome) {
-      apsWarnings += "Condition de diplôme : " +
-           apsSpecialInfo.condition_de_diplome +".\n"
-    }
-
-    return {
-      "messages": [
-        {
-          "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
-              "France qui change les choses suivantes pour l'APS :\n" +
-              apsWarnings,
-        }
-      ],
-      "redirect_to_blocks": ["APS"]
-    }
-  } else if (currentTDS === "student" &&
-      _.contains(["license_pro", "masters", "masters_equiv"], diploma)) {
     return {
       "redirect_to_blocks": ["APS"]
     }

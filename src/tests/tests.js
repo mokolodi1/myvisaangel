@@ -35,10 +35,12 @@ describe('My Visa Bot API', () => {
         done();
       });
 
-      it("should return eligible for countries with a Special Agreement " +
+      it("should return eligible with Special Agreement " +
           "(condition_de_duree et condition_de_diplome qui changent)", (done) => {
         let result = visaTypes.aps({
-          nationality: "congo"
+          nationality: "congo",
+          currentTDS: "student",
+          diploma: "licence_pro",
         });
 
         result.should.be.deep.eql({
@@ -57,10 +59,12 @@ describe('My Visa Bot API', () => {
         done();
       });
 
-      it("should return eligible for countries with a Special Agreement " +
+      it("should return eligible with Special Agreement " +
           "(condition_de_duree, condition_de_diplome et renouvellement qui changent)", (done) => {
         let result = visaTypes.aps({
-          nationality: "gabon"
+          nationality: "gabon",
+          currentTDS: "student",
+          diploma: "licence_pro",
         });
 
         result.should.be.deep.eql({
@@ -85,7 +89,7 @@ describe('My Visa Bot API', () => {
         let result = visaTypes.aps({
           nationality: "colombia",
           currentTDS: "student",
-          diploma: "license_pro",
+          diploma: "licence_pro",
         });
 
         result.should.be.deep.eql({
