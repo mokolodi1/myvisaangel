@@ -67,7 +67,6 @@ var countriesFuse = new Fuse(data.countries, {
   threshold: 0.6,
   includeScore: true,
   location: 0,
-  distance: 100,
   maxPatternLength: 32,
   minMatchCharLength: 2,
   keys: [
@@ -90,17 +89,29 @@ app.route('/v1/parse_nationality').get(function(request, response) {
 
     response.json({
       set_attributes: {
-        nationality
+        nationality,
+        validated_nationality: "yes",
       }
     });
   } else if (bestResult && bestResult.score < .4) {
-    let quick_replies = _.map(results.slice(0, 5), (result) => {
+    let filterTopFive = _.filter(results.slice(0, 5), (result) => {
+      return result.score < .45;
+    });
+
+    let quick_replies = _.map(filterTopFive, (result) => {
       return {
         title: result.item.french,
         set_attributes: {
           nationality: result.item.slug,
+          validated_nationality: "yes",
         },
       };
+    });
+    quick_replies.push({
+      "title": "Autre",
+      set_attributes: {
+        validated_nationality: "no",
+      }
     });
 
     let countryOptions = _.pluck(quick_replies, "title").join(", ");
@@ -113,7 +124,6 @@ app.route('/v1/parse_nationality').get(function(request, response) {
           quick_replies,
         }
       ],
-      redirect_to_blocks: [ "Nationality" ],
     });
   } else {
     let messages = [
@@ -132,9 +142,12 @@ app.route('/v1/parse_nationality').get(function(request, response) {
 
     let tryAgain = {
       messages,
-      redirect_to_blocks: [
-        "Nationality"
-      ]
+      // redirect_to_blocks: [
+      //   "Nationality"
+      // ],
+      set_attributes: {
+        validated_nationality: "no",
+      }
     };
     console.log("Try again:", tryAgain);
     response.json(tryAgain);

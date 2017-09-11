@@ -213,7 +213,7 @@ describe('My Visa Bot API', () => {
             response.body.should.be.a('object');
             response.body.should.have.property('pong').eql('It works!');
 
-            done();
+          done();
         });
       });
     });
@@ -241,7 +241,7 @@ describe('My Visa Bot API', () => {
               ]
             });
 
-            done();
+          done();
         });
       });
 
@@ -276,7 +276,7 @@ describe('My Visa Bot API', () => {
               redirect_to_blocks: [ 'APS' ]
             });
 
-            done();
+          done();
         });
       });
 
@@ -299,7 +299,6 @@ describe('My Visa Bot API', () => {
                 'No recommendation'
               ]
             })
-
             done();
         });
       });
@@ -314,11 +313,12 @@ describe('My Visa Bot API', () => {
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
               set_attributes: {
-                nationality: "usa"
+                nationality: "usa",
+                validated_nationality: "yes",
               }
             });
 
-            done();
+          done();
         });
       });
 
@@ -330,11 +330,12 @@ describe('My Visa Bot API', () => {
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
               set_attributes: {
-                nationality: "mexico"
+                nationality: "mexico",
+                validated_nationality: "yes",
               }
             });
 
-            done();
+          done();
         });
       });
 
@@ -345,42 +346,86 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              redirect_to_blocks: [ "Nationality" ],
               messages: [
                 {
                   text: "Je n'arrive pas à comprendre 😔. Vérifie " +
                   "l'ortographe stp et dis-moi à nouveau de quel pays " +
                   "tu viens."
                 }
+              ],
+              set_attributes: {
+                validated_nationality: "no",
+              },
+            });
+
+          done();
+        });
+      });
+
+      it('should ask again if they spell it super wrong spaces', (done) => {
+        chai.request(server)
+          .get('/v1/parse_nationality?nationality=Je+suis+de+Meiqxiko')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Je n'arrive pas à comprendre 😔. Vérifie " +
+                  "l'ortographe stp et dis-moi à nouveau de quel pays " +
+                  "tu viens."
+                },
+                {
+                  text: "Essaye d'envoyer seulement le nom de ton pays " +
+                  "d'origine."
+                }
+              ],
+              set_attributes: {
+                validated_nationality: "no",
+              },
+            });
+
+          done();
+        });
+      });
+
+      it("should ask them to specify if it's relatively close", (done) => {
+        chai.request(server)
+          .get('/v1/parse_nationality?nationality=Marooc')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              "messages": [
+                {
+                  text: "De quel pays exactement parles-tu ?",
+                  quick_replies: [
+                    {
+                      set_attributes: {
+                        nationality: "morocco",
+                        validated_nationality: "yes",
+                      },
+                      title: "Maroc",
+                    },
+                    {
+                      set_attributes: {
+                        nationality: "cameroon",
+                        validated_nationality: "yes",
+                      },
+                      title: "Cameroon",
+                    },
+                    {
+                      title: "Autre",
+                      set_attributes: {
+                        validated_nationality: "no",
+                      }
+                    },
+                  ],
+                }
               ]
             });
 
-            done();
-        });
-
-        it('should ask again if they spell it super wrong', (done) => {
-          chai.request(server)
-            .get('/v1/parse_nationality?nationality=Je+suis+de+Meiqxiko')
-            .end((err, response) => {
-              response.should.have.status(200);
-              response.body.should.be.a('object');
-              response.body.should.be.deep.eql({
-                redirect_to_blocks: [ "Nationality" ],
-                messages: [
-                  {
-                    text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                    "l'ortographe stp et dis-moi à nouveau de quel pays " +
-                    "tu viens."
-                  },
-                  {
-                    text: "Essaye d'envoyer seulement le nom de ton pays " +
-                    "d'origine."
-                  }
-                ]
-              });
-
-              done();
-          });
+          done();
         });
       });
     });
