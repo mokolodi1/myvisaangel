@@ -267,7 +267,7 @@ module.exports.countries = [
   { slug: "ivory_coast", english: "Côte d'Ivoire", country_code: "ci", french: "Côte d'Ivoire", alternatives: ["Ivory coast"] },
   { slug: "cook_islands", english: "Cook Islands", country_code: "ck", french: "Îles Cook" },
   { slug: "chile", english: "Chile", country_code: "cl", french: "Chili" },
-  { slug: "cameroon", english: "Cameroon", country_code: "cm", french: "cameroon" },
+  { slug: "cameroon", english: "Cameroon", country_code: "cm", french: "Cameroon" },
   { slug: "china", english: "China", country_code: "cn", french: "Chine" },
   { slug: "colombia", english: "Colombia", country_code: "co", french: "Colombie" },
   { slug: "costa_rica", english: "Costa Rica", country_code: "cr", french: "Costa Rica" },

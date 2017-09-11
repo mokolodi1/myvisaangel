@@ -94,7 +94,11 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       }
     });
   } else if (bestResult && bestResult.score < .4) {
-    let quick_replies = _.map(results.slice(0, 5), (result) => {
+    let filterTopFive = _.filter(results.slice(0, 5), (result) => {
+      return result.score < .6;
+    });
+
+    let quick_replies = _.map(topFive, (result) => {
       return {
         title: result.item.french,
         set_attributes: {
@@ -104,7 +108,8 @@ app.route('/v1/parse_nationality').get(function(request, response) {
     });
     quick_replies.push({
       title: "Autre",
-      redirect_to_blocks: [ "Nationality" ]
+      type: "show_block",
+      block_name: "Nationality",
     });
 
     let countryOptions = _.pluck(quick_replies, "title").join(", ");
