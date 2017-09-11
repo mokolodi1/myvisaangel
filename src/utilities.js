@@ -8,12 +8,15 @@ function cleanVisaQuery(query) {
     salary, employmentSituation, diploma, familySituation, currentTDS
   } = query;
 
-  let smicMultiplier = {
-    ">17764": 1,
-    ">26645": 1.5,
-    ">35526": 2,
-    ">53289": 3,
-  }[salary.slice(0, ">53289".length)];
+  let smicMultiplier;
+  if (salary) {
+    smicMultiplier = {
+      ">17764": 1,
+      ">26645": 1.5,
+      ">35526": 2,
+      ">53289": 3,
+    }[salary.slice(0, ">53289".length)];
+  }
 
   employmentSituation = {
     "CDI": "cdi",

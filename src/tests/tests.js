@@ -5,6 +5,7 @@ let chai = require('chai');
 let chaiHttp = require('chai-http');
 let server = require('../server');
 let should = chai.should();
+var qs = require('qs');
 
 var visaTypes = require("../visaTypes.js");
 
@@ -29,9 +30,7 @@ describe('My Visa Bot API', () => {
           nationality: "algeria"
         });
 
-        should.should.be.deep.eql({
-          "redirect_to_blocks": ["No recommendation"]
-        })
+        should.equal(result, undefined);
 
         done();
       });
@@ -151,8 +150,9 @@ describe('My Visa Bot API', () => {
 
     describe('Salarié visa', () => {
       it('should return eligible for CDI', (done) => {
-        let result = visaTypes.ptsq({
-          employmentSituation: "cdi"
+        let result = visaTypes.salarie({
+          employmentSituation: "cdi",
+          smicMultiplier: 1.5,
         });
 
         result.should.be.deep.eql({
@@ -163,7 +163,7 @@ describe('My Visa Bot API', () => {
       });
 
       it('should return not eligible for Entrepreneur', (done) => {
-        let result = visaTypes.ptsq({
+        let result = visaTypes.salarie({
           employmentSituation: "doesnt_know"
         });
 
@@ -175,7 +175,7 @@ describe('My Visa Bot API', () => {
 
     describe('Commercant visa', () => {
       it('should return eligible for entrepreneur', (done) => {
-        let result = visaTypes.ptsq({
+        let result = visaTypes.commercant({
           employmentSituation: "entrepreneur"
         });
 
@@ -187,7 +187,7 @@ describe('My Visa Bot API', () => {
       });
 
       it('should return not eligible for CDD', (done) => {
-        let result = visaTypes.ptsq({
+        let result = visaTypes.commercant({
           employmentSituation: "cdd"
         });
 
@@ -196,6 +196,7 @@ describe('My Visa Bot API', () => {
         done();
       });
     });
+  });
 
 
   describe("Make sure the API works...", () => {
@@ -216,7 +217,14 @@ describe('My Visa Bot API', () => {
     describe('/GET /v1/get_visas', () => {
       it('should work: US, CDI, 2xSMIC, student, masters, single', (done) => {
         chai.request(server)
-          .get('/v1/get_visas?nationality=usa&currentTDS=Étudiant&diploma=Master&employmentSituation=CDI&familySituation=Célibataire&salary=>35526,4€%20(2x%20SMIC)')
+          .get('/v1/get_visas?' + qs.stringify({
+            nationality: "usa",
+            currentTDS: "Étudiant",
+            diploma: "Master",
+            employmentSituation: "CDI",
+            familySituation: "Célibataire",
+            salary: ">35526,4€ (2x SMIC)",
+          }))
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
@@ -227,7 +235,7 @@ describe('My Visa Bot API', () => {
                 'Passeport Talent Salarié Qualifié',
                 'Salarié/TT'
               ]
-            })
+            });
 
             done();
         });
@@ -235,7 +243,14 @@ describe('My Visa Bot API', () => {
 
       it('should work: tunisia, Étudiant, Licence pro, Je ne sais pas, Célibataire, 1.5x SMIC', (done) => {
         chai.request(server)
-          .get("/v1/get_visas?nationality=tunisia&currentTDS=%C3%89tudiant&diploma=Licence+pro&employmentSituation=Je+ne+sais+pas&familySituation=C%C3%A9libataire&salary=%3E26645%E2%82%AC+%281%2C5x+SMIC%29")
+          .get('/v1/get_visas?' + qs.stringify({
+            nationality: "tunisia",
+            currentTDS: "Étudiant",
+            diploma: "Licence pro",
+            employmentSituation: "Je ne sais pas",
+            familySituation: "Célibataire",
+            salary: ">26645€ (1,5x SMIC)",
+          }))
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
@@ -255,7 +270,7 @@ describe('My Visa Bot API', () => {
                 }
               ],
               redirect_to_blocks: [ 'APS' ]
-            })
+            });
 
             done();
         });
@@ -263,7 +278,14 @@ describe('My Visa Bot API', () => {
 
       it('should work: Senegal, je ne sais pas, 1xSMIC, APS, Masters, single', (done) => {
         chai.request(server)
-          .get('/v1/get_visas?nationality=senegal&currentTDS=APS&diploma=Master&employmentSituation=Je+ne+sais+pas&familySituation=Célibataire&salary=>17764€%10(1x%10SMIC)')
+          .get('/v1/get_visas?' + qs.stringify({
+            nationality: "senegal",
+            currentTDS: "APS",
+            diploma: "Master",
+            employmentSituation: "Je ne sais pas",
+            familySituation: "Célibataire",
+            salary: ">17764€ (1x SMIC)",
+          }))
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
