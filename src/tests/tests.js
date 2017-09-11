@@ -357,30 +357,67 @@ describe('My Visa Bot API', () => {
 
             done();
         });
+      });
 
-        it('should ask again if they spell it super wrong', (done) => {
-          chai.request(server)
-            .get('/v1/parse_nationality?nationality=Je+suis+de+Meiqxiko')
-            .end((err, response) => {
-              response.should.have.status(200);
-              response.body.should.be.a('object');
-              response.body.should.be.deep.eql({
-                redirect_to_blocks: [ "Nationality" ],
-                messages: [
-                  {
-                    text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                    "l'ortographe stp et dis-moi à nouveau de quel pays " +
-                    "tu viens."
-                  },
-                  {
-                    text: "Essaye d'envoyer seulement le nom de ton pays " +
-                    "d'origine."
-                  }
-                ]
-              });
+      it('should ask again if they spell it super wrong spaces', (done) => {
+        chai.request(server)
+          .get('/v1/parse_nationality?nationality=Je+suis+de+Meiqxiko')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: [ "Nationality" ],
+              messages: [
+                {
+                  text: "Je n'arrive pas à comprendre 😔. Vérifie " +
+                  "l'ortographe stp et dis-moi à nouveau de quel pays " +
+                  "tu viens."
+                },
+                {
+                  text: "Essaye d'envoyer seulement le nom de ton pays " +
+                  "d'origine."
+                }
+              ]
+            });
 
-              done();
-          });
+            done();
+        });
+      });
+
+      it("should ask them to specify if it's relatively close", (done) => {
+        chai.request(server)
+          .get('/v1/parse_nationality?nationality=Marooc')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              "messages": [
+                {
+                  text: "De quel pays exactement parles-tu ?",
+                  quick_replies: [
+                    {
+                      set_attributes: {
+                        nationality: "morocco",
+                      },
+                      title: "Maroc",
+                    },
+                    {
+                      set_attributes: {
+                        nationality: "cameroon",
+                      },
+                      title: "Cameroon",
+                    },
+                    {
+                      block_name: "Nationality",
+                      title: "Autre",
+                      type: "show_block",
+                    },
+                  ],
+                }
+              ]
+            });
+
+            done();
         });
       });
     });

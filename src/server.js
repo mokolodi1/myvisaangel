@@ -67,7 +67,6 @@ var countriesFuse = new Fuse(data.countries, {
   threshold: 0.6,
   includeScore: true,
   location: 0,
-  distance: 100,
   maxPatternLength: 32,
   minMatchCharLength: 2,
   keys: [
@@ -95,10 +94,10 @@ app.route('/v1/parse_nationality').get(function(request, response) {
     });
   } else if (bestResult && bestResult.score < .4) {
     let filterTopFive = _.filter(results.slice(0, 5), (result) => {
-      return result.score < .6;
+      return result.score < .45;
     });
 
-    let quick_replies = _.map(topFive, (result) => {
+    let quick_replies = _.map(filterTopFive, (result) => {
       return {
         title: result.item.french,
         set_attributes: {
