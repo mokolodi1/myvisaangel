@@ -314,7 +314,8 @@ describe('My Visa Bot API', () => {
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
               set_attributes: {
-                nationality: "usa"
+                nationality: "usa",
+                validated_nationality: "yes",
               }
             });
 
@@ -330,7 +331,8 @@ describe('My Visa Bot API', () => {
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
               set_attributes: {
-                nationality: "mexico"
+                nationality: "mexico",
+                validated_nationality: "yes",
               }
             });
 
@@ -345,14 +347,16 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              redirect_to_blocks: [ "Nationality" ],
               messages: [
                 {
                   text: "Je n'arrive pas à comprendre 😔. Vérifie " +
                   "l'ortographe stp et dis-moi à nouveau de quel pays " +
                   "tu viens."
                 }
-              ]
+              ],
+              set_attributes: {
+                validated_nationality: "no",
+              },
             });
 
             done();
@@ -366,7 +370,6 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              redirect_to_blocks: [ "Nationality" ],
               messages: [
                 {
                   text: "Je n'arrive pas à comprendre 😔. Vérifie " +
@@ -377,7 +380,10 @@ describe('My Visa Bot API', () => {
                   text: "Essaye d'envoyer seulement le nom de ton pays " +
                   "d'origine."
                 }
-              ]
+              ],
+              set_attributes: {
+                validated_nationality: "no",
+              },
             });
 
             done();
@@ -398,19 +404,22 @@ describe('My Visa Bot API', () => {
                     {
                       set_attributes: {
                         nationality: "morocco",
+                        validated_nationality: "yes",
                       },
                       title: "Maroc",
                     },
                     {
                       set_attributes: {
                         nationality: "cameroon",
+                        validated_nationality: "yes",
                       },
                       title: "Cameroon",
                     },
                     {
-                      block_name: "Nationality",
                       title: "Autre",
-                      type: "show_block",
+                      set_attributes: {
+                        validated_nationality: "no",
+                      }
                     },
                   ],
                 }

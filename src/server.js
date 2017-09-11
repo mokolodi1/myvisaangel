@@ -108,7 +108,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       };
     });
     quick_replies.push({
-      "title": "Show Block",
+      "title": "Autre",
       set_attributes: {
         validated_nationality: "no",
       }
