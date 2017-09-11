@@ -106,7 +106,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       };
     });
     quick_replies.push({
-              "block_name": "Nationality",
+              redirect_to_blocks: [ "Nationality" ],
               "title": "Show Block"
             },);
 
