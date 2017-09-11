@@ -1,11 +1,12 @@
 language: node_js
 sudo: false
 node_js:
-- '4.1'
+- '8.4'
 install:
-- npm install
+- npm install --no-optional
 script:
-- npm test
+- istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec src/tests
+- codecov
 notifications:
   slack:
     secure: gsxyGPfiA5ZOJ55ceGd3+zNc/8oRJEx00LbyHWRZHqzf4KUTlFeo3vJh++DJX5dbi0sCitd6xfsZ79yvqcgdWyp6/1aA7fVwQNNVLypdvqlCGZ//N1OLHRDYezF6vdg3n7ZXOcerMWYh4c43G76V5m/Zq6HIGwg2NypbZBECKro+K7LG52dvzgqbePAR86vy5uTyW4D9wxNkNI4ztXGlmsWmKTIOYzMrt5aMDOq2a8NSqlEzLlxHrsWVT2hqluLPGYJ0fPK5jkn/OyRQV6I11L3w98B53XuwHnTnGhfciqAYjMrm+pHtz+Kw9vwpMG0xRBXGb+3Scrsh/sNL4LYk3M+UT/cNlUvJPmto9kInK4DvHYFuMme5zo1GdkwSx3egPyTL+6Y5z/1oUQAgCLvxgsZKQ1qBYUhVaT9Q7Uc9MMnLAwhW6XxOozJjjNMcTuy8hu5ECO1Lk5YWw5tEUGiWOJwsl0py3kSyJbfquxCE1nZ+vp2MZnfkozQnSOWpvowKQGzqx4xzMQ10TRh32bCEsossmEA4EQNcdPUj+pizA477F/Vx0+hY29+6SESBggt00ZPOgxsL66tK5gux80ba7SnVaC24ZatpDw2o6o8TtK85ySS6wJM5H25gg3mDAGKaRzFOqodePOhQ723lv1Y1Pg1NvRui3JTweez4k0xS6z0=
