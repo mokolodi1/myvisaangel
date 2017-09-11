@@ -1,4 +1,4 @@
-# My Visa Angel API [![Build Status](https://travis-ci.com/mokolodi1/myvisaangel.svg?token=gSskbph9XcxTrDMf2BS7&branch=master)](https://travis-ci.com/mokolodi1/myvisaangel)
+# My Visa Angel API [![Build Status](https://travis-ci.com/mokolodi1/myvisaangel.svg?token=gSskbph9XcxTrDMf2BS7&branch=master)](https://travis-ci.com/mokolodi1/myvisaangel) [![codecov](https://codecov.io/gh/mokolodi1/myvisaangel/branch/master/graph/badge.svg?token=QcWtpXLB60)](https://codecov.io/gh/mokolodi1/myvisaangel)
 
 ## Getting started
 
