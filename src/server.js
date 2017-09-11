@@ -89,7 +89,8 @@ app.route('/v1/parse_nationality').get(function(request, response) {
 
     response.json({
       set_attributes: {
-        nationality
+        nationality,
+        validated_nationality: "yes",
       }
     });
   } else if (bestResult && bestResult.score < .4) {
@@ -102,13 +103,16 @@ app.route('/v1/parse_nationality').get(function(request, response) {
         title: result.item.french,
         set_attributes: {
           nationality: result.item.slug,
+          validated_nationality: "yes",
         },
       };
     });
     quick_replies.push({
-              redirect_to_blocks: [ "Nationality" ],
-              "title": "Show Block"
-            },);
+      "title": "Show Block",
+      set_attributes: {
+        validated_nationality: "no",
+      }
+    });
 
     let countryOptions = _.pluck(quick_replies, "title").join(", ");
     console.log("Result country options:", countryOptions);
@@ -138,9 +142,12 @@ app.route('/v1/parse_nationality').get(function(request, response) {
 
     let tryAgain = {
       messages,
-      redirect_to_blocks: [
-        "Nationality"
-      ]
+      // redirect_to_blocks: [
+      //   "Nationality"
+      // ],
+      set_attributes: {
+        validated_nationality: "no",
+      }
     };
     console.log("Try again:", tryAgain);
     response.json(tryAgain);
