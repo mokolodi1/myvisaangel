@@ -110,10 +110,10 @@ Once connected to the AWS box, go to the shell that isn't currently running the 
 Work in progress!
 
 1. Create a new EC2 box.
-- Add the IP to the DNS on [hover.com](https://hover.com).
-- Add port 80 (HTTP) to the inbound rules for the security group.
-- Connect: `ssh -i myvisaangel.pem ubuntu@b1.myvisaangel.com`
-- Do the following:
+2. Add the IP to the DNS on [hover.com](https://hover.com).
+3. Add port 80 (HTTP) to the inbound rules for the security group.
+4. Connect: `ssh -i myvisaangel.pem ubuntu@b1.myvisaangel.com`
+5. Do the following:
 
 ```sh
 # Grab the code from GitHub and go into the code's folder
