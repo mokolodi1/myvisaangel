@@ -97,7 +97,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
           "text":  `Est-ce que tu voulais dire ${bestResult.item.french} ?`,
           quick_replies: [
             {
-              title: "Oui ☺️",
+              title: "Oui 😀",
               set_attributes: {
                 nationality: bestResult.item.slug,
                 validated_nationality: "yes",
