@@ -114,18 +114,12 @@ Add port 80 (HTTP) to the inbound rules for the security group.
 Run these commands after connecting to your new AWS box.
 
 ```sh
-# Install node, npm, tmux
-# TODO: unclear if we need both nodejs and nodejs-legacy
-sudo apt-get update
-sudo apt-get install -y nodejs nodejs-legacy npm tmux
-
-# Install Teo's tmux conf file
-git clone https://github.com/mokolodi1/dotfiles
-cp dotfiles/tilde_tmux.conf .tmux.conf
-
 # Grab the code from GitHub and go into the code's folder
 git clone https://github.com/mokolodi1/myvisaangel
 cd myvisaangel
+
+# Install stuff
+./scripts/new_prod_box.sh
 
 # Start a new tmux session so the command keeps running
 # after you close the window
@@ -134,13 +128,6 @@ tmux
 # Do C-b " to split the tmux window into two.
 # (Hold control and press B, then press ")
 
-# Install the right version of node (so we can use es6)
-sudo npm install -g n
-sudo n 8.4.0 # might be latest instead of that number
-
-# Install dependancies
-npm install --no-optional
-
 # Start it up!
-sudo PORT=80 npm start
+./scripts/prod_start.sh
 ```
