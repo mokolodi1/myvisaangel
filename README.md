@@ -109,7 +109,7 @@ Once connected to the AWS box, go to the shell that isn't currently running the 
 
 Work in progress!
 
-1. Create a new EC2 box.
+1. Create a new EC2 box. (Ubuntu Server 16.04 LTS)
 2. Add the IP to the DNS on [hover.com](https://hover.com).
 3. Add port 80 (HTTP) to the inbound rules for the security group.
 4. Connect: `ssh -i myvisaangel.pem ubuntu@b1.myvisaangel.com`
