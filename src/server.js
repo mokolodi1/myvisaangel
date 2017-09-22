@@ -7,9 +7,9 @@ var Fuse = require("fuse.js");
 var app = express();
 var port = process.env.PORT || 3000;
 
-var visaTypes = require("./visaTypes.js");
-var utilities = require("./utilities.js");
-var data = require("./data.js");
+var VisaTypes = require("./visaTypes.js");
+var Utilities = require("./utilities.js");
+var Data = require("./data.js");
 
 app.route('/v1/ping').get(function(request, response) {
   response.json({
@@ -22,7 +22,7 @@ Figure out which visas the user is eligible for
 */
 app.route('/v1/get_visas').get(function(request, response) {
   console.log("Get visas:", request.originalUrl);
-  utilities.cleanVisaQuery(request.query)
+  Utilities.cleanVisaQuery(request.query)
   console.log("Cleaned query:", request.query);
 
   var result = {
@@ -30,7 +30,7 @@ app.route('/v1/get_visas').get(function(request, response) {
     redirect_to_blocks: [],
   }
 
-  _.each(visaTypes, (getVisaInfo, visaType) => {
+  _.each(VisaTypes, (getVisaInfo, visaType) => {
     let visaInfo = getVisaInfo(request.query);
 
     if (visaInfo) {
@@ -62,36 +62,56 @@ app.route('/v1/get_visas').get(function(request, response) {
 ** Transform their nationality to standardized lower-case English
 */
 // declare this here so it's done once and kept in memory
-var countriesFuse = new Fuse(data.countries, {
+var countriesFuse = new Fuse(Data.countries, {
   shouldSort: true,
-  threshold: 0.6,
   includeScore: true,
-  location: 0,
   maxPatternLength: 32,
   minMatchCharLength: 2,
-  keys: [
-    "french",
-    "english",
-    "alternatives"
-  ]
+  keys: [ "slugishNames" ]
 });
 app.route('/v1/parse_nationality').get(function(request, response) {
   console.log("Parse nationality:", request.originalUrl);
 
   let { nationality } = request.query;
+
   let results = countriesFuse.search(nationality);
 
   let bestResult = results[0];
-  if (bestResult && bestResult.score <= .25 &&
-      !(results[1] && results[1].score - results[0].score < .05)) {
-    nationality = bestResult.item.slug;
-    console.log("nationality, score:", nationality, bestResult.score);
-
+  let slugy = Utilities.slugishify(nationality);
+  if (bestResult &&
+      _.contains(bestResult.item.slugishNames, slugy)) {
+    console.log("Perfect match:", nationality, bestResult.item.slug);
     response.json({
       set_attributes: {
-        nationality,
+        nationality: bestResult.item.slug,
         validated_nationality: "yes",
       }
+    });
+  } else if (bestResult && bestResult.score <= .25 &&
+      !(results[1] && results[1].score - results[0].score < .05)) {
+    console.log("Asking to confirm:", nationality, bestResult.item.slug);
+
+    response.json({
+      "messages": [
+        {
+          "text":  `Est-ce que tu voulais dire ${bestResult.item.french} ?`,
+          quick_replies: [
+            {
+              title: "Oui ☺️",
+              set_attributes: {
+                nationality: bestResult.item.slug,
+                validated_nationality: "yes",
+              },
+            },
+            {
+              title: "Non 😔",
+              set_attributes: {
+                validated_nationality: "no",
+              },
+            },
+          ],
+        }
+      ],
     });
   } else if (bestResult && bestResult.score < .4) {
     let filterTopFive = _.filter(results.slice(0, 5), (result) => {
@@ -126,6 +146,8 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       ],
     });
   } else {
+    console.log("Couldn't figure out what they said :(");
+
     let messages = [
       {
         text: "Je n'arrive pas à comprendre 😔. Vérifie l'ortographe stp et " +
@@ -149,7 +171,6 @@ app.route('/v1/parse_nationality').get(function(request, response) {
         validated_nationality: "no",
       }
     };
-    console.log("Try again:", tryAgain);
     response.json(tryAgain);
   }
 });

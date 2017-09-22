@@ -398,27 +398,20 @@ describe('My Visa Bot API', () => {
             response.body.should.be.deep.eql({
               "messages": [
                 {
-                  text: "De quel pays exactement parles-tu ?",
+                  text: "Est-ce que tu voulais dire Maroc ?",
                   quick_replies: [
                     {
+                      title: "Oui ☺️",
                       set_attributes: {
                         nationality: "morocco",
                         validated_nationality: "yes",
                       },
-                      title: "Maroc",
                     },
                     {
-                      set_attributes: {
-                        nationality: "cameroon",
-                        validated_nationality: "yes",
-                      },
-                      title: "Cameroon",
-                    },
-                    {
-                      title: "Autre",
+                      title: "Non 😔",
                       set_attributes: {
                         validated_nationality: "no",
-                      }
+                      },
                     },
                   ],
                 }

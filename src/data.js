@@ -1,5 +1,8 @@
 "use strict"
 
+var _ = require("underscore");
+var Utilities = require("./utilities.js");
+
 module.exports = {};
 
 module.exports.eeeCountries = [
@@ -220,7 +223,7 @@ module.exports.apsSpecialCountries = {
 // https://github.com/stefangabos/world_countries/blob/master/data/en/countries.csv
 // https://docs.google.com/spreadsheets/d/1nfdoNN1nHEh_LigxJvGv3R0PFJgoNiHVKg5_E_oz7yk/edit?usp=sharing
 // TODO: Saint Martin mix-ups possible
-module.exports.countries = [
+let countries = [
   { slug: "andorra", english: "Andorra", country_code: "ad", french: "Andorre" },
   { slug: "united_arab_emirates", english: "United Arab Emirates", country_code: "ae", french: "Émirats arabes unis" },
   { slug: "afghanistan", english: "Afghanistan", country_code: "af", french: "Afghanistan" },
@@ -471,3 +474,16 @@ module.exports.countries = [
   { slug: "zambia", english: "Zambia", country_code: "zm", french: "Zambie" },
   { slug: "zimbabwe", english: "Zimbabwe", country_code: "zw", french: "Zimbabwe" },
 ];
+
+// calculate the words without accents and such
+_.each(countries, (country) => {
+  let names = [country.english, country.french];
+
+  if (country.alternatives) {
+    names = names.concat(country.alternatives);
+  }
+
+  country.slugishNames = _.map(names, Utilities.slugishify);
+});
+
+module.exports.countries = countries;
