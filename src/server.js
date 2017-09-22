@@ -81,9 +81,9 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   let { nationality } = request.query;
   let results = countriesFuse.search(nationality);
 
-  // if the first result isn't great then give them options
   let bestResult = results[0];
-  if (bestResult && bestResult.score < .25) {
+  if (bestResult && bestResult.score < .25 &&
+      !(results[1] && results[1].score - results[0].score < .05)) {
     nationality = bestResult.item.slug;
     console.log("nationality, score:", nationality, bestResult.score);
 

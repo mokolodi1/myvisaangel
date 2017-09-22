@@ -428,6 +428,42 @@ describe('My Visa Bot API', () => {
           done();
         });
       });
+
+      it("shouldn't work with a string like ma", (done) => {
+        chai.request(server)
+          .get('/v1/parse_nationality?nationality=ma')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.messages[0].text.should.be.eql("De quel pays exactement parles-tu ?");
+            response.body.messages[0].quick_replies.should.be.a('array');
+
+          done();
+        });
+      });
+
+      it("shouldn't work with a blank string", (done) => {
+        chai.request(server)
+          .get('/v1/parse_nationality?nationality=')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Je n'arrive pas à comprendre 😔. Vérifie " +
+                  "l'ortographe stp et dis-moi à nouveau de quel pays " +
+                  "tu viens."
+                },
+              ],
+              set_attributes: {
+                validated_nationality: "no",
+              },
+            });
+
+          done();
+        });
+      });
     });
   });
 });
