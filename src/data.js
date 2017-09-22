@@ -297,7 +297,7 @@ module.exports.countries = [
   { slug: "faroe_islands", english: "Faroe Islands", country_code: "fo", french: "Îles Féroé" },
   { slug: "france", english: "France", country_code: "fr", french: "France" },
   { slug: "gabon", english: "Gabon", country_code: "ga", french: "Gabon" },
-  { slug: "united_kingdom_of_great_britain_and_northern_ireland", english: "United Kingdom of Great Britain and Northern Ireland", country_code: "gb", french: "Royaume-Uni" },
+  { slug: "uk", english: "United Kingdom of Great Britain and Northern Ireland", country_code: "gb", french: "Royaume-Uni" },
   { slug: "grenada", english: "Grenada", country_code: "gd", french: "Grenade" },
   { slug: "georgia", english: "Georgia", country_code: "ge", french: "Géorgie" },
   { slug: "french_guiana", english: "French Guiana", country_code: "gf", french: "Guyane" },
