@@ -133,3 +133,5 @@ tmux
 # Start it up!
 ./scripts/prod_start.sh
 ```
+
+6. Give it a shot: http://b2.myvisaangel.com/v1/ping
