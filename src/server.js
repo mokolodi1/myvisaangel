@@ -194,17 +194,31 @@ app.route('/v1/nlp').get(function(request, response) {
 
   recastClient.analyseText(message)
     .then(function(recastResponse) {
-      console.log("recastResponse:", recastResponse);
-      console.log("recastResponse.intent():", recastResponse.intent());
-      console.log("recastResponse.intents:", recastResponse.intents);
+      let intent = recastResponse.intent();
 
-      response.json({
-        messages: [
-          {
-            text: "Oh hello there!",
-          },
-        ],
-      });
+      if (intent.slug === "dossier-submission-help") {
+        response.json({
+          messages: [
+            {
+              text: "You want help with your dossier!"
+            }
+          ],
+        });
+      } else {
+        response.json({
+          messages: [
+            {
+              text: "Je ne suis qu'un bot et je ne sais pas encore comment " +
+              "t'aider.",
+            },
+            {
+              text: "Je vais te mettre en lien avec mes créateurs qui " +
+              "répondront à tes questions. 🙃!",
+            },
+          ],
+          redirect_to_blocks: ["No prompt live chat"],
+        });
+      }
     });
 });
 
