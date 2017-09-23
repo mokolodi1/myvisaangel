@@ -181,7 +181,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   }
 });
 
-const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'fr')
+const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'fr');
 app.route('/v1/nlp').get(function(request, response) {
   console.log("NLP:", request.originalUrl);
 
@@ -192,23 +192,20 @@ app.route('/v1/nlp').get(function(request, response) {
     return;
   }
 
-  recastClient.converseText(message)
+  recastClient.analyseText(message)
     .then(function(recastResponse) {
-      if (recastResponse.action) {
-        console.log('Action: ', recastResponse.action.slug);
-      }
+      console.log("recastResponse:", recastResponse);
+      console.log("recastResponse.intent():", recastResponse.intent());
+      console.log("recastResponse.intents:", recastResponse.intents);
 
-      const reply = recastResponse.reply()
-      console.log('Reply: ', reply);
+      response.json({
+        messages: [
+          {
+            text: "Oh hello there!",
+          },
+        ],
+      });
     });
-
-  response.json({
-    messages: [
-      {
-        text: "Oh hello there!",
-      },
-    ],
-  });
 });
 
 var server = app.listen(port);
