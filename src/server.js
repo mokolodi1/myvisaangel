@@ -185,14 +185,21 @@ const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'f
 app.route('/v1/nlp').get(function(request, response) {
   console.log("NLP:", request.originalUrl);
 
-  recastClient.converseText('hello')
-    .then(function(res) {
-      if (res.action) {
-        console.log('Action: ', res.action.slug);
+  let message = request.query["last user freeform input"];
+
+  if (!message) {
+    response.status(400).send('Missing "last user freeform input" parameter');
+    return;
+  }
+
+  recastClient.converseText(message)
+    .then(function(recastResponse) {
+      if (recastResponse.action) {
+        console.log('Action: ', recastResponse.action.slug);
       }
 
-      const reply = res.reply()
-      console.log('Reply: ', reply)
+      const reply = recastResponse.reply()
+      console.log('Reply: ', reply);
     });
 
   response.json({
