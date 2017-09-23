@@ -213,12 +213,15 @@ app.route('/v1/nlp').get(function(request, response) {
             },
             {
               text: "Je vais te mettre en lien avec mes créateurs qui " +
-              "répondront à tes questions. 🙃!",
+              "répondront à tes questions 🙃",
             },
           ],
           redirect_to_blocks: ["No prompt live chat"],
         });
       }
+    })
+    .catch(function (error) {
+      console.log("error:", error);
     });
 });
 
