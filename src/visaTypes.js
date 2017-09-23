@@ -84,9 +84,40 @@ function ptsq(query) {
 // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
 function salarie(query) {
   if (_.contains(["cdi", "cdd"], query.employmentSituation)) {
-    return {
+    let opposableReason = "";
+    if (query.smicMultiplier < 1.5) {
+      opposableReason = "que tu ne gagnes pas plus de 1,5smic";
+    }
+    if (query.diploma === "licence_classique") {
+      if (opposableReason !== "") {
+        opposableReason += " et ";
+      }
+      opposableReason += "que tu as une licence classique";
+    }
+
+    let result = {
       "redirect_to_blocks": [ "Salarié/TT" ]
-    };
+    }
+
+    if (opposableReason !== "") {
+      _.extend(result, {
+        messages: [
+          {
+            text: "⚠️ Attention, tu es éligible au titre de séjour " +
+            `salarié mais vu ${opposableReason} tu seras opposable à ` +
+            "l'emploi, c'est-à-dire " +
+            "qu'à moins d'exercer un métier dit en tension (manque de " +
+            "main d'oeuvre), la situation de chômage en France sera " +
+            "prise en compte par l'administration dans sa décision. " +
+            "Pour plus d'informations, regarde cette notice : " +
+            "https://docs.google.com/document/d/1lb-4yLRCsyLbEVO_xUxDn" +
+            "UOHiBF5HC9IJTWA86_JDwo/edit?usp=sharing\n"
+          }
+        ]
+      });
+    }
+
+    return result;
   }
 }
 

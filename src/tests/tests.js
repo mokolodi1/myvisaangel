@@ -156,7 +156,7 @@ describe('My Visa Bot API', () => {
       it('should return eligible for CDI', (done) => {
         let result = visaTypes.salarie({
           employmentSituation: "cdi",
-          smicMultiplier: 1,
+          smicMultiplier: 1.5,
         });
 
         result.should.be.deep.eql({
@@ -166,7 +166,87 @@ describe('My Visa Bot API', () => {
         done();
       });
 
-      it('should return not eligible for Entrepreneur', (done) => {
+      it('should return eligible for CDI (with warning for salary)', (done) => {
+        let result = visaTypes.salarie({
+          employmentSituation: "cdi",
+          smicMultiplier: 1,
+        });
+
+        result.should.be.deep.eql({
+          messages: [
+            {
+              text: "⚠️ Attention, tu es éligible au titre de séjour " +
+              "salarié mais vu que tu ne gagnes pas plus de 1,5smic tu " +
+              "seras opposable à l'emploi, c'est-à-dire " +
+              "qu'à moins d'exercer un métier dit en tension (manque de " +
+              "main d'oeuvre), la situation de chômage en France sera " +
+              "prise en compte par l'administration dans sa décision. " +
+              "Pour plus d'informations, regarde cette notice : " +
+              "https://docs.google.com/document/d/1lb-4yLRCsyLbEVO_xUxDn" +
+              "UOHiBF5HC9IJTWA86_JDwo/edit?usp=sharing\n"
+            }
+          ],
+          "redirect_to_blocks": [ "Salarié/TT" ]
+        })
+
+        done();
+      });
+
+      it('should return eligible for CDD (with warning for license classique)', (done) => {
+        let result = visaTypes.salarie({
+          employmentSituation: "cdi",
+          diploma: "licence_classique",
+        });
+
+        result.should.be.deep.eql({
+          messages: [
+            {
+              text: "⚠️ Attention, tu es éligible au titre de séjour " +
+              "salarié mais vu que tu as une licence classique tu seras " +
+              "opposable à l'emploi, c'est-à-dire " +
+              "qu'à moins d'exercer un métier dit en tension (manque de " +
+              "main d'oeuvre), la situation de chômage en France sera " +
+              "prise en compte par l'administration dans sa décision. " +
+              "Pour plus d'informations, regarde cette notice : " +
+              "https://docs.google.com/document/d/1lb-4yLRCsyLbEVO_xUxDn" +
+              "UOHiBF5HC9IJTWA86_JDwo/edit?usp=sharing\n"
+            }
+          ],
+          "redirect_to_blocks": [ "Salarié/TT" ]
+        })
+
+        done();
+      });
+
+      it('should return eligible for CDI (with warning for license classique, salary)', (done) => {
+        let result = visaTypes.salarie({
+          employmentSituation: "cdi",
+          smicMultiplier: 1,
+          diploma: "licence_classique",
+        });
+
+        result.should.be.deep.eql({
+          messages: [
+            {
+              text: "⚠️ Attention, tu es éligible au titre de séjour " +
+              "salarié mais vu que tu ne gagnes pas plus de 1,5smic et " +
+              "que tu as une licence classique tu seras opposable à " +
+              "l'emploi, c'est-à-dire " +
+              "qu'à moins d'exercer un métier dit en tension (manque de " +
+              "main d'oeuvre), la situation de chômage en France sera " +
+              "prise en compte par l'administration dans sa décision. " +
+              "Pour plus d'informations, regarde cette notice : " +
+              "https://docs.google.com/document/d/1lb-4yLRCsyLbEVO_xUxDn" +
+              "UOHiBF5HC9IJTWA86_JDwo/edit?usp=sharing\n"
+            }
+          ],
+          "redirect_to_blocks": [ "Salarié/TT" ]
+        })
+
+        done();
+      });
+
+      it('should return not eligible for unknown employment', (done) => {
         let result = visaTypes.salarie({
           employmentSituation: "doesnt_know"
         });
@@ -302,74 +382,6 @@ describe('My Visa Bot API', () => {
             done();
         });
       });
-
-      it('should work: US, CDI, 2xSMIC, student, licence_classique, single', (done) => {
-        chai.request(server)
-          .get('/v1/get_visas?' + qs.stringify({
-            nationality: "usa",
-            currentTDS: "Étudiant",
-            diploma: "Licence classique",
-            employmentSituation: "CDI",
-            familySituation: "Célibataire",
-            salary: ">35526,4€ (2x SMIC)",
-          }))
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "⚠️ Attention, tu es éligible au titre de séjour " +
-                  "salarié mais tu seras opposable à l'emploi, c'est-à-dire " +
-                  "qu'à moins d'exercer un métier dit en tension (manque de " +
-                  "main d'oeuvre), la situation de chômage en France sera " +
-                  "prise en compte par l'administration dans sa décision. " +
-                  "Pour plus d'informations, regarde cette notice : " +
-                  "https://docs.google.com/document/d/1lb-4yLRCsyLbEVO_xUxDn" +
-                  "UOHiBF5HC9IJTWA86_JDwo/edit?usp=sharing\n"
-                }
-              ],
-              redirect_to_blocks: [
-                'APS',
-                'Salarié/TT'
-              ]
-            });
-
-          done();
-        });
-      });
-
-      it('should work: US, CDI, 1xSMIC, student, masters, single', (done) => {
-        chai.request(server)
-          .get('/v1/get_visas?' + qs.stringify({
-            nationality: "usa",
-            currentTDS: "Étudiant",
-            diploma: "Master",
-            employmentSituation: "CDI",
-            familySituation: "Célibataire",
-            salary: ">17764,2€ (1 SMIC)",
-          }))
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "⚠️ Attention, tu es éligible au titre de séjour " +
-                  "salarié mais tu seras opposable à l'emploi.",
-                }
-              ],
-              redirect_to_blocks: [
-                'APS',
-                'Salarié/TT'
-              ]
-            });
-
-          done();
-        });
-      });
     });
 
     describe('/GET /v1/parse_nationality', () => {
@@ -469,7 +481,7 @@ describe('My Visa Bot API', () => {
                   text: "Est-ce que tu voulais dire Maroc ?",
                   quick_replies: [
                     {
-                      title: "Oui ☺️",
+                      title: "Oui 😀",
                       set_attributes: {
                         nationality: "morocco",
                         validated_nationality: "yes",
