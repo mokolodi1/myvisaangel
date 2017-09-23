@@ -180,6 +180,18 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   }
 });
 
+app.route('/v1/nlp').get(function(request, response) {
+  console.log("NLP:", request.originalUrl);
+
+  response.json({
+    messages: [
+      {
+        text: "Oh hello there!",
+      },
+    ],
+  });
+});
+
 var server = app.listen(port);
 module.exports = server
 
