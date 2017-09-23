@@ -3,6 +3,7 @@
 var _ = require("underscore");
 var express = require("express");
 var Fuse = require("fuse.js");
+const recastai = require('recastai')
 
 var app = express();
 var port = process.env.PORT || 3000;
@@ -180,8 +181,19 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   }
 });
 
+const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'fr')
 app.route('/v1/nlp').get(function(request, response) {
   console.log("NLP:", request.originalUrl);
+
+  client.converseText('hello')
+    .then(function(res) {
+      if (res.action) {
+        console.log('Action: ', res.action.slug);
+      }
+
+      const reply = res.reply()
+      console.log('Reply: ', reply)
+    });
 
   response.json({
     messages: [
