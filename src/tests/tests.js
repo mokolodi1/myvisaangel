@@ -293,7 +293,7 @@ describe('My Visa Bot API', () => {
             response.body.should.be.a('object');
             response.body.should.have.property('pong').eql('It works!');
 
-          done();
+            done();
         });
       });
     });
@@ -321,7 +321,7 @@ describe('My Visa Bot API', () => {
               ]
             });
 
-          done();
+            done();
         });
       });
 
@@ -356,7 +356,7 @@ describe('My Visa Bot API', () => {
               redirect_to_blocks: [ 'APS' ]
             });
 
-          done();
+            done();
         });
       });
 
@@ -378,7 +378,8 @@ describe('My Visa Bot API', () => {
               redirect_to_blocks: [
                 'No recommendation'
               ]
-            })
+            });
+
             done();
         });
       });
@@ -398,7 +399,7 @@ describe('My Visa Bot API', () => {
               }
             });
 
-          done();
+            done();
         });
       });
 
@@ -415,7 +416,7 @@ describe('My Visa Bot API', () => {
               }
             });
 
-          done();
+            done();
         });
       });
 
@@ -438,7 +439,7 @@ describe('My Visa Bot API', () => {
               },
             });
 
-          done();
+            done();
         });
       });
 
@@ -465,7 +466,7 @@ describe('My Visa Bot API', () => {
               },
             });
 
-          done();
+            done();
         });
       });
 
@@ -498,7 +499,7 @@ describe('My Visa Bot API', () => {
               ]
             });
 
-          done();
+            done();
         });
       });
 
@@ -511,7 +512,7 @@ describe('My Visa Bot API', () => {
             response.body.messages[0].text.should.be.eql("De quel pays exactement parles-tu ?");
             response.body.messages[0].quick_replies.should.be.a('array');
 
-          done();
+            done();
         });
       });
 
@@ -534,7 +535,17 @@ describe('My Visa Bot API', () => {
               },
             });
 
-          done();
+            done();
+        });
+      });
+
+      it("shouldn't work return an error if no nationality specified", (done) => {
+        chai.request(server)
+          .get('/v1/parse_nationality')
+          .end((err, response) => {
+            response.should.have.status(400);
+
+            done();
         });
       });
     });

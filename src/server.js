@@ -74,6 +74,11 @@ app.route('/v1/parse_nationality').get(function(request, response) {
 
   let { nationality } = request.query;
 
+  if (!nationality && nationality !== "") {
+    response.status(400).send('Missing nationality parameter');
+    return;
+  }
+
   let results = countriesFuse.search(nationality);
 
   let bestResult = results[0];
