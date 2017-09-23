@@ -185,7 +185,7 @@ const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'f
 app.route('/v1/nlp').get(function(request, response) {
   console.log("NLP:", request.originalUrl);
 
-  client.converseText('hello')
+  recastClient.converseText('hello')
     .then(function(res) {
       if (res.action) {
         console.log('Action: ', res.action.slug);
