@@ -83,8 +83,7 @@ function ptsq(query) {
 // Salarié/TT
 // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
 function salarie(query) {
-  if (_.contains(["cdi", "cdd"], query.employmentSituation) &&
-      query.smicMultiplier >= 1.5) {
+  if (_.contains(["cdi", "cdd"], query.employmentSituation)) {
     return {
       "redirect_to_blocks": [ "Salarié/TT" ]
     };
