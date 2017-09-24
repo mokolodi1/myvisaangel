@@ -206,7 +206,7 @@ app.route('/v1/nlp').get(function(request, response) {
         });
       } else {
         response.json({
-          redirect_to_blocks: ["Introduce creators"],
+          redirect_to_blocks: ["Introduce creators chat"],
         });
       }
     })
