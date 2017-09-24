@@ -335,7 +335,8 @@ app.route('/v1/nlp').get(function(request, response) {
       let intent = recastResponse.intent();
 
       if (intent && intent.slug === "dossier-submission-help") {
-        console.log("Get dossier submission help:", redirect_to_blocks);
+        console.log("They need dossier submission help!");
+
         response.json({
           messages: [
             {
