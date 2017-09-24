@@ -33,7 +33,6 @@ app.route('/v1/get_visas').get(function(request, response) {
   var recommendedSlugs = [];
 
   _.each(tdsTypes, (tdsInfo, tdsSlug) => {
-    console.log("tdsInfo:", tdsInfo);
     let eligible = tdsInfo.eligible(request.query);
 
     if (eligible) {
@@ -340,14 +339,17 @@ app.route('/v1/nlp').get(function(request, response) {
         if (request.query.prefecture) {
           redirect_to_blocks = [
             "Select TDS type",
+            "Dossier submission help",
           ];
         } else {
           redirect_to_blocks = [
             "Ask for prefecture",
             "Select TDS type",
+            "Dossier submission help",
           ];
         }
 
+        console.log("Dossier submission help:", redirect_to_blocks);
         response.json({
           messages: [
             {
@@ -358,6 +360,8 @@ app.route('/v1/nlp').get(function(request, response) {
           redirect_to_blocks,
         });
       } else {
+        console.log("Don't know what they asked -- chat with creators");
+
         response.json({
           redirect_to_blocks: ["Introduce creators chat"],
         });
@@ -365,7 +369,30 @@ app.route('/v1/nlp').get(function(request, response) {
     })
     .catch(function (error) {
       console.log("Error dealing with Recast:", error);
+
+      response.status(500).send("Problem connecting with Recast.ai");
     });
+});
+
+app.route('/v1/dossier_submission_help').get(function(request, response) {
+  console.log("Dossier submission help:", request.originalUrl);
+
+  let { selected_tds, prefecture } = request.query;
+
+  if (!selected_tds || !prefecture) {
+    response.status(400)
+        .send('Missing selected_tds or prefecture parameter(s)');
+    return;
+  }
+
+  Utilities.getPrefectureInfo((error, result) => {
+    let matchingRows = _.where(result, {
+      tdsSlug: selected_tds,
+      prefectureSlug: prefecture,
+    });
+
+    console.log("matchingRows:", matchingRows);
+  });
 });
 
 var server = app.listen(port);

@@ -177,6 +177,21 @@ function getPrefectureInfo(callback) {
 
   doc.useServiceAccountAuth(creds, (error, result) => {
     doc.getRows(1, { offset: 0, limit: 1000 }, (error, result) => {
+      // add some useful computer-generated info onto the result
+      let tdsTypeMap = {
+        "APS": "aps",
+        "Carte de séjour salarié ou travailleur temporaire": "salarie_tt",
+        "Carte de séjour passeport talent": "ptsq",
+        "Carte de séjour vie privée et familiale ": "vpf",
+        "Carte de séjour commerçant": "commercant",
+      }
+
+      _.each(result, (row) => {
+        row.tdsSlug = tdsTypeMap[row];
+
+        row.prefectureSlug = sligishify(row["préfecture"]);
+      });
+
       prefectureInfoCache = result;
       prefectureInfoLastUpdate = new Date();
 
