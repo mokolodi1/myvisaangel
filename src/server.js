@@ -301,6 +301,7 @@ app.route('/v1/select_tds').get(function(request, response) {
     tdsChoices = Object.keys(tdsTypes);
   }
 
+  console.log("Select from list:", tdsChoices);
   response.json({
     messages: [
       {
@@ -335,6 +336,18 @@ app.route('/v1/nlp').get(function(request, response) {
       let intent = recastResponse.intent();
 
       if (intent && intent.slug === "dossier-submission-help") {
+        var redirect_to_blocks;
+        if (request.query.prefecture) {
+          redirect_to_blocks = [
+            "Select TDS type",
+          ];
+        } else {
+          redirect_to_blocks = [
+            "Ask for prefecture",
+            "Select TDS type",
+          ];
+        }
+
         response.json({
           messages: [
             {
@@ -342,10 +355,7 @@ app.route('/v1/nlp').get(function(request, response) {
               "de quelques informations...",
             },
           ],
-          redirect_to_blocks: [
-            "Ask for prefecture",
-            "Select TDS type",
-          ],
+          redirect_to_blocks,
         });
       } else {
         response.json({
