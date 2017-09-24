@@ -386,6 +386,12 @@ app.route('/v1/dossier_submission_help').get(function(request, response) {
   }
 
   Utilities.getPrefectureInfo((error, result) => {
+    if (error) {
+      console.log("error:", error);
+      response.status(500).send("Error getting the prefecture info");
+      return;
+    }
+
     let matchingRows = _.where(result, {
       tdsSlug: selected_tds,
       prefectureSlug: prefecture,
@@ -396,6 +402,8 @@ app.route('/v1/dossier_submission_help').get(function(request, response) {
         return `${row["dépôtdudossier"]} : ${row["coordonnées"]}`;
       });
 
+      console.log("submissionPossibilities:", submissionPossibilities);
+
       response.json({
         messages: [
           {
@@ -405,6 +413,8 @@ app.route('/v1/dossier_submission_help').get(function(request, response) {
         ].concat(submissionPossibilities),
       });
     } else {
+      console.log("No info yet for that submission type.");
+
       response.json({
         messages: [
           {
