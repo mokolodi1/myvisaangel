@@ -39,9 +39,9 @@ app.route('/v1/get_visas').get(function(request, response) {
         result.messages = result.messages.concat(visaInfo.messages);
       }
 
-      if (Array.isArray(visaInfo.redirect_to_blocks)) {
+      if (visaInfo.blockName) {
         result.redirect_to_blocks =
-            result.redirect_to_blocks.concat(visaInfo.redirect_to_blocks);
+            result.redirect_to_blocks.concat(visaInfo.blockName);
       }
     }
   });

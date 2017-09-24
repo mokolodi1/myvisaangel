@@ -35,7 +35,7 @@ describe('My Visa Bot API', () => {
         });
 
         result.should.be.deep.eql({
-          "messages": [
+          messages: [
             {
               "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
                   "France qui change les choses suivantes pour l'APS :\n" +
@@ -44,7 +44,7 @@ describe('My Visa Bot API', () => {
                   "au master obtenu dans un établissement français.\n"
             },
           ],
-          "redirect_to_blocks": ["APS"]
+          blockName: "APS"
         })
 
         done();
@@ -59,7 +59,7 @@ describe('My Visa Bot API', () => {
         });
 
         result.should.be.deep.eql({
-          "messages": [
+          messages: [
             {
               "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
                   "France qui change les choses suivantes pour l'APS :\n" +
@@ -70,7 +70,7 @@ describe('My Visa Bot API', () => {
                   "établissement français.\n"
             }
           ],
-          "redirect_to_blocks": ["APS"]
+          blockName: "APS"
         });
 
         done();
@@ -84,7 +84,7 @@ describe('My Visa Bot API', () => {
         });
 
         result.should.be.deep.eql({
-          "redirect_to_blocks": ["APS"]
+          blockName: "APS"
         });
 
         done();
@@ -98,7 +98,7 @@ describe('My Visa Bot API', () => {
         });
 
         result.should.be.deep.eql({
-          "redirect_to_blocks": ["Vie privée et familiale"]
+          blockName: "Vie privée et familiale"
         });
 
         done();
@@ -124,7 +124,7 @@ describe('My Visa Bot API', () => {
         });
 
         result.should.be.deep.eql({
-          "redirect_to_blocks": [ "Passeport Talent Salarié Qualifié" ]
+          blockName: "Passeport Talent Salarié Qualifié"
         })
 
         done();
@@ -151,8 +151,8 @@ describe('My Visa Bot API', () => {
         });
 
         result.should.be.deep.eql({
-          "redirect_to_blocks": [ "Salarié/TT" ]
-        })
+          blockName: "Salarié/TT"
+        });
 
         done();
       });
@@ -177,8 +177,8 @@ describe('My Visa Bot API', () => {
               "UOHiBF5HC9IJTWA86_JDwo/edit?usp=sharing\n"
             }
           ],
-          "redirect_to_blocks": [ "Salarié/TT" ]
-        })
+          blockName: "Salarié/TT"
+        });
 
         done();
       });
@@ -203,8 +203,8 @@ describe('My Visa Bot API', () => {
               "UOHiBF5HC9IJTWA86_JDwo/edit?usp=sharing\n"
             }
           ],
-          "redirect_to_blocks": [ "Salarié/TT" ]
-        })
+          blockName: "Salarié/TT"
+        });
 
         done();
       });
@@ -231,8 +231,8 @@ describe('My Visa Bot API', () => {
               "UOHiBF5HC9IJTWA86_JDwo/edit?usp=sharing\n"
             }
           ],
-          "redirect_to_blocks": [ "Salarié/TT" ]
-        })
+          blockName: "Salarié/TT"
+        });
 
         done();
       });
@@ -255,8 +255,8 @@ describe('My Visa Bot API', () => {
         });
 
         result.should.be.deep.eql({
-          "redirect_to_blocks": [ "Commerçant" ]
-        })
+          blockName: "Commerçant"
+        });
 
         done();
       });
@@ -468,7 +468,7 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              "messages": [
+              messages: [
                 {
                   text: "Est-ce que tu voulais dire Maroc ?",
                   quick_replies: [
@@ -632,7 +632,7 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              "messages": [
+              messages: [
                 {
                   text: "Est-ce que tu voulais dire Bobigny ?",
                   quick_replies: [

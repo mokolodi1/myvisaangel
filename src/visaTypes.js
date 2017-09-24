@@ -36,20 +36,20 @@ function aps(query) {
       }
 
       return {
-        "messages": [
+        messages: [
           {
             "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
                 "France qui change les choses suivantes pour l'APS :\n" +
                 apsWarnings,
           }
         ],
-        "redirect_to_blocks": ["APS"]
-      }
+        blockName: "APS",
+      };
     }
 
     return {
-      "redirect_to_blocks": ["APS"]
-    }
+      blockName: "APS",
+    };
   }
 }
 
@@ -58,7 +58,7 @@ function aps(query) {
 function vpf(query) {
   if (_.contains(["married", "frenchKids", "pacsed"], query.familySituation)) {
     return {
-      "redirect_to_blocks": [ "Vie privée et familiale" ]
+      blockName: "Vie privée et familiale"
     };
   }
 }
@@ -75,7 +75,7 @@ function ptsq(query) {
       employmentSituation === "cdi" &&
       smicMultiplier >= 2) {
     return {
-      "redirect_to_blocks": [ "Passeport Talent Salarié Qualifié" ]
+      blockName: "Passeport Talent Salarié Qualifié"
     }
   }
 }
@@ -96,7 +96,7 @@ function salarie(query) {
     }
 
     let result = {
-      "redirect_to_blocks": [ "Salarié/TT" ]
+      blockName: "Salarié/TT"
     }
 
     if (opposableReason !== "") {
@@ -126,7 +126,7 @@ function commercant(query) {
   // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
   if (query.employmentSituation === "entrepreneur") {
     return {
-      "redirect_to_blocks": [ "Commerçant" ]
+      blockName: "Commerçant"
     }
   }
 }
