@@ -216,7 +216,7 @@ app.route('/v1/nlp').get(function(request, response) {
               "répondront à tes questions 🙃",
             },
           ],
-          redirect_to_blocks: ["No prompt live chat"],
+          redirect_to_blocks: ["Live chat"],
         });
       }
     })
