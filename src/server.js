@@ -349,7 +349,7 @@ app.route('/v1/nlp').get(function(request, response) {
           ];
         }
 
-        console.log("Dossier submission help:", redirect_to_blocks);
+        console.log("Get dossier submission help:", redirect_to_blocks);
         response.json({
           messages: [
             {

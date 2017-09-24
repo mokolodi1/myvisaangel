@@ -189,7 +189,7 @@ function getPrefectureInfo(callback) {
       _.each(result, (row) => {
         row.tdsSlug = tdsTypeMap[row];
 
-        row.prefectureSlug = sligishify(row["préfecture"]);
+        row.prefectureSlug = slugishify(row["préfecture"]);
       });
 
       prefectureInfoCache = result;
