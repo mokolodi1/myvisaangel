@@ -12,15 +12,6 @@ var visaTypes = require("../visaTypes.js");
 chai.use(chaiHttp);
 
 describe('My Visa Bot API', () => {
-  // Before each command you can clear any database stuff, but
-  // we won't use this just yet.
-  beforeEach((done) => {
-    // Book.remove({}, (err) => {
-    //   done();
-    // });
-    done();
-  });
-
   describe("Make sure the internals work...", () => {
     // Tests for APS
 
@@ -542,6 +533,171 @@ describe('My Visa Bot API', () => {
       it("shouldn't work return an error if no nationality specified", (done) => {
         chai.request(server)
           .get('/v1/parse_nationality')
+          .end((err, response) => {
+            response.should.have.status(400);
+
+            done();
+        });
+      });
+    });
+
+    describe('/GET /v1/parse_prefecture', () => {
+      it('should work for Paris', (done) => {
+        chai.request(server)
+          .get('/v1/parse_prefecture?prefecture=Paris')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                prefecture: "paris",
+                validated_prefecture: "yes",
+              }
+            });
+
+            done();
+        });
+      });
+
+      it('should work for Boulogne-Billancourt', (done) => {
+        chai.request(server)
+          .get('/v1/parse_prefecture?prefecture=Boulogne-Billancourt')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                prefecture: "boulogne_billancourt",
+                validated_prefecture: "yes",
+              }
+            });
+
+            done();
+        });
+      });
+
+      it('should ask again if they spell it super wrong', (done) => {
+        chai.request(server)
+          .get('/v1/parse_prefecture?prefecture=Ppaarriiss')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Je n'arrive pas à comprendre 😔. Vérifie " +
+                  "l'ortographe stp et dis-moi à nouveau de quelle " +
+                  "préfecture tu dépends."
+                }
+              ],
+              set_attributes: {
+                validated_prefecture: "no",
+              },
+            });
+
+            done();
+        });
+      });
+
+      it('should ask again if they spell it super wrong spaces', (done) => {
+        chai.request(server)
+          .get("/v1/parse_prefecture?prefecture=I+don't+know")
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Je n'arrive pas à comprendre 😔. Vérifie " +
+                  "l'ortographe stp et dis-moi à nouveau de quelle " +
+                  "préfecture tu dépends."
+                },
+                {
+                  text: "Essaye d'envoyer seulement le nom de la préfecture."
+                }
+              ],
+              set_attributes: {
+                validated_prefecture: "no",
+              },
+            });
+
+            done();
+        });
+      });
+
+      it("should ask them to specify if it's relatively close", (done) => {
+        chai.request(server)
+          .get('/v1/parse_prefecture?prefecture=Boigny')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              "messages": [
+                {
+                  text: "Est-ce que tu voulais dire Bobigny ?",
+                  quick_replies: [
+                    {
+                      title: "Oui 😀",
+                      set_attributes: {
+                        prefecture: "bobigny",
+                        validated_prefecture: "yes",
+                      },
+                    },
+                    {
+                      title: "Non 😔",
+                      set_attributes: {
+                        validated_prefecture: "no",
+                      },
+                    },
+                  ],
+                }
+              ]
+            });
+
+            done();
+        });
+      });
+
+      it("shouldn't work with a string like bo", (done) => {
+        chai.request(server)
+          .get('/v1/parse_prefecture?prefecture=bo')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.messages[0].text.should.be.eql("Je n'arrive pas à " +
+            "comprendre 😔. Vérifie l'ortographe stp et " +
+            "dis-moi à nouveau de quelle préfecture tu dépends.");
+
+            done();
+        });
+      });
+
+      it("shouldn't work with a blank string", (done) => {
+        chai.request(server)
+          .get('/v1/parse_prefecture?prefecture=')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Je n'arrive pas à comprendre 😔. Vérifie " +
+                  "l'ortographe stp et dis-moi à nouveau de quelle " +
+                  "préfecture tu dépends."
+                },
+              ],
+              set_attributes: {
+                validated_prefecture: "no",
+              },
+            });
+
+            done();
+        });
+      });
+
+      it("shouldn't work return an error if no prefecture specified", (done) => {
+        chai.request(server)
+          .get('/v1/parse_prefecture')
           .end((err, response) => {
             response.should.have.status(400);
 

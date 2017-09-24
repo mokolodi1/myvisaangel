@@ -1,6 +1,7 @@
 "use strict"
 
 var _ = require("underscore");
+var GoogleSpreadsheet = require('google-spreadsheet');
 
 // Change things like "CDD" to "cdd", >17764,2€ (1 SMIC)" to smicx1"
 function cleanVisaQuery(query) {
@@ -146,11 +147,35 @@ function removeDiacritics (str) {
 }
 
 function slugishify(name) {
-  return removeDiacritics(name).toLowerCase();
+  // remove diacritics, lowercase, replace everything but A-Z and numbers to _
+  return removeDiacritics(name).toLowerCase().replace(/[^A-Za-z0-9]/g, "_");
+}
+
+var prefectureInfoCache;
+var prefectureInfoLastUpdate;
+const DOC_CACHE_TIMEOUT = 10000;
+function getPrefectureInfo(callback) {
+  if (new Date() - prefectureInfoLastUpdate < DOC_CACHE_TIMEOUT) {
+    callback(undefined, prefectureInfoCache);
+    return;
+  }
+
+  var doc = new GoogleSpreadsheet('1_16hf6MZ8aqPt8qJQXE_-3Bh6hUo5ZZ0oAcPJ2g2i4U');
+  var creds = require('../private/myvisaangel-f24414135324-service-account.json');
+
+  doc.useServiceAccountAuth(creds, (error, result) => {
+    doc.getRows(1, { offset: 0, limit: 1000 }, (error, result) => {
+      prefectureInfoCache = result;
+      prefectureInfoLastUpdate = new Date();
+
+      callback(error, result);
+    });
+  });
 }
 
 module.exports = {
   removeDiacritics,
   slugishify,
   cleanVisaQuery,
+  getPrefectureInfo,
 }
