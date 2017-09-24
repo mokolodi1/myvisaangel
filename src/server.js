@@ -335,20 +335,6 @@ app.route('/v1/nlp').get(function(request, response) {
       let intent = recastResponse.intent();
 
       if (intent && intent.slug === "dossier-submission-help") {
-        var redirect_to_blocks;
-        if (request.query.prefecture) {
-          redirect_to_blocks = [
-            "Select TDS type",
-            "Dossier submission help",
-          ];
-        } else {
-          redirect_to_blocks = [
-            "Ask for prefecture",
-            "Select TDS type",
-            "Dossier submission help",
-          ];
-        }
-
         console.log("Get dossier submission help:", redirect_to_blocks);
         response.json({
           messages: [
@@ -357,7 +343,11 @@ app.route('/v1/nlp').get(function(request, response) {
               "de quelques informations...",
             },
           ],
-          redirect_to_blocks,
+          redirect_to_blocks: [
+            "Ask for prefecture",
+            "Select TDS type",
+            "Dossier submission help",
+          ],
         });
       } else {
         console.log("Don't know what they asked -- chat with creators");
