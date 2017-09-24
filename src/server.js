@@ -391,7 +391,29 @@ app.route('/v1/dossier_submission_help').get(function(request, response) {
       prefectureSlug: prefecture,
     });
 
-    console.log("matchingRows:", matchingRows);
+    if (matchingRows.length > 0) {
+      let submissionPossibilities = _.map(matchingRows, (row) => {
+        return `${row["dépôtdudossier"]} : ${row["coordonnées"]}`;
+      });
+
+      response.json({
+        messages: [
+          {
+            text: "Voici comment deposer un dossier pour un titre de séjour " +
+            `${tdsTypes[selected_tds].name} :`,
+          }
+        ].concat(submissionPossibilities),
+      });
+    } else {
+      response.json({
+        messages: [
+          {
+            text: "Je ne sais pas encore comment deposer un dossier " +
+            `pour un titre de séjour ${tdsTypes[selected_tds].name} là-bas...`,
+          },
+        ],
+      });
+    }
   });
 });
 
