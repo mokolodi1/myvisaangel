@@ -8,7 +8,6 @@ const recastai = require('recastai')
 var app = express();
 var port = process.env.PORT || 3000;
 
-var VisaTypes = require("./visaTypes.js");
 var Utilities = require("./utilities.js");
 var Data = require("./data.js");
 
@@ -23,37 +22,8 @@ Figure out which visas the user is eligible for
 */
 app.route('/v1/get_visas').get(function(request, response) {
   console.log("Get visas:", request.originalUrl);
-  Utilities.cleanVisaQuery(request.query)
-  console.log("Cleaned query:", request.query);
 
-  var result = {
-    messages: [],
-    redirect_to_blocks: [],
-  }
-
-  _.each(VisaTypes, (getVisaInfo, visaType) => {
-    let visaInfo = getVisaInfo(request.query);
-
-    if (visaInfo) {
-      if (Array.isArray(visaInfo.messages)) {
-        result.messages = result.messages.concat(visaInfo.messages);
-      }
-
-      if (visaInfo.blockName) {
-        result.redirect_to_blocks =
-            result.redirect_to_blocks.concat(visaInfo.blockName);
-      }
-    }
-  });
-
-  if (result.redirect_to_blocks.length === 0) {
-    // TODO: Paola -- feel free to change this text
-    result.redirect_to_blocks.push("No recommendation")
-  }
-
-  if (result.messages.length === 0) {
-    delete result.messages;
-  }
+  let result = Utilities.tdsFromQuery(request.query);
 
   console.log("Result:", result);
   response.json(result);
@@ -282,6 +252,13 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
       }
     }
   });
+});
+
+app.route('/v1/select_tds').get(function(request, response) {
+  console.log("Select TDS:", request.originalUrl);
+  Utilities.cleanVisaQuery(request.query)
+
+
 });
 
 const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'fr');

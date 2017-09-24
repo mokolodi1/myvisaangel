@@ -1,7 +1,6 @@
 "use strict"
 
 var _ = require("underscore");
-var Utilities = require("./utilities.js");
 
 module.exports = {};
 
@@ -474,16 +473,5 @@ let countries = [
   { slug: "zambia", english: "Zambia", country_code: "zm", french: "Zambie" },
   { slug: "zimbabwe", english: "Zimbabwe", country_code: "zw", french: "Zimbabwe" },
 ];
-
-// calculate the words without accents and such
-_.each(countries, (country) => {
-  let names = [country.english, country.french];
-
-  if (country.alternatives) {
-    names = names.concat(country.alternatives);
-  }
-
-  country.slugishNames = _.map(names, Utilities.slugishify);
-});
 
 module.exports.countries = countries;

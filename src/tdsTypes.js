@@ -1,8 +1,7 @@
 "use strict"
 
 var _ = require("underscore");
-
-var data = require('./data.js');
+var Data = require('./data.js');
 
 // Authorisation Provisoire de Séjour
 // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
@@ -13,11 +12,9 @@ function aps(query) {
     diploma,
   } = query;
 
-
-
   if (nationality !== "algeria" && currentTDS === "student" &&
       _.contains(["licence_pro", "masters", "masters_equiv"], diploma)) {
-    var apsSpecialInfo = data.apsSpecialCountries[nationality];
+    var apsSpecialInfo = Data.apsSpecialCountries[nationality];
     if (apsSpecialInfo && apsSpecialInfo.applicable) {
       var apsWarnings = "";
 
@@ -32,7 +29,7 @@ function aps(query) {
 
       if (apsSpecialInfo.condition_de_diplome) {
         apsWarnings += "Condition de diplôme : " +
-             apsSpecialInfo.condition_de_diplome +".\n"
+             apsSpecialInfo.condition_de_diplome +".\n";
       }
 
       return {
