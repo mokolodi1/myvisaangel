@@ -308,7 +308,10 @@ app.route('/v1/nlp').get(function(request, response) {
               "de quelques informations...",
             },
           ],
-          redirect_to_blocks: [ "Ask for prefecture" ]
+          redirect_to_blocks: [
+            "Ask for prefecture",
+            "Select TDS type",
+          ],
         });
       } else {
         response.json({
