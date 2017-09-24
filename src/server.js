@@ -399,7 +399,9 @@ app.route('/v1/dossier_submission_help').get(function(request, response) {
 
     if (matchingRows.length > 0) {
       let submissionPossibilities = _.map(matchingRows, (row) => {
-        return `${row["dépôtdudossier"]} : ${row["coordonnées"]}`;
+        return {
+          text: `${row["dépôtdudossier"]} : ${row["coordonnées"]}`
+        };
       });
 
       console.log("submissionPossibilities:", submissionPossibilities);
