@@ -196,7 +196,7 @@ app.route('/v1/nlp').get(function(request, response) {
     .then(function(recastResponse) {
       let intent = recastResponse.intent();
 
-      if (intent.slug === "dossier-submission-help") {
+      if (intent && intent.slug === "dossier-submission-help") {
         response.json({
           messages: [
             {
@@ -221,7 +221,7 @@ app.route('/v1/nlp').get(function(request, response) {
       }
     })
     .catch(function (error) {
-      console.log("error:", error);
+      console.log("Error dealing with Recast:", error);
     });
 });
 
