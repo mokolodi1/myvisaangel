@@ -3,9 +3,27 @@
 var _ = require("underscore");
 var Data = require('./data.js');
 
+var tdsTypes = {
+  aps: {
+    name: "APS",
+  },
+  vpf: {
+    name: "Vie Privée et Familiale",
+  },
+  ptsq: {
+    name: "Passeport Talent Salarié Qualifié",
+  },
+  salarie_tt: {
+    name: "Salarié/Travailleur Temporaire",
+  },
+  commercant: {
+    name: "Commerçant",
+  },
+};
+
 // Authorisation Provisoire de Séjour
 // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
-function aps(query) {
+tdsTypes.aps.eligible = (query) => {
   let {
     currentTDS,
     nationality,
@@ -52,7 +70,7 @@ function aps(query) {
 
 // vie privée et familiale
 // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
-function vpf(query) {
+tdsTypes.vpf.eligible = (query) => {
   if (_.contains(["married", "frenchKids", "pacsed"], query.familySituation)) {
     return {
       blockName: "Vie privée et familiale"
@@ -62,7 +80,7 @@ function vpf(query) {
 
 // Passeport Talent Salarié Qualifié
 // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
-function ptsq(query) {
+tdsTypes.ptsq.eligible = (query) => {
   let {
     nationality, diploma, employmentSituation, smicMultiplier
   } = query;
@@ -79,7 +97,7 @@ function ptsq(query) {
 
 // Salarié/TT
 // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
-function salarie(query) {
+tdsTypes.salarie_tt.eligible = (query) => {
   if (_.contains(["cdi", "cdd"], query.employmentSituation)) {
     let opposableReason = "";
     if (query.smicMultiplier < 1.5) {
@@ -119,7 +137,7 @@ function salarie(query) {
 }
 
 // Commerçant
-function commercant(query) {
+tdsTypes.commercant.eligible = (query) => {
   // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
   if (query.employmentSituation === "entrepreneur") {
     return {
@@ -128,10 +146,4 @@ function commercant(query) {
   }
 }
 
-module.exports = {
-  aps,
-  vpf,
-  ptsq,
-  salarie,
-  commercant,
-}
+module.exports = tdsTypes;

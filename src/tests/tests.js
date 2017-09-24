@@ -17,7 +17,7 @@ describe('My Visa Bot API', () => {
 
     describe('APS visa', () => {
       it('should return not eligible for Algerians', (done) => {
-        let result = tdsTypes.aps({
+        let result = tdsTypes.aps.eligible({
           nationality: "algeria"
         });
 
@@ -28,7 +28,7 @@ describe('My Visa Bot API', () => {
 
       it("should return eligible with Special Agreement " +
           "(condition_de_duree et condition_de_diplome qui changent)", (done) => {
-        let result = tdsTypes.aps({
+        let result = tdsTypes.aps.eligible({
           nationality: "congo",
           currentTDS: "student",
           diploma: "licence_pro",
@@ -52,7 +52,7 @@ describe('My Visa Bot API', () => {
 
       it("should return eligible with Special Agreement " +
           "(condition_de_duree, condition_de_diplome et renouvellement qui changent)", (done) => {
-        let result = tdsTypes.aps({
+        let result = tdsTypes.aps.eligible({
           nationality: "gabon",
           currentTDS: "student",
           diploma: "licence_pro",
@@ -77,7 +77,7 @@ describe('My Visa Bot API', () => {
       });
 
       it('should return eligible for Colombian students w/ diploma', (done) => {
-        let result = tdsTypes.aps({
+        let result = tdsTypes.aps.eligible({
           nationality: "colombia",
           currentTDS: "student",
           diploma: "licence_pro",
@@ -93,7 +93,7 @@ describe('My Visa Bot API', () => {
 
     describe('Vie privée et familiale visa', () => {
       it('should return eligible for Pacsed people', (done) => {
-        let result = tdsTypes.vpf({
+        let result = tdsTypes.vpf.eligible({
           familySituation: "pacsed",
         });
 
@@ -105,7 +105,7 @@ describe('My Visa Bot API', () => {
       });
 
       it('should return not eligible for single people', (done) => {
-        let result = tdsTypes.vpf({
+        let result = tdsTypes.vpf.eligible({
           familySituation: "single",
         });
 
@@ -117,7 +117,7 @@ describe('My Visa Bot API', () => {
 
     describe('Passeport Talent Salarié Qualifié visa', () => {
       it('should return eligible for Master, CDI, >35526,4€ (2x SMIC) people', (done) => {
-        let result = tdsTypes.ptsq({
+        let result = tdsTypes.ptsq.eligible({
           diploma: "masters",
           smicMultiplier: 2,
           employmentSituation: "cdi"
@@ -131,7 +131,7 @@ describe('My Visa Bot API', () => {
       });
 
       it('should return not eligible for Equivalent au Master, CDI, >26645€ (1,5x SMIC) people', (done) => {
-        let result = tdsTypes.ptsq({
+        let result = tdsTypes.ptsq.eligible({
           diploma: "masters",
           smicMultiplier: 1.5,
           employmentSituation: "cdi"
@@ -145,7 +145,7 @@ describe('My Visa Bot API', () => {
 
     describe('Salarié visa', () => {
       it('should return eligible for CDI', (done) => {
-        let result = tdsTypes.salarie({
+        let result = tdsTypes.salarie_tt.eligible({
           employmentSituation: "cdi",
           smicMultiplier: 1.5,
         });
@@ -158,7 +158,7 @@ describe('My Visa Bot API', () => {
       });
 
       it('should return eligible for CDI (with warning for salary)', (done) => {
-        let result = tdsTypes.salarie({
+        let result = tdsTypes.salarie_tt.eligible({
           employmentSituation: "cdi",
           smicMultiplier: 1,
         });
@@ -184,7 +184,7 @@ describe('My Visa Bot API', () => {
       });
 
       it('should return eligible for CDD (with warning for license classique)', (done) => {
-        let result = tdsTypes.salarie({
+        let result = tdsTypes.salarie_tt.eligible({
           employmentSituation: "cdi",
           diploma: "licence_classique",
         });
@@ -210,7 +210,7 @@ describe('My Visa Bot API', () => {
       });
 
       it('should return eligible for CDI (with warning for license classique, salary)', (done) => {
-        let result = tdsTypes.salarie({
+        let result = tdsTypes.salarie_tt.eligible({
           employmentSituation: "cdi",
           smicMultiplier: 1,
           diploma: "licence_classique",
@@ -238,7 +238,7 @@ describe('My Visa Bot API', () => {
       });
 
       it('should return not eligible for unknown employment', (done) => {
-        let result = tdsTypes.salarie({
+        let result = tdsTypes.salarie_tt.eligible({
           employmentSituation: "doesnt_know"
         });
 
@@ -250,7 +250,7 @@ describe('My Visa Bot API', () => {
 
     describe('Commercant visa', () => {
       it('should return eligible for entrepreneur', (done) => {
-        let result = tdsTypes.commercant({
+        let result = tdsTypes.commercant.eligible({
           employmentSituation: "entrepreneur"
         });
 
@@ -262,7 +262,7 @@ describe('My Visa Bot API', () => {
       });
 
       it('should return not eligible for CDD', (done) => {
-        let result = tdsTypes.commercant({
+        let result = tdsTypes.commercant.eligible({
           employmentSituation: "cdd"
         });
 
@@ -311,7 +311,7 @@ describe('My Visa Bot API', () => {
                 'Salarié/TT'
               ],
               set_attributes: {
-                recommended_tds: "aps|ptsq|salarie"
+                recommended_tds: "aps|ptsq|salarie_tt"
               },
             });
 

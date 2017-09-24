@@ -1,7 +1,6 @@
 "use strict"
 
 var _ = require("underscore");
-var tdsTypes = require("./tdsTypes.js");
 var Data = require('./data.js');
 var GoogleSpreadsheet = require('google-spreadsheet');
 
@@ -186,51 +185,9 @@ function getPrefectureInfo(callback) {
   });
 }
 
-function tdsFromQuery(query) {
-  cleanVisaQuery(query)
-
-  var result = {
-    messages: [],
-    redirect_to_blocks: [],
-  }
-  var recommendedSlugs = [];
-
-  _.each(tdsTypes, (getVisaInfo, tdsSlug) => {
-    let visaInfo = getVisaInfo(query);
-
-    if (visaInfo) {
-      if (visaInfo.messages) {
-        result.messages = result.messages.concat(visaInfo.messages);
-      }
-
-      if (visaInfo.blockName) {
-        result.redirect_to_blocks =
-            result.redirect_to_blocks.concat(visaInfo.blockName);
-        recommendedSlugs.push(tdsSlug);
-      }
-    }
-  });
-
-  if (result.redirect_to_blocks.length === 0) {
-    // TODO: Paola -- feel free to change this text
-    result.redirect_to_blocks.push("No recommendation")
-  } else {
-    result.set_attributes = {
-      recommended_tds: recommendedSlugs.join("|"),
-    };
-  }
-
-  if (result.messages.length === 0) {
-    delete result.messages;
-  }
-
-  return result;
-}
-
 module.exports = {
   removeDiacritics,
   slugishify,
   cleanVisaQuery,
   getPrefectureInfo,
-  tdsFromQuery,
 }

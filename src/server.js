@@ -8,8 +8,9 @@ const recastai = require('recastai')
 var app = express();
 var port = process.env.PORT || 3000;
 
-var Utilities = require("./utilities.js");
 var Data = require("./data.js");
+var Utilities = require("./utilities.js");
+var tdsTypes = require("./tdsTypes.js");
 
 app.route('/v1/ping').get(function(request, response) {
   response.json({
@@ -23,7 +24,43 @@ Figure out which visas the user is eligible for
 app.route('/v1/get_visas').get(function(request, response) {
   console.log("Get visas:", request.originalUrl);
 
-  let result = Utilities.tdsFromQuery(request.query);
+  Utilities.cleanVisaQuery(request.query);
+
+  var result = {
+    messages: [],
+    redirect_to_blocks: [],
+  }
+  var recommendedSlugs = [];
+
+  _.each(tdsTypes, (tdsInfo, tdsSlug) => {
+    console.log("tdsInfo:", tdsInfo);
+    let eligible = tdsInfo.eligible(request.query);
+
+    if (eligible) {
+      if (eligible.messages) {
+        result.messages = result.messages.concat(eligible.messages);
+      }
+
+      if (eligible.blockName) {
+        result.redirect_to_blocks =
+            result.redirect_to_blocks.concat(eligible.blockName);
+        recommendedSlugs.push(tdsSlug);
+      }
+    }
+  });
+
+  if (result.redirect_to_blocks.length === 0) {
+    // TODO: Paola -- feel free to change this text
+    result.redirect_to_blocks.push("No recommendation")
+  } else {
+    result.set_attributes = {
+      recommended_tds: recommendedSlugs.join("|"),
+    };
+  }
+
+  if (result.messages.length === 0) {
+    delete result.messages;
+  }
 
   console.log("Result:", result);
   response.json(result);
@@ -256,9 +293,8 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
 
 app.route('/v1/select_tds').get(function(request, response) {
   console.log("Select TDS:", request.originalUrl);
-  Utilities.cleanVisaQuery(request.query)
 
-
+  
 });
 
 const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'fr');
