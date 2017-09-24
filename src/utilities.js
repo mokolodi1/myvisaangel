@@ -172,6 +172,7 @@ function getPrefectureInfo(callback) {
     return;
   }
 
+  // https://docs.google.com/spreadsheets/d/1_16hf6MZ8aqPt8qJQXE_-3Bh6hUo5ZZ0oAcPJ2g2i4U/edit#gid=1002124185
   var doc = new GoogleSpreadsheet('1_16hf6MZ8aqPt8qJQXE_-3Bh6hUo5ZZ0oAcPJ2g2i4U');
   var creds = require('../private/myvisaangel-f24414135324-service-account.json');
 
