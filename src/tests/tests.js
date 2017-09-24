@@ -711,5 +711,95 @@ describe('My Visa Bot API', () => {
         });
       });
     });
+
+    describe('/GET /v1/select_tds', () => {
+      it('should work if they completed the initial user flow', (done) => {
+        chai.request(server)
+          .get('/v1/select_tds?recommended_tds=aps|ptsq|commercant')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour quel titre de séjour ?",
+                  quick_replies: [
+                    {
+                      title: "APS",
+                      set_attributes: {
+                        selected_tds: "aps",
+                      }
+                    },
+                    {
+                      title: "Passeport Talent Salarié Qualifié",
+                      set_attributes: {
+                        selected_tds: "ptsq",
+                      }
+                    },
+                    {
+                      title: "Commerçant",
+                      set_attributes: {
+                        selected_tds: "commercant",
+                      }
+                    },
+                  ]
+                }
+              ]
+            });
+
+            done();
+        });
+      });
+
+      it("should work if they didn't complete the initial user flow", (done) => {
+        chai.request(server)
+          .get('/v1/select_tds')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour quel titre de séjour ?",
+                  quick_replies: [
+                    {
+                      title: "APS",
+                      set_attributes: {
+                        selected_tds: "aps",
+                      }
+                    },
+                    {
+                      title: "Vie Privée et Familiale",
+                      set_attributes: {
+                        selected_tds: "vpf",
+                      }
+                    },
+                    {
+                      title: "Passeport Talent Salarié Qualifié",
+                      set_attributes: {
+                        selected_tds: "ptsq",
+                      }
+                    },
+                    {
+                      title: "Salarié/Travailleur Temporaire",
+                      set_attributes: {
+                        selected_tds: "salarie_tt",
+                      }
+                    },
+                    {
+                      title: "Commerçant",
+                      set_attributes: {
+                        selected_tds: "commercant",
+                      }
+                    },
+                  ]
+                }
+              ]
+            });
+
+            done();
+        });
+      });
+    });
   });
 });

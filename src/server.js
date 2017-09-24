@@ -294,7 +294,28 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
 app.route('/v1/select_tds').get(function(request, response) {
   console.log("Select TDS:", request.originalUrl);
 
-  
+  var tdsChoices = [];
+  if (request.query.recommended_tds) {
+    tdsChoices = request.query.recommended_tds.split("|");
+  } else {
+    tdsChoices = Object.keys(tdsTypes);
+  }
+
+  response.json({
+    messages: [
+      {
+        text: "Pour quel titre de séjour ?",
+        quick_replies: _.map(tdsChoices, (tdsSlug) => {
+          return {
+            title: tdsTypes[tdsSlug].name,
+            set_attributes: {
+              selected_tds: tdsSlug,
+            },
+          };
+        }),
+      },
+    ],
+  });
 });
 
 const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'fr');
