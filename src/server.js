@@ -12,6 +12,13 @@ var Data = require("./data.js");
 var Utilities = require("./utilities.js");
 var tdsTypes = require("./tdsTypes.js");
 
+// print some info about the time and such
+app.all('*', (request, response, next) => {
+  console.log("\n" + new Date(), request.path, request.query);
+
+  next();
+});
+
 app.route('/v1/ping').get(function(request, response) {
   response.json({
     pong: "It works!",
@@ -22,8 +29,6 @@ app.route('/v1/ping').get(function(request, response) {
 Figure out which visas the user is eligible for
 */
 app.route('/v1/get_visas').get(function(request, response) {
-  console.log("Get visas:", request.originalUrl);
-
   Utilities.cleanVisaQuery(request.query);
 
   var result = {
@@ -77,8 +82,6 @@ var countriesFuse = new Fuse(Data.countries, {
   keys: [ "slugishNames" ]
 });
 app.route('/v1/parse_nationality').get(function(request, response) {
-  console.log("Parse nationality:", request.originalUrl);
-
   let { nationality } = request.query;
 
   if (!nationality && nationality !== "") {
@@ -187,8 +190,6 @@ app.route('/v1/parse_nationality').get(function(request, response) {
 });
 
 app.route('/v1/parse_prefecture').get(function(request, response) {
-  console.log("Parse prefecture:", request.originalUrl);
-
   let { prefecture } = request.query;
 
   if (!prefecture && prefecture !== "") {
@@ -291,8 +292,6 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
 });
 
 app.route('/v1/select_tds').get(function(request, response) {
-  console.log("Select TDS:", request.originalUrl);
-
   var tdsChoices = [];
   if (request.query.recommended_tds) {
     tdsChoices = request.query.recommended_tds.split("|");
@@ -320,8 +319,6 @@ app.route('/v1/select_tds').get(function(request, response) {
 
 const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'fr');
 app.route('/v1/nlp').get(function(request, response) {
-  console.log("NLP:", request.originalUrl);
-
   let message = request.query["last user freeform input"];
 
   if (!message) {
@@ -365,8 +362,6 @@ app.route('/v1/nlp').get(function(request, response) {
 });
 
 app.route('/v1/dossier_submission_method').get(function(request, response) {
-  console.log("Dossier submission method:", request.originalUrl);
-
   let { selected_tds, prefecture } = request.query;
 
   if (!selected_tds || !prefecture) {
