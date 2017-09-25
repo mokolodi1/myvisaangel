@@ -1,6 +1,8 @@
 "use strict"
 
 var _ = require("underscore");
+var Data = require('./data.js');
+var GoogleSpreadsheet = require('google-spreadsheet');
 
 // Change things like "CDD" to "cdd", >17764,2€ (1 SMIC)" to smicx1"
 function cleanVisaQuery(query) {
@@ -146,11 +148,62 @@ function removeDiacritics (str) {
 }
 
 function slugishify(name) {
-  return removeDiacritics(name).toLowerCase();
+  // remove diacritics, lowercase, replace everything but A-Z and numbers to _
+  return removeDiacritics(name).toLowerCase().replace(/[^A-Za-z0-9]/g, "_");
+}
+
+// calculate the words without accents and such
+_.each(Data.countries, (country) => {
+  let names = [country.english, country.french];
+
+  if (country.alternatives) {
+    names = names.concat(country.alternatives);
+  }
+
+  country.slugishNames = _.map(names, slugishify);
+});
+
+var prefectureInfoCache;
+var prefectureInfoLastUpdate;
+const DOC_CACHE_TIMEOUT = 10000;
+function getPrefectureInfo(callback) {
+  if (new Date() - prefectureInfoLastUpdate < DOC_CACHE_TIMEOUT) {
+    callback(undefined, prefectureInfoCache);
+    return;
+  }
+
+  // https://docs.google.com/spreadsheets/d/1_16hf6MZ8aqPt8qJQXE_-3Bh6hUo5ZZ0oAcPJ2g2i4U/edit#gid=1002124185
+  var doc = new GoogleSpreadsheet('1_16hf6MZ8aqPt8qJQXE_-3Bh6hUo5ZZ0oAcPJ2g2i4U');
+  var creds = require('../private/myvisaangel-f24414135324-service-account.json');
+
+  doc.useServiceAccountAuth(creds, (error, result) => {
+    doc.getRows(1, { offset: 0, limit: 1000 }, (error, result) => {
+      // add some useful computer-generated info onto the result
+      let tdsTypeMap = {
+        "APS": "aps",
+        "Carte de séjour salarié ou travailleur temporaire": "salarie_tt",
+        "Carte de séjour passeport talent": "ptsq",
+        "Carte de séjour vie privée et familiale ": "vpf",
+        "Carte de séjour commerçant": "commercant",
+      }
+
+      _.each(result, (row) => {
+        row.tdsSlug = tdsTypeMap[row["typededemande"]];
+
+        row.prefectureSlug = slugishify(row["préfecture"]);
+      });
+
+      prefectureInfoCache = result;
+      prefectureInfoLastUpdate = new Date();
+
+      callback(error, result);
+    });
+  });
 }
 
 module.exports = {
   removeDiacritics,
   slugishify,
   cleanVisaQuery,
+  getPrefectureInfo,
 }

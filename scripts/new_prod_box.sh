@@ -1,7 +1,7 @@
 # Install node, npm, tmux
 # TODO: unclear if we need both nodejs and nodejs-legacy
 sudo apt-get update
-sudo apt-get install -y nodejs nodejs-legacy npm tmux
+sudo apt-get install -y nodejs nodejs-legacy npm tmux emacs24
 
 # Install Teo's tmux conf file
 git clone https://github.com/mokolodi1/dotfiles ~/dotfiles

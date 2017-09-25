@@ -1,23 +1,38 @@
 "use strict"
 
 var _ = require("underscore");
+var Data = require('./data.js');
 
-var data = require('./data.js');
+var tdsTypes = {
+  aps: {
+    name: "APS",
+  },
+  vpf: {
+    name: "Vie Privée et Familiale",
+  },
+  ptsq: {
+    name: "Passeport Talent Salarié Qualifié",
+  },
+  salarie_tt: {
+    name: "Salarié/Travailleur Temporaire",
+  },
+  commercant: {
+    name: "Commerçant",
+  },
+};
 
 // Authorisation Provisoire de Séjour
 // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
-function aps(query) {
+tdsTypes.aps.eligible = (query) => {
   let {
     currentTDS,
     nationality,
     diploma,
   } = query;
 
-
-
   if (nationality !== "algeria" && currentTDS === "student" &&
       _.contains(["licence_pro", "masters", "masters_equiv"], diploma)) {
-    var apsSpecialInfo = data.apsSpecialCountries[nationality];
+    var apsSpecialInfo = Data.apsSpecialCountries[nationality];
     if (apsSpecialInfo && apsSpecialInfo.applicable) {
       var apsWarnings = "";
 
@@ -32,40 +47,40 @@ function aps(query) {
 
       if (apsSpecialInfo.condition_de_diplome) {
         apsWarnings += "Condition de diplôme : " +
-             apsSpecialInfo.condition_de_diplome +".\n"
+             apsSpecialInfo.condition_de_diplome +".\n";
       }
 
       return {
-        "messages": [
+        messages: [
           {
             "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
                 "France qui change les choses suivantes pour l'APS :\n" +
                 apsWarnings,
           }
         ],
-        "redirect_to_blocks": ["APS"]
-      }
+        blockName: "APS",
+      };
     }
 
     return {
-      "redirect_to_blocks": ["APS"]
-    }
+      blockName: "APS",
+    };
   }
 }
 
 // vie privée et familiale
 // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
-function vpf(query) {
+tdsTypes.vpf.eligible = (query) => {
   if (_.contains(["married", "frenchKids", "pacsed"], query.familySituation)) {
     return {
-      "redirect_to_blocks": [ "Vie privée et familiale" ]
+      blockName: "Vie privée et familiale"
     };
   }
 }
 
 // Passeport Talent Salarié Qualifié
 // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
-function ptsq(query) {
+tdsTypes.ptsq.eligible = (query) => {
   let {
     nationality, diploma, employmentSituation, smicMultiplier
   } = query;
@@ -75,14 +90,14 @@ function ptsq(query) {
       employmentSituation === "cdi" &&
       smicMultiplier >= 2) {
     return {
-      "redirect_to_blocks": [ "Passeport Talent Salarié Qualifié" ]
+      blockName: "Passeport Talent Salarié Qualifié"
     }
   }
 }
 
 // Salarié/TT
 // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
-function salarie(query) {
+tdsTypes.salarie_tt.eligible = (query) => {
   if (_.contains(["cdi", "cdd"], query.employmentSituation)) {
     let opposableReason = "";
     if (query.smicMultiplier < 1.5) {
@@ -96,7 +111,7 @@ function salarie(query) {
     }
 
     let result = {
-      "redirect_to_blocks": [ "Salarié/TT" ]
+      blockName: "Salarié/TT"
     }
 
     if (opposableReason !== "") {
@@ -122,19 +137,13 @@ function salarie(query) {
 }
 
 // Commerçant
-function commercant(query) {
+tdsTypes.commercant.eligible = (query) => {
   // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
   if (query.employmentSituation === "entrepreneur") {
     return {
-      "redirect_to_blocks": [ "Commerçant" ]
+      blockName: "Commerçant"
     }
   }
 }
 
-module.exports = {
-  aps,
-  vpf,
-  ptsq,
-  salarie,
-  commercant,
-}
+module.exports = tdsTypes;
