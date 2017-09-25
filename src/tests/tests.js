@@ -815,7 +815,7 @@ describe('My Visa Bot API', () => {
 
       it("should work if we don't know what they want", (done) => {
         chai.request(server)
-          .get('/v1/nlp?last+user+freeform+input=Information+about+ice+cream')
+          .get('/v1/nlp?last+user+freeform+input=I+like+bacon+bits+and+racing+cars')
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
@@ -843,7 +843,7 @@ describe('My Visa Bot API', () => {
               redirect_to_blocks: [
                 "Ask for prefecture",
                 "Select TDS type",
-                "Dossier submission help",
+                "Dossier submission method",
               ],
             });
 
@@ -852,10 +852,10 @@ describe('My Visa Bot API', () => {
       });
     });
 
-    describe('/GET /v1/dossier_submission_help', () => {
+    describe('/GET /v1/dossier_submission_method', () => {
       it("should fail if missing parameters", (done) => {
         chai.request(server)
-          .get('/v1/dossier_submission_help')
+          .get('/v1/dossier_submission_method')
           .end((err, response) => {
             response.should.have.status(400);
 
@@ -865,7 +865,7 @@ describe('My Visa Bot API', () => {
 
       it("should help users if they have the info", (done) => {
         chai.request(server)
-          .get('/v1/dossier_submission_help?prefecture=paris&selected_tds=aps')
+          .get('/v1/dossier_submission_method?prefecture=paris&selected_tds=aps')
           .end((err, response) => {
             response.should.have.status(200);
 
@@ -884,7 +884,7 @@ describe('My Visa Bot API', () => {
 
       it("should help users if we don't have the info yet", (done) => {
         chai.request(server)
-          .get('/v1/dossier_submission_help?prefecture=nyc&selected_tds=aps')
+          .get('/v1/dossier_submission_method?prefecture=nyc&selected_tds=aps')
           .end((err, response) => {
             response.should.have.status(200);
 

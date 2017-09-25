@@ -333,8 +333,8 @@ app.route('/v1/nlp').get(function(request, response) {
     .then(function(recastResponse) {
       let intent = recastResponse.intent();
 
-      if (intent && intent.slug === "dossier-submission-help") {
-        console.log("They need dossier submission help!");
+      if (intent && intent.slug === "dossier-submission-method") {
+        console.log("They need dossier submission method help!");
 
         response.json({
           messages: [
@@ -346,7 +346,7 @@ app.route('/v1/nlp').get(function(request, response) {
           redirect_to_blocks: [
             "Ask for prefecture",
             "Select TDS type",
-            "Dossier submission help",
+            "Dossier submission method",
           ],
         });
       } else {
@@ -364,8 +364,8 @@ app.route('/v1/nlp').get(function(request, response) {
     });
 });
 
-app.route('/v1/dossier_submission_help').get(function(request, response) {
-  console.log("Dossier submission help:", request.originalUrl);
+app.route('/v1/dossier_submission_method').get(function(request, response) {
+  console.log("Dossier submission method:", request.originalUrl);
 
   let { selected_tds, prefecture } = request.query;
 
