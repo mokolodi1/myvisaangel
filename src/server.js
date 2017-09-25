@@ -137,7 +137,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       return {
         title: result.item.french,
         set_attributes: {
-          prefecture: result.item.slug,
+          nationality: result.item.slug,
           validated_nationality: "yes",
         },
       };

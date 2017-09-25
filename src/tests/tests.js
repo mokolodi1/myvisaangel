@@ -505,9 +505,54 @@ describe('My Visa Bot API', () => {
           .get('/v1/parse_nationality?nationality=ma')
           .end((err, response) => {
             response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.messages[0].text.should.be.eql("De quel pays exactement parles-tu ?");
-            response.body.messages[0].quick_replies.should.be.a('array');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "De quel pays exactement parles-tu ?",
+                  quick_replies: [
+                    {
+                      title: "Macédoine",
+                      set_attributes: {
+                        nationality: "macedonia",
+                        validated_nationality: "yes",
+                      },
+                    },
+                    {
+                      title: "Malte",
+                      set_attributes: {
+                        nationality: "malta",
+                        validated_nationality: "yes"
+                      },
+                    },
+                    {
+                      title: "Mauritanie",
+                      set_attributes: {
+                        nationality: "mauritania",
+                        validated_nationality: "yes"
+                      },
+                    },
+                    {
+                      title: "Maurice",
+                      set_attributes: {
+                        nationality: "mauritius",
+                        validated_nationality: "yes"
+                      },
+                    },
+                    {
+                      title: "Martinique",
+                      set_attributes: {
+                        nationality: "martinique",
+                        validated_nationality: "yes"
+                      },
+                    },
+                    {
+                      title: "Autre",
+                      set_attributes: { validated_nationality: "no" },
+                    },
+                  ],
+                },
+              ],
+            });
 
             done();
         });
