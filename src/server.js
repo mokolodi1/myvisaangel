@@ -323,7 +323,6 @@ app.route('/v1/nlp').get(function(request, response) {
   console.log("NLP:", request.originalUrl);
 
   let message = request.query["last user freeform input"];
-  let { prefecture } = request.query;
 
   if (!message) {
     response.status(400).send('Missing "last user freeform input" parameter');

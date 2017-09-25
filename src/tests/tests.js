@@ -798,7 +798,108 @@ describe('My Visa Bot API', () => {
             });
 
             done();
-        });
+          });
+      });
+    });
+
+    describe('/GET /v1/nlp', () => {
+      it("should work with a blank string", (done) => {
+        chai.request(server)
+          .get('/v1/nlp')
+          .end((err, response) => {
+            response.should.have.status(400);
+
+            done();
+          });
+      });
+
+      it("should work if we don't know what they want", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=Information+about+ice+cream')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: ["Introduce creators chat"],
+            });
+
+            done();
+          });
+      });
+
+      it("should work with a rdv request", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=rdv+svp')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider avec le dépôt de ton dossier j'ai besoin " +
+                  "de quelques informations...",
+                },
+              ],
+              redirect_to_blocks: [
+                "Ask for prefecture",
+                "Select TDS type",
+                "Dossier submission help",
+              ],
+            });
+
+            done();
+          });
+      });
+    });
+
+    describe('/GET /v1/dossier_submission_help', () => {
+      it("should fail if missing parameters", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_submission_help')
+          .end((err, response) => {
+            response.should.have.status(400);
+
+            done();
+          });
+      });
+
+      it("should help users if they have the info", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_submission_help?prefecture=paris&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            // TODO: this will change!
+            response.body.should.be.deep.eql({
+              messages: [
+                { text: 'Voici comment deposer un dossier pour un titre de séjour APS :' },
+                { text: 'Envoi par mail  : pp-dpg-sdae-6eb-aps-etudiant@interieur.gouv.fr' },
+                { text: 'Dépôt sur place : Cité internationale universitaire de Paris \n17 boulevard Jourdan\n75014 Paris ' }
+              ]
+            });
+
+            done();
+          });
+      });
+
+      it("should help users if we don't have the info yet", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_submission_help?prefecture=nyc&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            // TODO: this will change!
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Je ne sais pas encore comment deposer un dossier " +
+                  "pour un titre de séjour APS là-bas...",
+                },
+              ],
+            });
+
+            done();
+          });
       });
     });
   });
