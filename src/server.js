@@ -14,7 +14,9 @@ var tdsTypes = require("./tdsTypes.js");
 
 // print some info about the time and such
 app.all('*', (request, response, next) => {
-  console.log("\n" + new Date(), request.path, request.query);
+  if (request.path.startsWith("/v1/")) {
+    console.log("\n" + new Date(), request.path, request.query);
+  }
 
   next();
 });
