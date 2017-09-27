@@ -882,7 +882,7 @@ describe('My Visa Bot API', () => {
               messages: [
                 {
                   text: "Pour t'aider avec le dépôt de ton dossier j'ai besoin " +
-                  "de quelques informations...",
+                  "de quelques informations complémentaires",
                 },
               ],
               redirect_to_blocks: [
