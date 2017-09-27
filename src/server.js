@@ -170,7 +170,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
 
     let messages = [
       {
-        text: "Je n'arrive pas à comprendre 😔. Vérifie l'ortographe stp et " +
+        text: "Je n'arrive pas à comprendre 😔. Vérifie l'orthographe stp et " +
         "dis-moi à nouveau de quel pays tu viens."
       }
     ];
@@ -270,7 +270,7 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
 
         let messages = [
           {
-            text: "Je n'arrive pas à comprendre 😔. Vérifie l'ortographe stp et " +
+            text: "Je n'arrive pas à comprendre 😔. Vérifie l'orthographe stp et " +
             "dis-moi à nouveau de quelle préfecture tu dépends."
           }
         ];
@@ -339,7 +339,7 @@ app.route('/v1/nlp').get(function(request, response) {
           messages: [
             {
               text: "Pour t'aider avec le dépôt de ton dossier j'ai besoin " +
-              "de quelques informations...",
+              "de quelques informations complémentaires",
             },
           ],
           redirect_to_blocks: [
@@ -396,7 +396,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
       response.json({
         messages: [
           {
-            text: "Voici comment deposer un dossier pour un titre de séjour " +
+            text: "Voici la procédure pour déposer un dossier pour un titre de séjour " +
             `${tdsTypes[selected_tds].name} :`,
           }
         ].concat(submissionPossibilities),
@@ -407,7 +407,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
       response.json({
         messages: [
           {
-            text: "Je ne sais pas encore comment deposer un dossier " +
+            text: "Je ne sais pas encore comment déposer un dossier " +
             `pour un titre de séjour ${tdsTypes[selected_tds].name} là-bas...`,
           },
         ],
