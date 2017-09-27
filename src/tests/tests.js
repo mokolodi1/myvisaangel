@@ -895,6 +895,25 @@ describe('My Visa Bot API', () => {
             done();
           });
       });
+
+      it("should respond correctly to thank you", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=Merci')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Je t'en pris. C'etait un plaisir de parler avec " +
+                  "toi 🙂",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
     });
 
     describe('/GET /v1/dossier_submission_method', () => {

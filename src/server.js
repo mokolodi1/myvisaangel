@@ -348,6 +348,16 @@ app.route('/v1/nlp').get(function(request, response) {
             "Dossier submission method",
           ],
         });
+      } else if (intent && intent.slug === "thanks") {
+        console.log("They are saying thanks! It's nice being loved...");
+
+        response.json({
+          messages: [
+            {
+              text: "Je t'en pris. C'etait un plaisir de parler avec toi 🙂"
+            }
+          ],
+        });
       } else {
         console.log("Don't know what they asked -- chat with creators");
 
