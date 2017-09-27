@@ -427,7 +427,7 @@ describe('My Visa Bot API', () => {
               messages: [
                 {
                   text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                  "l'ortographe stp et dis-moi à nouveau de quel pays " +
+                  "l'orthographe stp et dis-moi à nouveau de quel pays " +
                   "tu viens."
                 }
               ],
@@ -450,7 +450,7 @@ describe('My Visa Bot API', () => {
               messages: [
                 {
                   text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                  "l'ortographe stp et dis-moi à nouveau de quel pays " +
+                  "l'orthographe stp et dis-moi à nouveau de quel pays " +
                   "tu viens."
                 },
                 {
@@ -568,7 +568,7 @@ describe('My Visa Bot API', () => {
               messages: [
                 {
                   text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                  "l'ortographe stp et dis-moi à nouveau de quel pays " +
+                  "l'orthographe stp et dis-moi à nouveau de quel pays " +
                   "tu viens."
                 },
               ],
@@ -637,7 +637,7 @@ describe('My Visa Bot API', () => {
               messages: [
                 {
                   text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                  "l'ortographe stp et dis-moi à nouveau de quelle " +
+                  "l'orthographe stp et dis-moi à nouveau de quelle " +
                   "préfecture tu dépends."
                 }
               ],
@@ -660,7 +660,7 @@ describe('My Visa Bot API', () => {
               messages: [
                 {
                   text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                  "l'ortographe stp et dis-moi à nouveau de quelle " +
+                  "l'orthographe stp et dis-moi à nouveau de quelle " +
                   "préfecture tu dépends."
                 },
                 {
@@ -716,7 +716,7 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.messages[0].text.should.be.eql("Je n'arrive pas à " +
-            "comprendre 😔. Vérifie l'ortographe stp et " +
+            "comprendre 😔. Vérifie l'orthographe stp et " +
             "dis-moi à nouveau de quelle préfecture tu dépends.");
 
             done();
@@ -733,7 +733,7 @@ describe('My Visa Bot API', () => {
               messages: [
                 {
                   text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                  "l'ortographe stp et dis-moi à nouveau de quelle " +
+                  "l'orthographe stp et dis-moi à nouveau de quelle " +
                   "préfecture tu dépends."
                 },
               ],
@@ -917,7 +917,7 @@ describe('My Visa Bot API', () => {
             // TODO: this will change!
             response.body.should.be.deep.eql({
               messages: [
-                { text: 'Voici comment deposer un dossier pour un titre de séjour APS :' },
+                { text: 'Voici la procédure pour déposer un dossier pour un titre de séjour APS :' },
                 { text: 'Envoi par mail  : pp-dpg-sdae-6eb-aps-etudiant@interieur.gouv.fr' },
                 { text: 'Dépôt sur place : Cité internationale universitaire de Paris \n17 boulevard Jourdan\n75014 Paris ' }
               ]
@@ -937,7 +937,7 @@ describe('My Visa Bot API', () => {
             response.body.should.be.deep.eql({
               messages: [
                 {
-                  text: "Je ne sais pas encore comment deposer un dossier " +
+                  text: "Je ne sais pas encore comment déposer un dossier " +
                   "pour un titre de séjour APS là-bas...",
                 },
               ],
