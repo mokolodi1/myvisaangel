@@ -1069,6 +1069,26 @@ describe('My Visa Bot API', () => {
             done();
           });
       });
+
+      it("return an apology if we don't have the info", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_papers_list?prefecture=NOPE&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            // TODO: this will change!
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Je ne connais pas encore la liste de papiers " +
+                  "pour là-bas 😔"
+                }
+              ]
+            });
+
+            done();
+          });
+      });
     });
   });
 });
