@@ -333,8 +333,8 @@ app.route('/v1/nlp').get(function(request, response) {
       let intent = recastResponse.intent();
 
       if (intent && (intent.slug === "dossier-submission-method" ||
-                      intent.slug === "dossier-papers-list")) {
-        console.log("They need dossier help!");
+                      intent.slug === "dossier-list-papers")) {
+        console.log("They need dossier help!", intent.slug);
 
         var { prefecture, selected_tds } = request.query;
 
@@ -353,28 +353,33 @@ app.route('/v1/nlp').get(function(request, response) {
           }
 
           let recastTds = Utilities.mostConfident(entities["visa-type"]);
+          console.log("recastTds:", recastTds);
           if (recastTds) {
             // convert from recast's recognition to slugs
             // TODO: ask Paola or Abdel to confirm these
+            // TODO: fuzzy search on this?
             let newSelectedTds = {
               "passport talent": "ptsq",
               "passeport talent": "ptsq",
               "travailleur temporaire": "salarie_tt",
-              "commerçant": "commercant",
-              "APS": "aps",
-              "Autorisation Provisoire de Séjour": "aps",
-              "vie privée et familiale": "vpf",
+              "commercant": "commercant",
+              "aps": "aps",
+              "autorisation provisoire de sejour": "aps",
+              "vie privee et familiale": "vpf",
               "travailleur": "salarie_tt",
-              "salarié": "salarie_tt",
+              "salarie": "salarie_tt",
               "entrepreneur": "commercant",
-              "profession libérale": "???",
-            }[recastTds.value];
+              "profession liberale": "???",
+            }[Utilities.slugishify(recastTds.value)];
+            console.log("newSelectedTds:", newSelectedTds);
 
             if (newSelectedTds) {
               selected_tds = newSelectedTds;
             }
           }
         }
+        console.log("prefecture:", prefecture);
+        console.log("selected_tds:", selected_tds);
 
         // should we ask questions?
         var questionBlocks = [];
@@ -385,9 +390,14 @@ app.route('/v1/nlp').get(function(request, response) {
           questionBlocks.push("Select TDS type");
         }
 
+        let blockForIntent = {
+          "dossier-submission-method": "Dossier submission method",
+          "dossier-list-papers": "Dossier papers list",
+        }[intent.slug];
+
         var result = {
           redirect_to_blocks: questionBlocks.concat([
-            "Dossier submission method",
+            blockForIntent
           ]),
         };
         if (questionBlocks.length) {
