@@ -359,17 +359,17 @@ app.route('/v1/nlp').get(function(request, response) {
             // TODO: ask Paola or Abdel to confirm these
             // TODO: fuzzy search on this?
             let newSelectedTds = {
-              "passport talent": "ptsq",
-              "passeport talent": "ptsq",
-              "travailleur temporaire": "salarie_tt",
+              "passport_talent": "ptsq",
+              "passeport_talent": "ptsq",
+              "travailleur_temporaire": "salarie_tt",
               "commercant": "commercant",
               "aps": "aps",
-              "autorisation provisoire de sejour": "aps",
-              "vie privee et familiale": "vpf",
+              "autorisation_provisoire_de_sejour": "aps",
+              "vie_privee_et_familiale": "vpf",
               "travailleur": "salarie_tt",
               "salarie": "salarie_tt",
               "entrepreneur": "commercant",
-              "profession liberale": "???",
+              "profession_liberale": "???",
             }[Utilities.slugishify(recastTds.value)];
             console.log("newSelectedTds:", newSelectedTds);
 
@@ -422,7 +422,7 @@ app.route('/v1/nlp').get(function(request, response) {
         response.json({
           messages: [
             {
-              text: "Je t'en pris. C'etait un plaisir de parler avec toi 🙂"
+              text: "Je t'en prie. C'etait un plaisir de parler avec toi 🙂"
             }
           ],
         });

@@ -997,7 +997,7 @@ describe('My Visa Bot API', () => {
             response.body.should.be.deep.eql({
               messages: [
                 {
-                  text: "Je t'en pris. C'etait un plaisir de parler avec " +
+                  text: "Je t'en prie. C'etait un plaisir de parler avec " +
                   "toi 🙂",
                 },
               ],
