@@ -506,15 +506,13 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
     });
 
     if (matchingRows.length > 0) {
-      console.log("matchingRows:", matchingRows);
-      // let papersListLink = matchingRows[0];
-      //
-      // console.log("Sending down list...");
+      let papersListLink = matchingRows[0]["lien"];
+      console.log("Returning the link:", papersListLink);
 
       response.json({
         messages: [
           {
-            text: `Voici la liste de papiers : ${matchingRows[0]["lien"]}`,
+            text: `Voici la liste de papiers : ${papersListLink}`,
           },
         ],
       });
