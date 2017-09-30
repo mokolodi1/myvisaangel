@@ -206,6 +206,7 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
     } else {
       let prefecturesHash = _.reduce(result, (memo, row) => {
         memo[row["préfecture"]] = true;
+	console.log(memo);
         return memo;
       }, {});
       let prefectureNames = _.map(Object.keys(prefecturesHash), (name) => {
@@ -331,10 +332,56 @@ app.route('/v1/nlp').get(function(request, response) {
   recastClient.analyseText(message)
     .then(function(recastResponse) {
       let intent = recastResponse.intent();
+	//console.log("Prefecture:", recastResponse.entities.prefecture.value,"TDS", recastResponse.entities.visa-type.value );
+	console.log(recastResponse.entities);
 
       if (intent && intent.slug === "dossier-submission-method") {
-        console.log("They need dossier submission method help!");
+        //console.log("They need dossier submission method help!");
 
+        //response.json({
+        //  messages: [
+        //    {
+        //      text: "Pour t'aider avec le dépôt de ton dossier j'ai besoin " +
+        //      "de quelques informations complémentaires",
+        //    },
+        //  ],
+        //  redirect_to_blocks: [
+        //    "Ask for prefecture",
+        //    "Select TDS type",
+        //    "Dossier submission method",
+        //  ],
+        //});
+	if (recastResponse.entities['visa-type'].length != 1 && recastResponse.entities.prefecture.length == 1 ){
+        response.json({
+          messages: [
+            {
+              text: "Pour t'aider avec le dépôt de ton dossier j'ai besoin " +
+              "de quelques informations complémentaires",
+            },
+          ],
+	  set_attributes: {'selected_tds' : recastResponse.entities.entities['visa-type'], 'prefecture': recastResponse.entities.prefecture},
+          redirect_to_blocks: [
+            "Select TDS type",
+            "Dossier submission method",
+          ],
+        });
+	}
+	else if (recastResponse.entities.prefecture.length != 1 && recastResponse.entities['visa-type'].length == 1 ){
+        response.json({
+          messages: [
+            {
+              text: "Pour t'aider avec le dépôt de ton dossier j'ai besoin " +
+              "de quelques informations complémentaires",
+            },
+          ],
+	  set_attributes: {'selected_tds' : recastResponse.entities.entities['visa-type'], 'prefecture': recastResponse.entities.prefecture},
+          redirect_to_blocks: [
+            "Ask for prefecture",
+            "Dossier submission method",
+          ],
+        });
+	}
+	else if (recastResponse.entities.prefecture.length != 1 && recastResponse.entities['visa-type'].length != 1){
         response.json({
           messages: [
             {
@@ -343,11 +390,25 @@ app.route('/v1/nlp').get(function(request, response) {
             },
           ],
           redirect_to_blocks: [
-            "Ask for prefecture",
             "Select TDS type",
+            "Ask for prefecture",
             "Dossier submission method",
           ],
         });
+	}
+	else if (recastResponse.entities.prefecture.length == 1 && recastResponse.entities['visa-type'].length == 1){
+        response.json({
+          messages: [
+            {
+              text: "Pour t'aider avec le dépôt de ton dossier j'ai besoin " +
+              "de quelques informations complémentaires",
+            },
+          ],
+          redirect_to_blocks: [
+            "Dossier submission method",
+          ],
+        });
+	}
       } else if (intent && intent.slug === "thanks") {
         console.log("They are saying thanks! It's nice being loved...");
 
