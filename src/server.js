@@ -443,7 +443,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
   Utilities.getSubmissionMethods((error, result) => {
     if (error) {
       console.log("error:", error);
-      response.status(500).send("Error getting the prefecture info");
+      response.status(500).send("Error getting the prefecture submission info");
       return;
     }
 
@@ -493,10 +493,10 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
     return;
   }
 
-  Utilities.getSubmissionMethods((error, result) => {
+  Utilities.getPapersList((error, result) => {
     if (error) {
       console.log("error:", error);
-      response.status(500).send("Error getting the prefecture info");
+      response.status(500).send("Error getting the prefecture papers list");
       return;
     }
 
@@ -506,30 +506,25 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
     });
 
     if (matchingRows.length > 0) {
-      let submissionPossibilities = _.map(matchingRows, (row) => {
-        return {
-          text: `${row["dépôtdudossier"]} : ${row["coordonnées"]}`
-        };
-      });
-
-      console.log("submissionPossibilities:", submissionPossibilities);
+      console.log("matchingRows:", matchingRows);
+      // let papersListLink = matchingRows[0];
+      //
+      // console.log("Sending down list...");
 
       response.json({
         messages: [
           {
-            text: "Voici la procédure pour déposer un dossier pour un titre de séjour " +
-            `${tdsTypes[selected_tds].name} :`,
-          }
-        ].concat(submissionPossibilities),
+            text: `Voici la liste de papiers : ${matchingRows[0]["lien"]}`,
+          },
+        ],
       });
     } else {
-      console.log("No info yet for that submission type.");
+      console.log("No info yet for that tds type.");
 
       response.json({
         messages: [
           {
-            text: "Je ne sais pas encore comment déposer un dossier " +
-            `pour un titre de séjour ${tdsTypes[selected_tds].name} là-bas...`,
+            text: "Je ne connais pas encore la liste de papiers pour là-bas 😔",
           },
         ],
       });

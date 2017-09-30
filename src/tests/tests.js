@@ -1038,5 +1038,37 @@ describe('My Visa Bot API', () => {
           });
       });
     });
+
+    describe('/GET /v1/dossier_papers_list', () => {
+      it("should fail if missing parameters", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_papers_list')
+          .end((err, response) => {
+            response.should.have.status(400);
+
+            done();
+          });
+      });
+
+      it("should help users if they have the info", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_papers_list?prefecture=paris&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            // TODO: this will change!
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: 'Voici la liste de papiers : ' +
+                  'https://drive.google.com/open?id=1SaFEnvlhEAuPEm9PyvnRdtJ386OgfLET9nWQoXVrBrA'
+                }
+              ]
+            });
+
+            done();
+          });
+      });
+    });
   });
 });

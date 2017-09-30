@@ -177,7 +177,7 @@ function getDoc(docId, callback) {
     return;
   }
 
-  let doc = new GoogleSpreadsheet('1_16hf6MZ8aqPt8qJQXE_-3Bh6hUo5ZZ0oAcPJ2g2i4U');
+  let doc = new GoogleSpreadsheet(docId);
 
   doc.useServiceAccountAuth(googleCredentials, (error, result) => {
     if (error) { callback(error, undefined); return; }
