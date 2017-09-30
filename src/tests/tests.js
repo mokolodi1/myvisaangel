@@ -848,125 +848,125 @@ describe('My Visa Bot API', () => {
     });
 
     describe('/GET /v1/nlp', () => {
-      // it("should work with a blank string", (done) => {
-      //   chai.request(server)
-      //     .get('/v1/nlp')
-      //     .end((err, response) => {
-      //       response.should.have.status(400);
-      //
-      //       done();
-      //     });
-      // });
-      //
-      // it("should work if we don't know what they want", (done) => {
-      //   chai.request(server)
-      //     .get('/v1/nlp?last+user+freeform+input=I+like+bacon+bits+and+racing+cars')
-      //     .end((err, response) => {
-      //       response.should.have.status(200);
-      //       response.body.should.be.a('object');
-      //       response.body.should.be.deep.eql({
-      //         redirect_to_blocks: ["Introduce creators chat"],
-      //       });
-      //
-      //       done();
-      //     });
-      // });
-      //
-      // it("should work with a rdv request", (done) => {
-      //   chai.request(server)
-      //     .get('/v1/nlp?last+user+freeform+input=rdv+svp')
-      //     .end((err, response) => {
-      //       response.should.have.status(200);
-      //       response.body.should.be.a('object');
-      //       response.body.should.be.deep.eql({
-      //         messages: [
-      //           {
-      //             text: "Pour t'aider j'ai besoin " +
-      //             "de quelques informations complémentaires",
-      //           },
-      //         ],
-      //         redirect_to_blocks: [
-      //           "Ask for prefecture",
-      //           "Select TDS type",
-      //           "Dossier submission method",
-      //         ],
-      //       });
-      //
-      //       done();
-      //     });
-      // });
-      //
-      // it("should work with a rdv request specifying the visa type and prefecture", (done) => {
-      //   chai.request(server)
-      //     .get('/v1/nlp?last+user+freeform+input=comment faire un rdv à Paris pour un passport talent ?')
-      //     .end((err, response) => {
-      //       response.should.have.status(200);
-      //       response.body.should.be.a('object');
-      //       response.body.should.be.deep.eql({
-      //         set_attributes: {
-      //           selected_tds: "ptsq",
-      //           prefecture: "paris"
-      //         },
-      //         redirect_to_blocks: [
-      //           "Dossier submission method",
-      //         ],
-      //       });
-      //
-      //       done();
-      //     });
-      // });
-      //
-      // it("should work with a rdv request specifying only the visa type", (done) => {
-      //   chai.request(server)
-      //     .get('/v1/nlp?last+user+freeform+input=comment faire un rdv pour un passport talent ?')
-      //     .end((err, response) => {
-      //       response.should.have.status(200);
-      //       response.body.should.be.a('object');
-      //       response.body.should.be.deep.eql({
-      //         messages: [
-      //           {
-      //             text: "Pour t'aider j'ai besoin " +
-      //             "de quelques informations complémentaires",
-      //           },
-      //         ],
-      //         set_attributes: {
-      //           selected_tds: "ptsq",
-      //         },
-      //         redirect_to_blocks: [
-      //           "Ask for prefecture",
-      //           "Dossier submission method",
-      //         ],
-      //       });
-      //
-      //       done();
-      //     });
-      // });
-      //
-      // it("should work with a rdv request specifying only the prefecture", (done) => {
-      //   chai.request(server)
-      //     .get('/v1/nlp?last+user+freeform+input=comment faire un rdv à Paris ?')
-      //     .end((err, response) => {
-      //       response.should.have.status(200);
-      //       response.body.should.be.a('object');
-      //       response.body.should.be.deep.eql({
-      //         messages: [
-      //           {
-      //             text: "Pour t'aider j'ai besoin " +
-      //             "de quelques informations complémentaires",
-      //           },
-      //         ],
-      //         set_attributes: {
-      //           prefecture: "paris",
-      //         },
-      //         redirect_to_blocks: [
-      //           "Select TDS type",
-      //           "Dossier submission method",
-      //         ],
-      //       });
-      //
-      //       done();
-      //     });
-      // });
+      it("should work with a blank string", (done) => {
+        chai.request(server)
+          .get('/v1/nlp')
+          .end((err, response) => {
+            response.should.have.status(400);
+
+            done();
+          });
+      });
+
+      it("should work if we don't know what they want", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=I+like+bacon+bits+and+racing+cars')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: ["Introduce creators chat"],
+            });
+
+            done();
+          });
+      });
+
+      it("should work with a rdv request", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=rdv+svp')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                  "de quelques informations complémentaires",
+                },
+              ],
+              redirect_to_blocks: [
+                "Ask for prefecture",
+                "Select TDS type",
+                "Dossier submission method",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should work with a rdv request specifying the visa type and prefecture", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=comment faire un rdv à Paris pour un passport talent ?')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                selected_tds: "ptsq",
+                prefecture: "paris"
+              },
+              redirect_to_blocks: [
+                "Dossier submission method",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should work with a rdv request specifying only the visa type", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=comment faire un rdv pour un passport talent ?')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                  "de quelques informations complémentaires",
+                },
+              ],
+              set_attributes: {
+                selected_tds: "ptsq",
+              },
+              redirect_to_blocks: [
+                "Ask for prefecture",
+                "Dossier submission method",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should work with a rdv request specifying only the prefecture", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=comment faire un rdv à Paris ?')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                  "de quelques informations complémentaires",
+                },
+              ],
+              set_attributes: {
+                prefecture: "paris",
+              },
+              redirect_to_blocks: [
+                "Select TDS type",
+                "Dossier submission method",
+              ],
+            });
+
+            done();
+          });
+      });
 
       it("should work with a papers list request", (done) => {
         chai.request(server)
@@ -988,127 +988,127 @@ describe('My Visa Bot API', () => {
           });
       });
 
-      // it("should respond correctly to thank you", (done) => {
-      //   chai.request(server)
-      //     .get('/v1/nlp?last+user+freeform+input=Merci')
-      //     .end((err, response) => {
-      //       response.should.have.status(200);
-      //       response.body.should.be.a('object');
-      //       response.body.should.be.deep.eql({
-      //         messages: [
-      //           {
-      //             text: "Je t'en pris. C'etait un plaisir de parler avec " +
-      //             "toi 🙂",
-      //           },
-      //         ],
-      //       });
-      //
-      //       done();
-      //     });
-      // });
+      it("should respond correctly to thank you", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=Merci')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Je t'en pris. C'etait un plaisir de parler avec " +
+                  "toi 🙂",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
     });
 
-  //   describe('/GET /v1/dossier_submission_method', () => {
-  //     it("should fail if missing parameters", (done) => {
-  //       chai.request(server)
-  //         .get('/v1/dossier_submission_method')
-  //         .end((err, response) => {
-  //           response.should.have.status(400);
-  //
-  //           done();
-  //         });
-  //     });
-  //
-  //     it("should help users if they have the info", (done) => {
-  //       chai.request(server)
-  //         .get('/v1/dossier_submission_method?prefecture=paris&selected_tds=aps')
-  //         .end((err, response) => {
-  //           response.should.have.status(200);
-  //
-  //           // TODO: this will change!
-  //           response.body.should.be.deep.eql({
-  //             messages: [
-  //               { text: 'Voici la procédure pour déposer un dossier pour un titre de séjour APS :' },
-  //               { text: 'Envoi par mail  : pp-dpg-sdae-6eb-aps-etudiant@interieur.gouv.fr' },
-  //               { text: 'Envoi par la poste (courrier recommandé avec accusé de réception) : Préfecture de Police \nCentre Étudiant  - Demande d’APS Master \nCité Universitaire - 17 BD Jourdan 75014 Paris' }
-  //             ]
-  //           });
-  //
-  //           done();
-  //         });
-  //     });
-  //
-  //     it("should help users if we don't have the info yet", (done) => {
-  //       chai.request(server)
-  //         .get('/v1/dossier_submission_method?prefecture=nyc&selected_tds=aps')
-  //         .end((err, response) => {
-  //           response.should.have.status(200);
-  //
-  //           // TODO: this will change!
-  //           response.body.should.be.deep.eql({
-  //             messages: [
-  //               {
-  //                 text: "Je ne sais pas encore comment déposer un dossier " +
-  //                 "pour un titre de séjour APS là-bas...",
-  //               },
-  //             ],
-  //           });
-  //
-  //           done();
-  //         });
-  //     });
-  //   });
-  //
-  //   describe('/GET /v1/dossier_papers_list', () => {
-  //     it("should fail if missing parameters", (done) => {
-  //       chai.request(server)
-  //         .get('/v1/dossier_papers_list')
-  //         .end((err, response) => {
-  //           response.should.have.status(400);
-  //
-  //           done();
-  //         });
-  //     });
-  //
-  //     it("should help users if they have the info", (done) => {
-  //       chai.request(server)
-  //         .get('/v1/dossier_papers_list?prefecture=paris&selected_tds=aps')
-  //         .end((err, response) => {
-  //           response.should.have.status(200);
-  //
-  //           // TODO: this will change!
-  //           response.body.should.be.deep.eql({
-  //             messages: [
-  //               {
-  //                 text: 'Voici la liste de papiers : ' +
-  //                 'https://drive.google.com/open?id=1SaFEnvlhEAuPEm9PyvnRdtJ386OgfLET9nWQoXVrBrA'
-  //               }
-  //             ]
-  //           });
-  //
-  //           done();
-  //         });
-  //     });
-  //
-  //     it("return an apology if we don't have the info", (done) => {
-  //       chai.request(server)
-  //         .get('/v1/dossier_papers_list?prefecture=NOPE&selected_tds=aps')
-  //         .end((err, response) => {
-  //           response.should.have.status(200);
-  //
-  //           // TODO: this will change!
-  //           response.body.should.be.deep.eql({
-  //             messages: [
-  //               {
-  //                 text: "Je ne connais pas encore la liste de papiers " +
-  //                 "pour là-bas 😔"
-  //               }
-  //             ]
-  //           });
-  //
-  //           done();
-  //         });
-  //     });
-  //   });
+    describe('/GET /v1/dossier_submission_method', () => {
+      it("should fail if missing parameters", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_submission_method')
+          .end((err, response) => {
+            response.should.have.status(400);
+
+            done();
+          });
+      });
+
+      it("should help users if they have the info", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_submission_method?prefecture=paris&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            // TODO: this will change!
+            response.body.should.be.deep.eql({
+              messages: [
+                { text: 'Voici la procédure pour déposer un dossier pour un titre de séjour APS :' },
+                { text: 'Envoi par mail  : pp-dpg-sdae-6eb-aps-etudiant@interieur.gouv.fr' },
+                { text: 'Envoi par la poste (courrier recommandé avec accusé de réception) : Préfecture de Police \nCentre Étudiant  - Demande d’APS Master \nCité Universitaire - 17 BD Jourdan 75014 Paris' }
+              ]
+            });
+
+            done();
+          });
+      });
+
+      it("should help users if we don't have the info yet", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_submission_method?prefecture=nyc&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            // TODO: this will change!
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Je ne sais pas encore comment déposer un dossier " +
+                  "pour un titre de séjour APS là-bas...",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
+    });
+
+    describe('/GET /v1/dossier_papers_list', () => {
+      it("should fail if missing parameters", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_papers_list')
+          .end((err, response) => {
+            response.should.have.status(400);
+
+            done();
+          });
+      });
+
+      it("should help users if they have the info", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_papers_list?prefecture=paris&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            // TODO: this will change!
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: 'Voici la liste de papiers : ' +
+                  'https://drive.google.com/open?id=1SaFEnvlhEAuPEm9PyvnRdtJ386OgfLET9nWQoXVrBrA'
+                }
+              ]
+            });
+
+            done();
+          });
+      });
+
+      it("return an apology if we don't have the info", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_papers_list?prefecture=NOPE&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            // TODO: this will change!
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Je ne connais pas encore la liste de papiers " +
+                  "pour là-bas 😔"
+                }
+              ]
+            });
+
+            done();
+          });
+      });
+    });
   });
 });
