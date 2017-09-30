@@ -163,21 +163,28 @@ _.each(Data.countries, (country) => {
   country.slugishNames = _.map(names, slugishify);
 });
 
-var prefectureInfoCache;
-var prefectureInfoLastUpdate;
 const DOC_CACHE_TIMEOUT = 10000;
-function getPrefectureInfo(callback) {
-  if (new Date() - prefectureInfoLastUpdate < DOC_CACHE_TIMEOUT) {
-    callback(undefined, prefectureInfoCache);
+var googleCredentials =
+    require('../private/myvisaangel-f24414135324-service-account.json');
+// keyed by doc ID; each entry has lastUpdate and rows attributes
+var cachedDocs = {};
+
+function getDoc(docId, callback) {
+  let cachedDoc = cachedDocs[docId];
+
+  if (cachedDoc && new Date() - cachedDoc.lastUpdate < DOC_CACHE_TIMEOUT) {
+    callback(undefined, cachedDoc.rows);
     return;
   }
 
-  // https://docs.google.com/spreadsheets/d/1_16hf6MZ8aqPt8qJQXE_-3Bh6hUo5ZZ0oAcPJ2g2i4U/edit#gid=1002124185
-  var doc = new GoogleSpreadsheet('1_16hf6MZ8aqPt8qJQXE_-3Bh6hUo5ZZ0oAcPJ2g2i4U');
-  var creds = require('../private/myvisaangel-f24414135324-service-account.json');
+  let doc = new GoogleSpreadsheet('1_16hf6MZ8aqPt8qJQXE_-3Bh6hUo5ZZ0oAcPJ2g2i4U');
 
-  doc.useServiceAccountAuth(creds, (error, result) => {
-    doc.getRows(1, { offset: 0, limit: 1000 }, (error, result) => {
+  doc.useServiceAccountAuth(googleCredentials, (error, result) => {
+    if (error) { callback(error, undefined); return; }
+
+    doc.getRows(1, { offset: 0, limit: 1000 }, (error, rows) => {
+      if (error) { callback(error, undefined); return; }
+
       // add some useful computer-generated info onto the result
       let tdsTypeMap = {
         "APS": "aps",
@@ -187,17 +194,37 @@ function getPrefectureInfo(callback) {
         "Carte de séjour commerçant": "commercant",
       }
 
-      _.each(result, (row) => {
+      _.each(rows, (row) => {
         row.tdsSlug = tdsTypeMap[row["typededemande"]];
 
         row.prefectureSlug = slugishify(row["préfecture"]);
       });
 
-      prefectureInfoCache = result;
-      prefectureInfoLastUpdate = new Date();
+      cachedDocs[docId] = {
+        lastUpdate: new Date(),
+        rows,
+      };
 
-      callback(error, result);
+      callback(error, rows);
     });
+  });
+}
+
+function getSubmissionMethods(callback) {
+  // https://docs.google.com/spreadsheets/d/1_16hf6MZ8aqPt8qJQXE_-3Bh6hUo5ZZ0oAcPJ2g2i4U/edit#gid=1002124185
+  return getDoc('1_16hf6MZ8aqPt8qJQXE_-3Bh6hUo5ZZ0oAcPJ2g2i4U', callback);
+}
+
+function getPapersList(callback) {
+  // https://docs.google.com/spreadsheets/d/1siXjOK8OCE1UJER5khZmknJVrfQGsBraQt7AoXwPkks/edit#gid=1002124185
+  return getDoc('1siXjOK8OCE1UJER5khZmknJVrfQGsBraQt7AoXwPkks', callback);
+}
+
+function mostConfident(recastEntityValue) {
+  if (!recastEntityValue) { return undefined; }
+
+  return _.max(recastEntityValue, function (entry) {
+    return entry.confidence;
   });
 }
 
@@ -205,5 +232,7 @@ module.exports = {
   removeDiacritics,
   slugishify,
   cleanVisaQuery,
-  getPrefectureInfo,
+  getSubmissionMethods,
+  getPapersList,
+  mostConfident,
 }
