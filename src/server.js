@@ -397,6 +397,10 @@ app.route('/v1/nlp').get(function(request, response) {
         });
 	}
 	else if (recastResponse.entities.prefecture.length == 1 && recastResponse.entities['visa-type'].length == 1){
+	var prefecture = recastResponse.entities.prefecture[0].value;
+	var selec_tds = recastResponse.entities['visa-type'][0].value;
+	console.log('Preffecture ', prefecture, 'TDSSSS', selec_tds);
+	response.set_attributes = {prefecture, selec_tds};
         response.json({
           messages: [
             {
@@ -407,6 +411,7 @@ app.route('/v1/nlp').get(function(request, response) {
           redirect_to_blocks: [
             "Dossier submission method",
           ],
+
         });
 	}
       } else if (intent && intent.slug === "thanks") {
