@@ -881,12 +881,84 @@ describe('My Visa Bot API', () => {
             response.body.should.be.deep.eql({
               messages: [
                 {
-                  text: "Pour t'aider avec le dépôt de ton dossier j'ai besoin " +
+                  text: "Pour t'aider j'ai besoin " +
                   "de quelques informations complémentaires",
                 },
               ],
               redirect_to_blocks: [
                 "Ask for prefecture",
+                "Select TDS type",
+                "Dossier submission method",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should work with a rdv request specifying the visa type and prefecture", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=comment faire un rdv à Paris pour un passport talent ?')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                selected_tds: "ptsq",
+                prefecture: "paris"
+              },
+              redirect_to_blocks: [
+                "Dossier submission method",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should work with a rdv request specifying only the visa type", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=comment faire un rdv pour un passport talent ?')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                  "de quelques informations complémentaires",
+                },
+              ],
+              set_attributes: {
+                selected_tds: "ptsq",
+              },
+              redirect_to_blocks: [
+                "Ask for prefecture",
+                "Dossier submission method",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should work with a rdv request specifying only the prefecture", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=comment faire un rdv à Paris ?')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                  "de quelques informations complémentaires",
+                },
+              ],
+              set_attributes: {
+                prefecture: "paris",
+              },
+              redirect_to_blocks: [
                 "Select TDS type",
                 "Dossier submission method",
               ],

@@ -199,7 +199,7 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
     return;
   }
 
-  Utilities.getPrefectureInfo((error, result) => {
+  Utilities.getSubmissionMethods((error, result) => {
     if (error) {
       console.log("Error reading from Google doc:", error);
       response.status(500).send('Error reading from Google doc');
@@ -332,22 +332,80 @@ app.route('/v1/nlp').get(function(request, response) {
     .then(function(recastResponse) {
       let intent = recastResponse.intent();
 
-      if (intent && intent.slug === "dossier-submission-method") {
-        console.log("They need dossier submission method help!");
+      if (intent && (intent.slug === "dossier-submission-method" ||
+                      intent.slug === "dossier-papers-list")) {
+        console.log("They need dossier help!");
 
-        response.json({
-          messages: [
+        var { prefecture, selected_tds } = request.query;
+
+        // grab prefecture/TDS from Recast if they have been defined
+        let { entities } = recastResponse;
+        if (entities) {
+          // TODO: test this
+          // remove "papiers" from the list of prefecture entries - it
+          // recognizes the word "papiers" as the prefecture "Pamiers"
+          let withoutPapiers = _.filter(entities.prefecture, (entry) => {
+            return Utilities.slugishify(entry.raw) !== "papiers";
+          });
+          if (withoutPapiers && withoutPapiers.length > 0) {
+            let newPrefecture = Utilities.mostConfident(withoutPapiers);
+            prefecture = Utilities.slugishify(newPrefecture.value);
+          }
+
+          let recastTds = Utilities.mostConfident(entities["visa-type"]);
+          if (recastTds) {
+            // convert from recast's recognition to slugs
+            // TODO: ask Paola or Abdel to confirm these
+            let newSelectedTds = {
+              "passport talent": "ptsq",
+              "passeport talent": "ptsq",
+              "travailleur temporaire": "salarie_tt",
+              "commerçant": "commercant",
+              "APS": "aps",
+              "Autorisation Provisoire de Séjour": "aps",
+              "vie privée et familiale": "vpf",
+              "travailleur": "salarie_tt",
+              "salarié": "salarie_tt",
+              "entrepreneur": "commercant",
+              "profession libérale": "???",
+            }[recastTds.value];
+
+            if (newSelectedTds) {
+              selected_tds = newSelectedTds;
+            }
+          }
+        }
+
+        // should we ask questions?
+        var questionBlocks = [];
+        if (!prefecture) {
+          questionBlocks.push("Ask for prefecture");
+        }
+        if (!selected_tds) {
+          questionBlocks.push("Select TDS type");
+        }
+
+        var result = {
+          redirect_to_blocks: questionBlocks.concat([
+            "Dossier submission method",
+          ]),
+        };
+        if (questionBlocks.length) {
+          result.messages = [
             {
-              text: "Pour t'aider avec le dépôt de ton dossier j'ai besoin " +
+              text: "Pour t'aider j'ai besoin " +
               "de quelques informations complémentaires",
             },
-          ],
-          redirect_to_blocks: [
-            "Ask for prefecture",
-            "Select TDS type",
-            "Dossier submission method",
-          ],
-        });
+          ];
+        }
+
+        // send these back even if they haven't been modified (but only
+        // if they're defined)
+        if (prefecture || selected_tds) {
+          result.set_attributes = { prefecture, selected_tds };
+        }
+
+        response.json(result);
       } else if (intent && intent.slug === "thanks") {
         console.log("They are saying thanks! It's nice being loved...");
 
@@ -382,7 +440,60 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
     return;
   }
 
-  Utilities.getPrefectureInfo((error, result) => {
+  Utilities.getSubmissionMethods((error, result) => {
+    if (error) {
+      console.log("error:", error);
+      response.status(500).send("Error getting the prefecture info");
+      return;
+    }
+
+    let matchingRows = _.where(result, {
+      tdsSlug: selected_tds,
+      prefectureSlug: prefecture,
+    });
+
+    if (matchingRows.length > 0) {
+      let submissionPossibilities = _.map(matchingRows, (row) => {
+        return {
+          text: `${row["dépôtdudossier"]} : ${row["coordonnées"]}`
+        };
+      });
+
+      console.log("submissionPossibilities:", submissionPossibilities);
+
+      response.json({
+        messages: [
+          {
+            text: "Voici la procédure pour déposer un dossier pour un titre de séjour " +
+            `${tdsTypes[selected_tds].name} :`,
+          }
+        ].concat(submissionPossibilities),
+      });
+    } else {
+      console.log("No info yet for that submission type.");
+
+      response.json({
+        messages: [
+          {
+            text: "Je ne sais pas encore comment déposer un dossier " +
+            `pour un titre de séjour ${tdsTypes[selected_tds].name} là-bas...`,
+          },
+        ],
+      });
+    }
+  });
+});
+
+app.route('/v1/dossier_papers_list').get(function(request, response) {
+  let { selected_tds, prefecture } = request.query;
+
+  if (!selected_tds || !prefecture) {
+    response.status(400)
+        .send('Missing selected_tds or prefecture parameter(s)');
+    return;
+  }
+
+  Utilities.getSubmissionMethods((error, result) => {
     if (error) {
       console.log("error:", error);
       response.status(500).send("Error getting the prefecture info");
