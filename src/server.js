@@ -333,8 +333,8 @@ app.route('/v1/nlp').get(function(request, response) {
       let intent = recastResponse.intent();
 
       if (intent && (intent.slug === "dossier-submission-method" ||
-                      intent.slug === "dossier-papers-list")) {
-        console.log("They need dossier help!");
+                      intent.slug === "dossier-list-papers")) {
+        console.log("They need dossier help!", intent.slug);
 
         var { prefecture, selected_tds } = request.query;
 
@@ -353,28 +353,33 @@ app.route('/v1/nlp').get(function(request, response) {
           }
 
           let recastTds = Utilities.mostConfident(entities["visa-type"]);
+          console.log("recastTds:", recastTds);
           if (recastTds) {
             // convert from recast's recognition to slugs
             // TODO: ask Paola or Abdel to confirm these
+            // TODO: fuzzy search on this?
             let newSelectedTds = {
-              "passport talent": "ptsq",
-              "passeport talent": "ptsq",
-              "travailleur temporaire": "salarie_tt",
-              "commerçant": "commercant",
-              "APS": "aps",
-              "Autorisation Provisoire de Séjour": "aps",
-              "vie privée et familiale": "vpf",
+              "passport_talent": "ptsq",
+              "passeport_talent": "ptsq",
+              "travailleur_temporaire": "salarie_tt",
+              "commercant": "commercant",
+              "aps": "aps",
+              "autorisation_provisoire_de_sejour": "aps",
+              "vie_privee_et_familiale": "vpf",
               "travailleur": "salarie_tt",
-              "salarié": "salarie_tt",
+              "salarie": "salarie_tt",
               "entrepreneur": "commercant",
-              "profession libérale": "???",
-            }[recastTds.value];
+              "profession_liberale": "???",
+            }[Utilities.slugishify(recastTds.value)];
+            console.log("newSelectedTds:", newSelectedTds);
 
             if (newSelectedTds) {
               selected_tds = newSelectedTds;
             }
           }
         }
+        console.log("prefecture:", prefecture);
+        console.log("selected_tds:", selected_tds);
 
         // should we ask questions?
         var questionBlocks = [];
@@ -385,9 +390,14 @@ app.route('/v1/nlp').get(function(request, response) {
           questionBlocks.push("Select TDS type");
         }
 
+        let blockForIntent = {
+          "dossier-submission-method": "Dossier submission method",
+          "dossier-list-papers": "Dossier papers list",
+        }[intent.slug];
+
         var result = {
           redirect_to_blocks: questionBlocks.concat([
-            "Dossier submission method",
+            blockForIntent
           ]),
         };
         if (questionBlocks.length) {
@@ -412,7 +422,7 @@ app.route('/v1/nlp').get(function(request, response) {
         response.json({
           messages: [
             {
-              text: "Je t'en pris. C'etait un plaisir de parler avec toi 🙂"
+              text: "Je t'en prie. C'etait un plaisir de parler avec toi 🙂"
             }
           ],
         });
@@ -443,7 +453,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
   Utilities.getSubmissionMethods((error, result) => {
     if (error) {
       console.log("error:", error);
-      response.status(500).send("Error getting the prefecture info");
+      response.status(500).send("Error getting the prefecture submission info");
       return;
     }
 
@@ -493,10 +503,10 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
     return;
   }
 
-  Utilities.getSubmissionMethods((error, result) => {
+  Utilities.getPapersList((error, result) => {
     if (error) {
       console.log("error:", error);
-      response.status(500).send("Error getting the prefecture info");
+      response.status(500).send("Error getting the prefecture papers list");
       return;
     }
 
@@ -506,30 +516,23 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
     });
 
     if (matchingRows.length > 0) {
-      let submissionPossibilities = _.map(matchingRows, (row) => {
-        return {
-          text: `${row["dépôtdudossier"]} : ${row["coordonnées"]}`
-        };
-      });
-
-      console.log("submissionPossibilities:", submissionPossibilities);
+      let papersListLink = matchingRows[0]["lien"];
+      console.log("Returning the link:", papersListLink);
 
       response.json({
         messages: [
           {
-            text: "Voici la procédure pour déposer un dossier pour un titre de séjour " +
-            `${tdsTypes[selected_tds].name} :`,
-          }
-        ].concat(submissionPossibilities),
+            text: `Voici la liste de papiers : ${papersListLink}`,
+          },
+        ],
       });
     } else {
-      console.log("No info yet for that submission type.");
+      console.log("No info yet for that tds type.");
 
       response.json({
         messages: [
           {
-            text: "Je ne sais pas encore comment déposer un dossier " +
-            `pour un titre de séjour ${tdsTypes[selected_tds].name} là-bas...`,
+            text: "Je ne connais pas encore la liste de papiers pour là-bas 😔",
           },
         ],
       });

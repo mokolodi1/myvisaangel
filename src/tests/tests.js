@@ -968,6 +968,26 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      it("should work with a papers list request", (done) => {
+        chai.request(server)
+          .get("/v1/nlp?last+user+freeform+input=c%27est%20quoi%20la%20liste%20pour%20l%27aps%20à%20Paris%20?")
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                prefecture: "paris",
+                selected_tds: "aps",
+              },
+              redirect_to_blocks: [
+                "Dossier papers list",
+              ],
+            });
+
+            done();
+          });
+      });
+
       it("should respond correctly to thank you", (done) => {
         chai.request(server)
           .get('/v1/nlp?last+user+freeform+input=Merci')
@@ -977,7 +997,7 @@ describe('My Visa Bot API', () => {
             response.body.should.be.deep.eql({
               messages: [
                 {
-                  text: "Je t'en pris. C'etait un plaisir de parler avec " +
+                  text: "Je t'en prie. C'etait un plaisir de parler avec " +
                   "toi 🙂",
                 },
               ],
@@ -1032,6 +1052,58 @@ describe('My Visa Bot API', () => {
                   "pour un titre de séjour APS là-bas...",
                 },
               ],
+            });
+
+            done();
+          });
+      });
+    });
+
+    describe('/GET /v1/dossier_papers_list', () => {
+      it("should fail if missing parameters", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_papers_list')
+          .end((err, response) => {
+            response.should.have.status(400);
+
+            done();
+          });
+      });
+
+      it("should help users if they have the info", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_papers_list?prefecture=paris&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            // TODO: this will change!
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: 'Voici la liste de papiers : ' +
+                  'https://drive.google.com/open?id=1SaFEnvlhEAuPEm9PyvnRdtJ386OgfLET9nWQoXVrBrA'
+                }
+              ]
+            });
+
+            done();
+          });
+      });
+
+      it("return an apology if we don't have the info", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_papers_list?prefecture=NOPE&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            // TODO: this will change!
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Je ne connais pas encore la liste de papiers " +
+                  "pour là-bas 😔"
+                }
+              ]
             });
 
             done();
