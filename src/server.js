@@ -451,15 +451,27 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
       return;
     }
 
-    let matchingRows = _.where(result, {
-      tdsSlug: selected_tds,
-      prefectureSlug: prefecture,
-    });
+    let matchingRows = _.chain(result)
+      .where({
+        tdsSlug: selected_tds,
+        prefectureSlug: prefecture,
+      })
+      .filter((row) => {
+        // XXX: might need better way to tell if row is ready for production
+        return row["besoinrdv"]
+      })
+      .value();
 
     if (matchingRows.length > 0) {
       let submissionPossibilities = _.map(matchingRows, (row) => {
+        let rdvMessage = "Tu n'as pas besoin de prendre RDV. ";
+        if (Utilities.slugishify(matchingRows[0]["besoinrdv"]) === "oui") {
+          rdvMessage = "Le RDV se prend " +
+              `${matchingRows[0]["commentprendrerdv"]}. `;
+        }
+
         return {
-          text: `${row["dépôtdudossier"]} : ${row["coordonnées"]}`
+          text: rdvMessage + `${row["dépôtdudossier"]} : ${row["coordonnées"]}`
         };
       });
 
@@ -468,8 +480,9 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
       response.json({
         messages: [
           {
-            text: "Voici la procédure pour déposer un dossier pour un titre de séjour " +
-            `${tdsTypes[selected_tds].name} :`,
+            text: "Voici la/les procédure(s) pour déposer un dossier pour " +
+            `un titre de séjour ${tdsTypes[selected_tds].name} à ` +
+            `${Data.slugToPrefecture[prefecture]} :`,
           }
         ].concat(submissionPossibilities),
       });

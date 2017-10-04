@@ -152,6 +152,11 @@ function slugishify(name) {
   return removeDiacritics(name).toLowerCase().replace(/[^A-Za-z0-9]/g, "_");
 }
 
+// use slugishify to generate the slug to prefecture mapping
+_.each(Data.prefectures, (prefecture) => {
+  Data.slugToPrefecture[slugishify(prefecture)] = prefecture;
+});
+
 // calculate the words without accents and such
 _.each(Data.countries, (country) => {
   let names = [country.english, country.french];
