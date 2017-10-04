@@ -56,7 +56,6 @@ app.route('/v1/get_visas').get(function(request, response) {
   });
 
   if (result.redirect_to_blocks.length === 0) {
-    // TODO: Paola -- feel free to change this text
     result.redirect_to_blocks.push("No recommendation")
   } else {
     result.set_attributes = {
@@ -68,7 +67,6 @@ app.route('/v1/get_visas').get(function(request, response) {
     delete result.messages;
   }
 
-  console.log("Result:", result);
   response.json(result);
 });
 
@@ -353,7 +351,6 @@ app.route('/v1/nlp').get(function(request, response) {
           }
 
           let recastTds = Utilities.mostConfident(entities["visa-type"]);
-          console.log("recastTds:", recastTds);
           if (recastTds) {
             // convert from recast's recognition to slugs
             // TODO: ask Paola or Abdel to confirm these
@@ -371,15 +368,12 @@ app.route('/v1/nlp').get(function(request, response) {
               "entrepreneur": "commercant",
               "profession_liberale": "???",
             }[Utilities.slugishify(recastTds.value)];
-            console.log("newSelectedTds:", newSelectedTds);
 
             if (newSelectedTds) {
               selected_tds = newSelectedTds;
             }
           }
         }
-        console.log("prefecture:", prefecture);
-        console.log("selected_tds:", selected_tds);
 
         // should we ask questions?
         var questionBlocks = [];

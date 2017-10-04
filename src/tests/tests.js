@@ -988,6 +988,56 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      it("should work with a papers list request without info", (done) => {
+        chai.request(server)
+          .get("/v1/nlp?last+user+freeform+input=c%27est%20quoi%20la%20liste%20de%20papiers%20?")
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                  "de quelques informations complémentaires",
+                },
+              ],
+              redirect_to_blocks: [
+                "Ask for prefecture",
+                "Select TDS type",
+                "Dossier papers list",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should work with a papers list request with Pampiers", (done) => {
+        chai.request(server)
+          .get("/v1/nlp?last+user+freeform+input=c%27est%20quoi%20la%20liste%20de%20papiers%20pour%20Pamiers%20?")
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                  "de quelques informations complémentaires",
+                },
+              ],
+              set_attributes: {
+                prefecture: "pamiers",
+              },
+              redirect_to_blocks: [
+                "Select TDS type",
+                "Dossier papers list",
+              ],
+            });
+
+            done();
+          });
+      });
+
       it("should respond correctly to thank you", (done) => {
         chai.request(server)
           .get('/v1/nlp?last+user+freeform+input=Merci')
