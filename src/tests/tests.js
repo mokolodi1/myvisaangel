@@ -1094,7 +1094,7 @@ describe('My Visa Bot API', () => {
             response.body.should.be.deep.eql({
               messages: [
                 { text: 'Voici la procédure pour déposer un dossier pour un titre de séjour APS :' },
-                { text: 'Envoi par mail  : pp-dpg-sdae-6eb-aps-etudiant@interieur.gouv.fr' },
+                { text: 'Envoi par mail : pp-dpg-sdae-6eb-aps-etudiant@interieur.gouv.fr' },
                 { text: 'Envoi par la poste (courrier recommandé avec accusé de réception) : Préfecture de Police \nCentre Étudiant  - Demande d’APS Master \nCité Universitaire - 17 BD Jourdan 75014 Paris' }
               ]
             });
