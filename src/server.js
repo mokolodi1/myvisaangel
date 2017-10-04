@@ -410,6 +410,12 @@ app.route('/v1/nlp').get(function(request, response) {
         }
 
         response.json(result);
+      } else if (intent && intent.slug === "tds-recommendation") {
+        console.log("They want a recommendation for which TDS to get...");
+
+        response.json({
+          redirect_to_blocks: [ "TDS Questions" ],
+        });
       } else if (intent && intent.slug === "thanks") {
         console.log("They are saying thanks! It's nice being loved...");
 
