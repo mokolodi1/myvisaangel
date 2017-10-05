@@ -343,29 +343,6 @@ describe('My Visa Bot API', () => {
                               "travailler, créer une entreprise ou investir",
                           "title": "Passeport Talent Salarié Qualifié",
                         },
-                        {
-                          "buttons": [
-                            {
-                              "title": "Fiche récapitulative",
-                              "type": "web_url",
-                              "url": "https://docs.google.com/document/d/" +
-                                "1lb-4yLRCsyLbEVO_xUxDnUOHiBF5HC9IJTWA86_JDwo/",
-                            },
-                            {
-                              block_names: [
-                                "Dossier papers list"
-                              ],
-                              set_attributes: {
-                                selected_tds: "salarie_tt",
-                              },
-                              title: "Voir liste papiers",
-                              type: "show_block",
-                            },
-                          ],
-                          "subtitle": "Porte la mention Salarié si tu as un " +
-                              "CDI / Travailler temporaire si tu as un CDD",
-                          "title": "Salarié/Travailleur Temporaire",
-                        }
                       ],
                     }
                   }
@@ -378,7 +355,7 @@ describe('My Visa Bot API', () => {
                 }
               ],
               set_attributes: {
-                recommended_tds: "aps|ptsq|salarie_tt"
+                recommended_tds: "aps|ptsq"
               },
             });
 

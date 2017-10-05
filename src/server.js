@@ -41,7 +41,9 @@ app.route('/v1/get_visas').get(function(request, response) {
   _.each(tdsTypes, (tdsInfo, tdsSlug) => {
     let eligible = tdsInfo.eligible(request.query);
 
-    if (eligible) {
+    if (eligible &&
+          !(tdsSlug === "salarie_tt" &&
+              tdsTypes.ptsq.eligible(request.query))) {
       recommendedSlugs.push(tdsSlug);
 
       if (eligible.messages) {
