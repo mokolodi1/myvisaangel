@@ -1103,7 +1103,7 @@ describe('My Visa Bot API', () => {
           });
       });
 
-      it("should help users if they have the info", (done) => {
+      it("should help users (Paris, APS)", (done) => {
         chai.request(server)
           .get('/v1/dossier_submission_method?prefecture=paris&selected_tds=aps')
           .end((err, response) => {
@@ -1112,9 +1112,42 @@ describe('My Visa Bot API', () => {
             // TODO: this will change!
             response.body.should.be.deep.eql({
               messages: [
-                { text: 'Voici la procédure pour déposer un dossier pour un titre de séjour APS :' },
-                { text: 'Envoi par mail : pp-dpg-sdae-6eb-aps-etudiant@interieur.gouv.fr' },
-                { text: 'Envoi par la poste (courrier recommandé avec accusé de réception) : Préfecture de Police \nCentre Étudiant  - Demande d’APS Master \nCité Universitaire - 17 BD Jourdan 75014 Paris' }
+                { text: "Voici la/les procédure(s) pour déposer un dossier " +
+                    "pour un titre de séjour APS à Paris :" },
+                {
+                  text: "Tu n'as pas besoin de prendre RDV. " +
+                    "Envoi par mail : " +
+                    "pp-dpg-sdae-6eb-aps-etudiant@interieur.gouv.fr"
+                },
+                {
+                  text: "Tu n'as pas besoin de prendre RDV. " +
+                    "Envoi par la poste (courrier recommandé avec accusé " +
+                    "de réception) : Préfecture de Police \nCentre Étudiant " +
+                    " - Demande d’APS Master \nCité Universitaire - 17 BD " +
+                    "Jourdan 75014 Paris"
+                },
+              ]
+            });
+
+            done();
+          });
+      });
+
+      it("should help users (Paris, VPF)", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_submission_method?prefecture=paris&selected_tds=vpf')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            // TODO: this will change!
+            response.body.should.be.deep.eql({
+              messages: [
+                { text: "Voici la/les procédure(s) pour déposer un dossier " +
+                    "pour un titre de séjour Vie Privée et Familiale à Paris :" },
+                {
+                  text: "Le RDV se prend Par téléphone. Dépôt sur place : " +
+                    "34 30 (0,06 €/min + prix d'un appel)"
+                },
               ]
             });
 
