@@ -67,6 +67,7 @@ app.route('/v1/get_visas').get(function(request, response) {
     delete result.messages;
   }
 
+  console.log("result:", result);
   response.json(result);
 });
 
