@@ -67,6 +67,7 @@ app.route('/v1/get_visas').get(function(request, response) {
     delete result.messages;
   }
 
+  console.log("result:", result);
   response.json(result);
 });
 
@@ -410,6 +411,12 @@ app.route('/v1/nlp').get(function(request, response) {
         }
 
         response.json(result);
+      } else if (intent && intent.slug === "tds-recommendation") {
+        console.log("They want a recommendation for which TDS to get...");
+
+        response.json({
+          redirect_to_blocks: [ "TDS Questions" ],
+        });
       } else if (intent && intent.slug === "greetings") {
         console.log("Saying hello. How nice!");
 
