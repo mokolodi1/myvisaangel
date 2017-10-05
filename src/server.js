@@ -59,8 +59,7 @@ app.route('/v1/get_visas').get(function(request, response) {
       attachment: {
         type: "template",
         payload: {
-          "template_type":"list",
-          "top_element_style":"large",
+          template_type: "generic",
           elements: _.map(recommendedSlugs, (tdsSlug) => {
             let tdsInfo = tdsTypes[tdsSlug];;
 
@@ -80,10 +79,12 @@ app.route('/v1/get_visas').get(function(request, response) {
       }
     });
 
-    // result.messages.push({
-    //   text: "Tu peux me demander des questions comme :\n",
-    //       ""
-    // });
+    result.messages.push({
+      text: "Tu peux me demander des questions comme :\n" +
+          "C'est quoi la liste de papiers pour le titre de séjour " +
+          "salarié à Paris ? ou\n" +
+          "Je fais comment pour prendre RDV ? ou\n",
+    });
   } else {
     result.redirect_to_blocks = [ "No recommendation" ];
   }
