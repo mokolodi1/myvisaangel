@@ -80,10 +80,11 @@ app.route('/v1/get_visas').get(function(request, response) {
     });
 
     result.messages.push({
-      text: "Tu peux me demander des questions comme :\n" +
+      text: "Tu peux me demander des questions celles-ci :\n" +
           "C'est quoi la liste de papiers pour le titre de séjour " +
-          "salarié à Paris ? ou\n" +
-          "Je fais comment pour prendre RDV ? ou\n",
+          "salarié à Paris ?\n" +
+          "Je fais comment pour déposer mon dossier pour le passeport " +
+          "talent à Nanterre ?\n",
     });
   } else {
     result.redirect_to_blocks = [ "No recommendation" ];
