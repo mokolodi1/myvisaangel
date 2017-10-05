@@ -34,33 +34,69 @@ app.route('/v1/get_visas').get(function(request, response) {
   Utilities.cleanVisaQuery(request.query);
 
   var result = {
-    messages: [],
-    redirect_to_blocks: [],
-  }
+    messages: []
+  };
   var recommendedSlugs = [];
 
   _.each(tdsTypes, (tdsInfo, tdsSlug) => {
     let eligible = tdsInfo.eligible(request.query);
 
     if (eligible) {
+      recommendedSlugs.push(tdsSlug);
+
       if (eligible.messages) {
         result.messages = result.messages.concat(eligible.messages);
-      }
-
-      if (eligible.blockName) {
-        result.redirect_to_blocks =
-            result.redirect_to_blocks.concat(eligible.blockName);
-        recommendedSlugs.push(tdsSlug);
       }
     }
   });
 
-  if (result.redirect_to_blocks.length === 0) {
-    result.redirect_to_blocks.push("No recommendation")
-  } else {
+  if (recommendedSlugs.length > 0) {
     result.set_attributes = {
       recommended_tds: recommendedSlugs.join("|"),
     };
+
+    result.messages.push({
+      attachment: {
+        type: "template",
+        payload: {
+          template_type: "generic",
+          elements: _.map(recommendedSlugs, (tdsSlug) => {
+            let tdsInfo = tdsTypes[tdsSlug];
+
+            return {
+              title: tdsInfo.name,
+              subtitle: tdsInfo.description,
+              buttons: tdsInfo.summary_link && [
+                {
+                  type: "web_url",
+                  title: "Fiche récapitulative",
+                  url: tdsInfo.summary_link,
+                },
+                {
+                  type: "show_block",
+                  block_names: [
+                    "Dossier papers list",
+                  ],
+                  title: "Voir liste papiers",
+                  set_attributes: {
+                    selected_tds: tdsSlug
+                  },
+                },
+              ],
+            };
+          }),
+        }
+      }
+    });
+
+    result.messages.push({
+      text: "Tu as encore des questions ? Écris ta question directement " +
+          "ci-dessous.\n" +
+          "Par exemple : Comment déposer un dossier pour le passeport " +
+          "talent à Nanterre ?",
+    });
+  } else {
+    result.redirect_to_blocks = [ "No recommendation" ];
   }
 
   if (result.messages.length === 0) {
@@ -361,33 +397,13 @@ app.route('/v1/nlp').get(function(request, response) {
           }
         }
 
-        // should we ask questions?
-        var questionBlocks = [];
-        if (!prefecture) {
-          questionBlocks.push("Ask for prefecture");
-        }
-        if (!selected_tds) {
-          questionBlocks.push("Select TDS type");
-        }
+        var result = Utilities.prefTdsRequired(prefecture, selected_tds);
 
         let blockForIntent = {
           "dossier-submission-method": "Dossier submission method",
           "dossier-list-papers": "Dossier papers list",
         }[intent.slug];
-
-        var result = {
-          redirect_to_blocks: questionBlocks.concat([
-            blockForIntent
-          ]),
-        };
-        if (questionBlocks.length) {
-          result.messages = [
-            {
-              text: "Pour t'aider j'ai besoin " +
-              "de quelques informations complémentaires",
-            },
-          ];
-        }
+        result.redirect_to_blocks.push(blockForIntent);
 
         // send these back even if they haven't been modified (but only
         // if they're defined)
@@ -441,8 +457,11 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
   let { selected_tds, prefecture } = request.query;
 
   if (!selected_tds || !prefecture) {
-    response.status(400)
-        .send('Missing selected_tds or prefecture parameter(s)');
+    var result = Utilities.prefTdsRequired(prefecture, selected_tds);
+
+    result.redirect_to_blocks.push("Dossier submission method");
+
+    response.json(result);
     return;
   }
 
@@ -507,8 +526,11 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
   let { selected_tds, prefecture } = request.query;
 
   if (!selected_tds || !prefecture) {
-    response.status(400)
-        .send('Missing selected_tds or prefecture parameter(s)');
+    var result = Utilities.prefTdsRequired(prefecture, selected_tds);
+
+    result.redirect_to_blocks.push("Dossier papers list");
+
+    response.json(result);
     return;
   }
 

@@ -264,6 +264,30 @@ function tdsFromRecast(tdsDescription) {
   }
 }
 
+function prefTdsRequired(prefecture, selected_tds) {
+  var result = {
+    redirect_to_blocks: []
+  };
+
+  if (!prefecture) {
+    result.redirect_to_blocks.push("Ask for prefecture");
+  }
+  if (!selected_tds) {
+    result.redirect_to_blocks.push("Select TDS type");
+  }
+
+  if (result.redirect_to_blocks.length) {
+    result.messages = [
+      {
+        text: "Pour t'aider j'ai besoin " +
+            "de quelques informations complémentaires",
+      },
+    ];
+  }
+
+  return result;
+}
+
 module.exports = {
   removeDiacritics,
   slugishify,
@@ -272,4 +296,5 @@ module.exports = {
   getPapersList,
   mostConfident,
   tdsFromRecast,
+  prefTdsRequired,
 }
