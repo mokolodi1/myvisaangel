@@ -551,12 +551,25 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
         ],
       });
     } else {
-      console.log("No info yet for that tds type.");
+      console.log("No info yet for that tds type - suggesting Nanterre papers");
+
+      let nanterreRows = _.where(result, {
+        tdsSlug: selected_tds,
+        prefectureSlug: "nanterre",
+      });
 
       response.json({
         messages: [
           {
-            text: "Je ne connais pas encore la liste de papiers pour là-bas 😔",
+            text: "Pour le moment nous n'avons la liste pour la préfecture " +
+                "dans notre base de données mais en attendant, je t'invite " +
+                "à regarder la liste de Nanterre car c'est très générique " +
+                "et il se peut qu'elle corresponde à 90% à la liste de ta" +
+                " préfecture 🙂",
+          },
+          {
+            text: "Voici la liste de papiers pour Nanterre pour " +
+                `${tdsTypes[selected_tds].name} : ${nanterreRows[0]["lien"]}`
           },
         ],
       });
