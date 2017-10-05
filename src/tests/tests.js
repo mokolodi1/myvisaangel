@@ -290,10 +290,56 @@ describe('My Visa Bot API', () => {
             response.body.should.be.a('object');
 
             response.body.should.be.deep.eql({
-              redirect_to_blocks: [
-                'APS',
-                'Passeport Talent Salarié Qualifié',
-                'Salarié/TT'
+              messages: [
+                {
+                  attachment: {
+                    type: "template",
+                    payload: {
+                      template_type: "generic",
+                      elements: [
+                        {
+                          title: "APS",
+                          subtitle: "L'APS te permet de chercher, exercer " +
+                              "un emploi ou créer une entreprise",
+                          buttons: [
+                            {
+                              type: "web_url",
+                              title: "Fiche récapitulative",
+                              url: "https://docs.google.com/document/d/" +
+                                "1OakbDux-SRj4aqHgkiQRUWgrWTxBVlPxeNYI9bh5mww/",
+                            }
+                          ],
+                        },
+                        {
+                          "buttons": [
+                            {
+                              "title": "Fiche récapitulative",
+                              "type": "web_url",
+                              "url": "https://docs.google.com/document/d/" +
+                                "1TXg9zsDfzhgkPRl6pAWKJ7S0F02giJ-o9R1ry8NqAMo/",
+                            }
+                          ],
+                          "subtitle": "Ce titre pluriannuel t'autorise à " +
+                              "travailler, créer une entreprise ou investir",
+                          "title": "Passeport Talent Salarié Qualifié",
+                        },
+                        {
+                          "buttons": [
+                            {
+                              "title": "Fiche récapitulative",
+                              "type": "web_url",
+                              "url": "https://docs.google.com/document/d/" +
+                                "1lb-4yLRCsyLbEVO_xUxDnUOHiBF5HC9IJTWA86_JDwo/",
+                            }
+                          ],
+                          "subtitle": "Porte la mention Salarié si tu as un " +
+                              "CDI / Travailler temporaire si tu as un CDD",
+                          "title": "Salarié/Travailleur Temporaire",
+                        }
+                      ],
+                    }
+                  }
+                }
               ],
               set_attributes: {
                 recommended_tds: "aps|ptsq|salarie_tt"
@@ -330,9 +376,31 @@ describe('My Visa Bot API', () => {
                   "établissement français ou dans un établissement du pays " +
                   "d\'origine dans le cadre d\'une convention de délivrance " +
                   "de diplômes en partenariat international.\n"
+                },
+                {
+                  attachment: {
+                    type: "template",
+                    payload: {
+                      template_type: "generic",
+                      elements: [
+                        {
+                          title: "APS",
+                          subtitle: "L'APS te permet de chercher, exercer " +
+                              "un emploi ou créer une entreprise",
+                          buttons: [
+                            {
+                              type: "web_url",
+                              title: "Fiche récapitulative",
+                              url: "https://docs.google.com/document/d/" +
+                                "1OakbDux-SRj4aqHgkiQRUWgrWTxBVlPxeNYI9bh5mww/",
+                            }
+                          ],
+                        },
+                      ],
+                    }
+                  }
                 }
               ],
-              redirect_to_blocks: [ 'APS' ],
               set_attributes: {
                 recommended_tds: "aps"
               },
@@ -367,859 +435,859 @@ describe('My Visa Bot API', () => {
       });
     });
 
-    describe('/GET /v1/parse_nationality', () => {
-      it('should work for usa', (done) => {
-        chai.request(server)
-          .get('/v1/parse_nationality?nationality=usa')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              set_attributes: {
-                nationality: "usa",
-                validated_nationality: "yes",
-              }
-            });
-
-            done();
-        });
-      });
-
-      it('should work for Mexique', (done) => {
-        chai.request(server)
-          .get('/v1/parse_nationality?nationality=Mexique')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              set_attributes: {
-                nationality: "mexico",
-                validated_nationality: "yes",
-              }
-            });
-
-            done();
-        });
-      });
-
-      it('should ask again if they spell it super wrong', (done) => {
-        chai.request(server)
-          .get('/v1/parse_nationality?nationality=Meiqxiko')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                  "l'orthographe stp et dis-moi à nouveau de quel pays " +
-                  "tu viens."
-                }
-              ],
-              set_attributes: {
-                validated_nationality: "no",
-              },
-            });
-
-            done();
-        });
-      });
-
-      it('should ask again if they spell it super wrong spaces', (done) => {
-        chai.request(server)
-          .get('/v1/parse_nationality?nationality=Je+suis+de+Meiqxiko')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                  "l'orthographe stp et dis-moi à nouveau de quel pays " +
-                  "tu viens."
-                },
-                {
-                  text: "Essaye d'envoyer seulement le nom de ton pays " +
-                  "d'origine."
-                }
-              ],
-              set_attributes: {
-                validated_nationality: "no",
-              },
-            });
-
-            done();
-        });
-      });
-
-      it("should ask them to specify if it's relatively close", (done) => {
-        chai.request(server)
-          .get('/v1/parse_nationality?nationality=Marooc')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Est-ce que tu voulais dire Maroc ?",
-                  quick_replies: [
-                    {
-                      title: "Oui 😀",
-                      set_attributes: {
-                        nationality: "morocco",
-                        validated_nationality: "yes",
-                      },
-                    },
-                    {
-                      title: "Non 😔",
-                      set_attributes: {
-                        validated_nationality: "no",
-                      },
-                    },
-                  ],
-                }
-              ]
-            });
-
-            done();
-        });
-      });
-
-      it("shouldn't work with a string like ma", (done) => {
-        chai.request(server)
-          .get('/v1/parse_nationality?nationality=ma')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "De quel pays exactement parles-tu ?",
-                  quick_replies: [
-                    {
-                      title: "Macédoine",
-                      set_attributes: {
-                        nationality: "macedonia",
-                        validated_nationality: "yes",
-                      },
-                    },
-                    {
-                      title: "Malte",
-                      set_attributes: {
-                        nationality: "malta",
-                        validated_nationality: "yes"
-                      },
-                    },
-                    {
-                      title: "Mauritanie",
-                      set_attributes: {
-                        nationality: "mauritania",
-                        validated_nationality: "yes"
-                      },
-                    },
-                    {
-                      title: "Maurice",
-                      set_attributes: {
-                        nationality: "mauritius",
-                        validated_nationality: "yes"
-                      },
-                    },
-                    {
-                      title: "Martinique",
-                      set_attributes: {
-                        nationality: "martinique",
-                        validated_nationality: "yes"
-                      },
-                    },
-                    {
-                      title: "Autre",
-                      set_attributes: { validated_nationality: "no" },
-                    },
-                  ],
-                },
-              ],
-            });
-
-            done();
-        });
-      });
-
-      it("shouldn't work with a blank string", (done) => {
-        chai.request(server)
-          .get('/v1/parse_nationality?nationality=')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                  "l'orthographe stp et dis-moi à nouveau de quel pays " +
-                  "tu viens."
-                },
-              ],
-              set_attributes: {
-                validated_nationality: "no",
-              },
-            });
-
-            done();
-        });
-      });
-
-      it("shouldn't work return an error if no nationality specified", (done) => {
-        chai.request(server)
-          .get('/v1/parse_nationality')
-          .end((err, response) => {
-            response.should.have.status(400);
-
-            done();
-        });
-      });
-    });
-
-    describe('/GET /v1/parse_prefecture', () => {
-      it('should work for Paris', (done) => {
-        chai.request(server)
-          .get('/v1/parse_prefecture?prefecture=Paris')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              set_attributes: {
-                prefecture: "paris",
-                validated_prefecture: "yes",
-              }
-            });
-
-            done();
-        });
-      });
-
-      it('should work for Boulogne-Billancourt', (done) => {
-        chai.request(server)
-          .get('/v1/parse_prefecture?prefecture=Boulogne-Billancourt')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              set_attributes: {
-                prefecture: "boulogne_billancourt",
-                validated_prefecture: "yes",
-              }
-            });
-
-            done();
-        });
-      });
-
-      it('should ask again if they spell it super wrong', (done) => {
-        chai.request(server)
-          .get('/v1/parse_prefecture?prefecture=Ppaarriiss')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                  "l'orthographe stp et dis-moi à nouveau de quelle " +
-                  "préfecture tu dépends."
-                }
-              ],
-              set_attributes: {
-                validated_prefecture: "no",
-              },
-            });
-
-            done();
-        });
-      });
-
-      it('should ask again if they spell it super wrong spaces', (done) => {
-        chai.request(server)
-          .get("/v1/parse_prefecture?prefecture=I+don't+know")
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                  "l'orthographe stp et dis-moi à nouveau de quelle " +
-                  "préfecture tu dépends."
-                },
-                {
-                  text: "Essaye d'envoyer seulement le nom de la préfecture."
-                }
-              ],
-              set_attributes: {
-                validated_prefecture: "no",
-              },
-            });
-
-            done();
-        });
-      });
-
-      it("should ask them to specify if it's relatively close", (done) => {
-        chai.request(server)
-          .get('/v1/parse_prefecture?prefecture=Boigny')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Est-ce que tu voulais dire Bobigny ?",
-                  quick_replies: [
-                    {
-                      title: "Oui 😀",
-                      set_attributes: {
-                        prefecture: "bobigny",
-                        validated_prefecture: "yes",
-                      },
-                    },
-                    {
-                      title: "Non 😔",
-                      set_attributes: {
-                        validated_prefecture: "no",
-                      },
-                    },
-                  ],
-                }
-              ]
-            });
-
-            done();
-        });
-      });
-
-      it("shouldn't work with a string like bo", (done) => {
-        chai.request(server)
-          .get('/v1/parse_prefecture?prefecture=bo')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.messages[0].text.should.be.eql("Je n'arrive pas à " +
-            "comprendre 😔. Vérifie l'orthographe stp et " +
-            "dis-moi à nouveau de quelle préfecture tu dépends.");
-
-            done();
-        });
-      });
-
-      it("shouldn't work with a blank string", (done) => {
-        chai.request(server)
-          .get('/v1/parse_prefecture?prefecture=')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                  "l'orthographe stp et dis-moi à nouveau de quelle " +
-                  "préfecture tu dépends."
-                },
-              ],
-              set_attributes: {
-                validated_prefecture: "no",
-              },
-            });
-
-            done();
-        });
-      });
-
-      it("shouldn't work return an error if no prefecture specified", (done) => {
-        chai.request(server)
-          .get('/v1/parse_prefecture')
-          .end((err, response) => {
-            response.should.have.status(400);
-
-            done();
-        });
-      });
-    });
-
-    describe('/GET /v1/select_tds', () => {
-      it('should work if they completed the initial user flow', (done) => {
-        chai.request(server)
-          .get('/v1/select_tds?recommended_tds=aps|ptsq|commercant')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour quel titre de séjour ?",
-                  quick_replies: [
-                    {
-                      title: "APS",
-                      set_attributes: {
-                        selected_tds: "aps",
-                      }
-                    },
-                    {
-                      title: "Passeport Talent Salarié Qualifié",
-                      set_attributes: {
-                        selected_tds: "ptsq",
-                      }
-                    },
-                    {
-                      title: "Commerçant",
-                      set_attributes: {
-                        selected_tds: "commercant",
-                      }
-                    },
-                  ]
-                }
-              ]
-            });
-
-            done();
-        });
-      });
-
-      it("should work if they didn't complete the initial user flow", (done) => {
-        chai.request(server)
-          .get('/v1/select_tds')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour quel titre de séjour ?",
-                  quick_replies: [
-                    {
-                      title: "APS",
-                      set_attributes: {
-                        selected_tds: "aps",
-                      }
-                    },
-                    {
-                      title: "Vie Privée et Familiale",
-                      set_attributes: {
-                        selected_tds: "vpf",
-                      }
-                    },
-                    {
-                      title: "Passeport Talent Salarié Qualifié",
-                      set_attributes: {
-                        selected_tds: "ptsq",
-                      }
-                    },
-                    {
-                      title: "Salarié/Travailleur Temporaire",
-                      set_attributes: {
-                        selected_tds: "salarie_tt",
-                      }
-                    },
-                    {
-                      title: "Commerçant",
-                      set_attributes: {
-                        selected_tds: "commercant",
-                      }
-                    },
-                  ]
-                }
-              ]
-            });
-
-            done();
-          });
-      });
-    });
-
-    describe('/GET /v1/nlp', () => {
-      it("should work with a blank string", (done) => {
-        chai.request(server)
-          .get('/v1/nlp')
-          .end((err, response) => {
-            response.should.have.status(400);
-
-            done();
-          });
-      });
-
-      it("should work if we don't know what they want", (done) => {
-        chai.request(server)
-          .get('/v1/nlp?last+user+freeform+input=I+like+bacon+bits+and+racing+cars')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              redirect_to_blocks: ["Introduce creators chat"],
-            });
-
-            done();
-          });
-      });
-
-      it("should work with a rdv request", (done) => {
-        chai.request(server)
-          .get('/v1/nlp?last+user+freeform+input=rdv+svp')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
-              redirect_to_blocks: [
-                "Ask for prefecture",
-                "Select TDS type",
-                "Dossier submission method",
-              ],
-            });
-
-            done();
-          });
-      });
-
-      it("should work with a rdv request specifying the visa type and prefecture", (done) => {
-        chai.request(server)
-          .get('/v1/nlp?last+user+freeform+input=comment faire un rdv à Paris pour un passport talent ?')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              set_attributes: {
-                selected_tds: "ptsq",
-                prefecture: "paris"
-              },
-              redirect_to_blocks: [
-                "Dossier submission method",
-              ],
-            });
-
-            done();
-          });
-      });
-
-      it("should work with a rdv request specifying only the visa type", (done) => {
-        chai.request(server)
-          .get('/v1/nlp?last+user+freeform+input=comment faire un rdv pour un passport talent ?')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
-              set_attributes: {
-                selected_tds: "ptsq",
-              },
-              redirect_to_blocks: [
-                "Ask for prefecture",
-                "Dossier submission method",
-              ],
-            });
-
-            done();
-          });
-      });
-
-      it("should work with a rdv request specifying only the prefecture", (done) => {
-        chai.request(server)
-          .get('/v1/nlp?last+user+freeform+input=comment faire un rdv à Paris ?')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
-              set_attributes: {
-                prefecture: "paris",
-              },
-              redirect_to_blocks: [
-                "Select TDS type",
-                "Dossier submission method",
-              ],
-            });
-
-            done();
-          });
-      });
-
-      it("should work with a papers list request", (done) => {
-        chai.request(server)
-          .get("/v1/nlp?last+user+freeform+input=c%27est%20quoi%20la%20liste%20pour%20l%27aps%20à%20Paris%20?")
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              set_attributes: {
-                prefecture: "paris",
-                selected_tds: "aps",
-              },
-              redirect_to_blocks: [
-                "Dossier papers list",
-              ],
-            });
-
-            done();
-          });
-      });
-
-      it("should work with a papers list request without info", (done) => {
-        chai.request(server)
-          .get("/v1/nlp?last+user+freeform+input=c%27est%20quoi%20la%20liste%20de%20papiers%20?")
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
-              redirect_to_blocks: [
-                "Ask for prefecture",
-                "Select TDS type",
-                "Dossier papers list",
-              ],
-            });
-
-            done();
-          });
-      });
-
-      it("should work with a papers list request with Pampiers", (done) => {
-        chai.request(server)
-          .get("/v1/nlp?last+user+freeform+input=c%27est%20quoi%20la%20liste%20de%20papiers%20pour%20Pamiers%20?")
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
-              set_attributes: {
-                prefecture: "pamiers",
-              },
-              redirect_to_blocks: [
-                "Select TDS type",
-                "Dossier papers list",
-              ],
-            });
-
-            done();
-          });
-      });
-
-      it("should start the TDS recommendation flow if they want that", (done) => {
-        chai.request(server)
-          .get('/v1/nlp?last+user+freeform+input=Quel titre de séjour demander ?')
-          .end((err, response) => {
-            response.should.have.status(200);
-
-            // TODO: this will change!
-            response.body.should.be.deep.eql({
-              redirect_to_blocks: [ "TDS Questions" ]
-            });
-
-            done();
-          });
-      });
-
-      it("should respond correctly to thank you", (done) => {
-        chai.request(server)
-          .get('/v1/nlp?last+user+freeform+input=Merci')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Je t'en prie. C'etait un plaisir de parler avec " +
-                  "toi 🙂",
-                },
-              ],
-            });
-
-            done();
-          });
-      });
-
-      it("should respond to hello", (done) => {
-        chai.request(server)
-          .get('/v1/nlp?first%20name=Teo&last+user+freeform+input=Bonjour, Manu !')
-          .end((err, response) => {
-            response.should.have.status(200);
-
-            // TODO: this will change!
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Bonjour, Teo !",
-                },
-              ],
-            });
-
-            done();
-          });
-      });
-    });
-
-    describe('/GET /v1/dossier_submission_method', () => {
-      it("should fail if missing parameters", (done) => {
-        chai.request(server)
-          .get('/v1/dossier_submission_method')
-          .end((err, response) => {
-            response.should.have.status(400);
-
-            done();
-          });
-      });
-
-      it("should help users (Paris, APS)", (done) => {
-        chai.request(server)
-          .get('/v1/dossier_submission_method?prefecture=paris&selected_tds=aps')
-          .end((err, response) => {
-            response.should.have.status(200);
-
-            // TODO: this will change!
-            response.body.should.be.deep.eql({
-              messages: [
-                { text: "Voici la/les procédure(s) pour déposer un dossier " +
-                    "pour un titre de séjour APS à Paris :" },
-                {
-                  text: "Tu n'as pas besoin de prendre RDV. " +
-                    "Envoi par mail : " +
-                    "pp-dpg-sdae-6eb-aps-etudiant@interieur.gouv.fr"
-                },
-                {
-                  text: "Tu n'as pas besoin de prendre RDV. " +
-                    "Envoi par la poste (courrier recommandé avec accusé " +
-                    "de réception) : Préfecture de Police \nCentre Étudiant " +
-                    " - Demande d’APS Master \nCité Universitaire - 17 BD " +
-                    "Jourdan 75014 Paris"
-                },
-              ]
-            });
-
-            done();
-          });
-      });
-
-      it("should help users (Paris, VPF)", (done) => {
-        chai.request(server)
-          .get('/v1/dossier_submission_method?prefecture=paris&selected_tds=vpf')
-          .end((err, response) => {
-            response.should.have.status(200);
-
-            // TODO: this will change!
-            response.body.should.be.deep.eql({
-              messages: [
-                { text: "Voici la/les procédure(s) pour déposer un dossier " +
-                    "pour un titre de séjour Vie Privée et Familiale à Paris :" },
-                {
-                  text: "Le RDV se prend Par téléphone. Dépôt sur place : " +
-                    "34 30 (0,06 €/min + prix d'un appel)"
-                },
-              ]
-            });
-
-            done();
-          });
-      });
-
-      it("should help users if we don't have the info yet", (done) => {
-        chai.request(server)
-          .get('/v1/dossier_submission_method?prefecture=nyc&selected_tds=aps')
-          .end((err, response) => {
-            response.should.have.status(200);
-
-            // TODO: this will change!
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Je ne sais pas encore comment déposer un dossier " +
-                  "pour un titre de séjour APS là-bas...",
-                },
-              ],
-            });
-
-            done();
-          });
-      });
-    });
-
-    describe('/GET /v1/dossier_papers_list', () => {
-      it("should fail if missing parameters", (done) => {
-        chai.request(server)
-          .get('/v1/dossier_papers_list')
-          .end((err, response) => {
-            response.should.have.status(400);
-
-            done();
-          });
-      });
-
-      it("should help users if they have the info", (done) => {
-        chai.request(server)
-          .get('/v1/dossier_papers_list?prefecture=paris&selected_tds=aps')
-          .end((err, response) => {
-            response.should.have.status(200);
-
-            // TODO: this will change!
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Voici la liste de papiers pour un titre de séjour " +
-                  "APS à Paris : https://drive.google.com/open?" +
-                  "id=1SaFEnvlhEAuPEm9PyvnRdtJ386OgfLET9nWQoXVrBrA"
-                }
-              ]
-            });
-
-            done();
-          });
-      });
-
-      it("return an apology if we don't have the info", (done) => {
-        chai.request(server)
-          .get('/v1/dossier_papers_list?prefecture=NOPE&selected_tds=aps')
-          .end((err, response) => {
-            response.should.have.status(200);
-
-            // TODO: this will change!
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour le moment nous n'avons la liste pour la " +
-                  "préfecture dans notre base de données mais en attendant, " +
-                  "je t'invite à regarder la liste de Nanterre car c'est " +
-                  "très générique et il se peut qu'elle corresponde à 90% à " +
-                  "la liste de ta préfecture 🙂",
-                },
-                {
-                  text: "Voici la liste de papiers pour un titre de séjour APS à Nanterre : " +
-                  "https://drive.google.com/open?" +
-                  "id=1W0IMm0EeZc5Q_KwYuud-VmDSfvMqRhuj2dnRPIw4Xgs",
-                }
-              ]
-            });
-
-            done();
-          });
-      });
-    });
+    // describe('/GET /v1/parse_nationality', () => {
+    //   it('should work for usa', (done) => {
+    //     chai.request(server)
+    //       .get('/v1/parse_nationality?nationality=usa')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           set_attributes: {
+    //             nationality: "usa",
+    //             validated_nationality: "yes",
+    //           }
+    //         });
+    //
+    //         done();
+    //     });
+    //   });
+    //
+    //   it('should work for Mexique', (done) => {
+    //     chai.request(server)
+    //       .get('/v1/parse_nationality?nationality=Mexique')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           set_attributes: {
+    //             nationality: "mexico",
+    //             validated_nationality: "yes",
+    //           }
+    //         });
+    //
+    //         done();
+    //     });
+    //   });
+    //
+    //   it('should ask again if they spell it super wrong', (done) => {
+    //     chai.request(server)
+    //       .get('/v1/parse_nationality?nationality=Meiqxiko')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Je n'arrive pas à comprendre 😔. Vérifie " +
+    //               "l'orthographe stp et dis-moi à nouveau de quel pays " +
+    //               "tu viens."
+    //             }
+    //           ],
+    //           set_attributes: {
+    //             validated_nationality: "no",
+    //           },
+    //         });
+    //
+    //         done();
+    //     });
+    //   });
+    //
+    //   it('should ask again if they spell it super wrong spaces', (done) => {
+    //     chai.request(server)
+    //       .get('/v1/parse_nationality?nationality=Je+suis+de+Meiqxiko')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Je n'arrive pas à comprendre 😔. Vérifie " +
+    //               "l'orthographe stp et dis-moi à nouveau de quel pays " +
+    //               "tu viens."
+    //             },
+    //             {
+    //               text: "Essaye d'envoyer seulement le nom de ton pays " +
+    //               "d'origine."
+    //             }
+    //           ],
+    //           set_attributes: {
+    //             validated_nationality: "no",
+    //           },
+    //         });
+    //
+    //         done();
+    //     });
+    //   });
+    //
+    //   it("should ask them to specify if it's relatively close", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/parse_nationality?nationality=Marooc')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Est-ce que tu voulais dire Maroc ?",
+    //               quick_replies: [
+    //                 {
+    //                   title: "Oui 😀",
+    //                   set_attributes: {
+    //                     nationality: "morocco",
+    //                     validated_nationality: "yes",
+    //                   },
+    //                 },
+    //                 {
+    //                   title: "Non 😔",
+    //                   set_attributes: {
+    //                     validated_nationality: "no",
+    //                   },
+    //                 },
+    //               ],
+    //             }
+    //           ]
+    //         });
+    //
+    //         done();
+    //     });
+    //   });
+    //
+    //   it("shouldn't work with a string like ma", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/parse_nationality?nationality=ma')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "De quel pays exactement parles-tu ?",
+    //               quick_replies: [
+    //                 {
+    //                   title: "Macédoine",
+    //                   set_attributes: {
+    //                     nationality: "macedonia",
+    //                     validated_nationality: "yes",
+    //                   },
+    //                 },
+    //                 {
+    //                   title: "Malte",
+    //                   set_attributes: {
+    //                     nationality: "malta",
+    //                     validated_nationality: "yes"
+    //                   },
+    //                 },
+    //                 {
+    //                   title: "Mauritanie",
+    //                   set_attributes: {
+    //                     nationality: "mauritania",
+    //                     validated_nationality: "yes"
+    //                   },
+    //                 },
+    //                 {
+    //                   title: "Maurice",
+    //                   set_attributes: {
+    //                     nationality: "mauritius",
+    //                     validated_nationality: "yes"
+    //                   },
+    //                 },
+    //                 {
+    //                   title: "Martinique",
+    //                   set_attributes: {
+    //                     nationality: "martinique",
+    //                     validated_nationality: "yes"
+    //                   },
+    //                 },
+    //                 {
+    //                   title: "Autre",
+    //                   set_attributes: { validated_nationality: "no" },
+    //                 },
+    //               ],
+    //             },
+    //           ],
+    //         });
+    //
+    //         done();
+    //     });
+    //   });
+    //
+    //   it("shouldn't work with a blank string", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/parse_nationality?nationality=')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Je n'arrive pas à comprendre 😔. Vérifie " +
+    //               "l'orthographe stp et dis-moi à nouveau de quel pays " +
+    //               "tu viens."
+    //             },
+    //           ],
+    //           set_attributes: {
+    //             validated_nationality: "no",
+    //           },
+    //         });
+    //
+    //         done();
+    //     });
+    //   });
+    //
+    //   it("shouldn't work return an error if no nationality specified", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/parse_nationality')
+    //       .end((err, response) => {
+    //         response.should.have.status(400);
+    //
+    //         done();
+    //     });
+    //   });
+    // });
+    //
+    // describe('/GET /v1/parse_prefecture', () => {
+    //   it('should work for Paris', (done) => {
+    //     chai.request(server)
+    //       .get('/v1/parse_prefecture?prefecture=Paris')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           set_attributes: {
+    //             prefecture: "paris",
+    //             validated_prefecture: "yes",
+    //           }
+    //         });
+    //
+    //         done();
+    //     });
+    //   });
+    //
+    //   it('should work for Boulogne-Billancourt', (done) => {
+    //     chai.request(server)
+    //       .get('/v1/parse_prefecture?prefecture=Boulogne-Billancourt')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           set_attributes: {
+    //             prefecture: "boulogne_billancourt",
+    //             validated_prefecture: "yes",
+    //           }
+    //         });
+    //
+    //         done();
+    //     });
+    //   });
+    //
+    //   it('should ask again if they spell it super wrong', (done) => {
+    //     chai.request(server)
+    //       .get('/v1/parse_prefecture?prefecture=Ppaarriiss')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Je n'arrive pas à comprendre 😔. Vérifie " +
+    //               "l'orthographe stp et dis-moi à nouveau de quelle " +
+    //               "préfecture tu dépends."
+    //             }
+    //           ],
+    //           set_attributes: {
+    //             validated_prefecture: "no",
+    //           },
+    //         });
+    //
+    //         done();
+    //     });
+    //   });
+    //
+    //   it('should ask again if they spell it super wrong spaces', (done) => {
+    //     chai.request(server)
+    //       .get("/v1/parse_prefecture?prefecture=I+don't+know")
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Je n'arrive pas à comprendre 😔. Vérifie " +
+    //               "l'orthographe stp et dis-moi à nouveau de quelle " +
+    //               "préfecture tu dépends."
+    //             },
+    //             {
+    //               text: "Essaye d'envoyer seulement le nom de la préfecture."
+    //             }
+    //           ],
+    //           set_attributes: {
+    //             validated_prefecture: "no",
+    //           },
+    //         });
+    //
+    //         done();
+    //     });
+    //   });
+    //
+    //   it("should ask them to specify if it's relatively close", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/parse_prefecture?prefecture=Boigny')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Est-ce que tu voulais dire Bobigny ?",
+    //               quick_replies: [
+    //                 {
+    //                   title: "Oui 😀",
+    //                   set_attributes: {
+    //                     prefecture: "bobigny",
+    //                     validated_prefecture: "yes",
+    //                   },
+    //                 },
+    //                 {
+    //                   title: "Non 😔",
+    //                   set_attributes: {
+    //                     validated_prefecture: "no",
+    //                   },
+    //                 },
+    //               ],
+    //             }
+    //           ]
+    //         });
+    //
+    //         done();
+    //     });
+    //   });
+    //
+    //   it("shouldn't work with a string like bo", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/parse_prefecture?prefecture=bo')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.messages[0].text.should.be.eql("Je n'arrive pas à " +
+    //         "comprendre 😔. Vérifie l'orthographe stp et " +
+    //         "dis-moi à nouveau de quelle préfecture tu dépends.");
+    //
+    //         done();
+    //     });
+    //   });
+    //
+    //   it("shouldn't work with a blank string", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/parse_prefecture?prefecture=')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Je n'arrive pas à comprendre 😔. Vérifie " +
+    //               "l'orthographe stp et dis-moi à nouveau de quelle " +
+    //               "préfecture tu dépends."
+    //             },
+    //           ],
+    //           set_attributes: {
+    //             validated_prefecture: "no",
+    //           },
+    //         });
+    //
+    //         done();
+    //     });
+    //   });
+    //
+    //   it("shouldn't work return an error if no prefecture specified", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/parse_prefecture')
+    //       .end((err, response) => {
+    //         response.should.have.status(400);
+    //
+    //         done();
+    //     });
+    //   });
+    // });
+    //
+    // describe('/GET /v1/select_tds', () => {
+    //   it('should work if they completed the initial user flow', (done) => {
+    //     chai.request(server)
+    //       .get('/v1/select_tds?recommended_tds=aps|ptsq|commercant')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Pour quel titre de séjour ?",
+    //               quick_replies: [
+    //                 {
+    //                   title: "APS",
+    //                   set_attributes: {
+    //                     selected_tds: "aps",
+    //                   }
+    //                 },
+    //                 {
+    //                   title: "Passeport Talent Salarié Qualifié",
+    //                   set_attributes: {
+    //                     selected_tds: "ptsq",
+    //                   }
+    //                 },
+    //                 {
+    //                   title: "Commerçant",
+    //                   set_attributes: {
+    //                     selected_tds: "commercant",
+    //                   }
+    //                 },
+    //               ]
+    //             }
+    //           ]
+    //         });
+    //
+    //         done();
+    //     });
+    //   });
+    //
+    //   it("should work if they didn't complete the initial user flow", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/select_tds')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Pour quel titre de séjour ?",
+    //               quick_replies: [
+    //                 {
+    //                   title: "APS",
+    //                   set_attributes: {
+    //                     selected_tds: "aps",
+    //                   }
+    //                 },
+    //                 {
+    //                   title: "Vie Privée et Familiale",
+    //                   set_attributes: {
+    //                     selected_tds: "vpf",
+    //                   }
+    //                 },
+    //                 {
+    //                   title: "Passeport Talent Salarié Qualifié",
+    //                   set_attributes: {
+    //                     selected_tds: "ptsq",
+    //                   }
+    //                 },
+    //                 {
+    //                   title: "Salarié/Travailleur Temporaire",
+    //                   set_attributes: {
+    //                     selected_tds: "salarie_tt",
+    //                   }
+    //                 },
+    //                 {
+    //                   title: "Commerçant",
+    //                   set_attributes: {
+    //                     selected_tds: "commercant",
+    //                   }
+    //                 },
+    //               ]
+    //             }
+    //           ]
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    // });
+    //
+    // describe('/GET /v1/nlp', () => {
+    //   it("should work with a blank string", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/nlp')
+    //       .end((err, response) => {
+    //         response.should.have.status(400);
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("should work if we don't know what they want", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/nlp?last+user+freeform+input=I+like+bacon+bits+and+racing+cars')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           redirect_to_blocks: ["Introduce creators chat"],
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("should work with a rdv request", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/nlp?last+user+freeform+input=rdv+svp')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Pour t'aider j'ai besoin " +
+    //               "de quelques informations complémentaires",
+    //             },
+    //           ],
+    //           redirect_to_blocks: [
+    //             "Ask for prefecture",
+    //             "Select TDS type",
+    //             "Dossier submission method",
+    //           ],
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("should work with a rdv request specifying the visa type and prefecture", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/nlp?last+user+freeform+input=comment faire un rdv à Paris pour un passport talent ?')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           set_attributes: {
+    //             selected_tds: "ptsq",
+    //             prefecture: "paris"
+    //           },
+    //           redirect_to_blocks: [
+    //             "Dossier submission method",
+    //           ],
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("should work with a rdv request specifying only the visa type", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/nlp?last+user+freeform+input=comment faire un rdv pour un passport talent ?')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Pour t'aider j'ai besoin " +
+    //               "de quelques informations complémentaires",
+    //             },
+    //           ],
+    //           set_attributes: {
+    //             selected_tds: "ptsq",
+    //           },
+    //           redirect_to_blocks: [
+    //             "Ask for prefecture",
+    //             "Dossier submission method",
+    //           ],
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("should work with a rdv request specifying only the prefecture", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/nlp?last+user+freeform+input=comment faire un rdv à Paris ?')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Pour t'aider j'ai besoin " +
+    //               "de quelques informations complémentaires",
+    //             },
+    //           ],
+    //           set_attributes: {
+    //             prefecture: "paris",
+    //           },
+    //           redirect_to_blocks: [
+    //             "Select TDS type",
+    //             "Dossier submission method",
+    //           ],
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("should work with a papers list request", (done) => {
+    //     chai.request(server)
+    //       .get("/v1/nlp?last+user+freeform+input=c%27est%20quoi%20la%20liste%20pour%20l%27aps%20à%20Paris%20?")
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           set_attributes: {
+    //             prefecture: "paris",
+    //             selected_tds: "aps",
+    //           },
+    //           redirect_to_blocks: [
+    //             "Dossier papers list",
+    //           ],
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("should work with a papers list request without info", (done) => {
+    //     chai.request(server)
+    //       .get("/v1/nlp?last+user+freeform+input=c%27est%20quoi%20la%20liste%20de%20papiers%20?")
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Pour t'aider j'ai besoin " +
+    //               "de quelques informations complémentaires",
+    //             },
+    //           ],
+    //           redirect_to_blocks: [
+    //             "Ask for prefecture",
+    //             "Select TDS type",
+    //             "Dossier papers list",
+    //           ],
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("should work with a papers list request with Pampiers", (done) => {
+    //     chai.request(server)
+    //       .get("/v1/nlp?last+user+freeform+input=c%27est%20quoi%20la%20liste%20de%20papiers%20pour%20Pamiers%20?")
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Pour t'aider j'ai besoin " +
+    //               "de quelques informations complémentaires",
+    //             },
+    //           ],
+    //           set_attributes: {
+    //             prefecture: "pamiers",
+    //           },
+    //           redirect_to_blocks: [
+    //             "Select TDS type",
+    //             "Dossier papers list",
+    //           ],
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("should start the TDS recommendation flow if they want that", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/nlp?last+user+freeform+input=Quel titre de séjour demander ?')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //
+    //         // TODO: this will change!
+    //         response.body.should.be.deep.eql({
+    //           redirect_to_blocks: [ "TDS Questions" ]
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("should respond correctly to thank you", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/nlp?last+user+freeform+input=Merci')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //         response.body.should.be.a('object');
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Je t'en prie. C'etait un plaisir de parler avec " +
+    //               "toi 🙂",
+    //             },
+    //           ],
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("should respond to hello", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/nlp?first%20name=Teo&last+user+freeform+input=Bonjour, Manu !')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //
+    //         // TODO: this will change!
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Bonjour, Teo !",
+    //             },
+    //           ],
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    // });
+    //
+    // describe('/GET /v1/dossier_submission_method', () => {
+    //   it("should fail if missing parameters", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/dossier_submission_method')
+    //       .end((err, response) => {
+    //         response.should.have.status(400);
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("should help users (Paris, APS)", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/dossier_submission_method?prefecture=paris&selected_tds=aps')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //
+    //         // TODO: this will change!
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             { text: "Voici la/les procédure(s) pour déposer un dossier " +
+    //                 "pour un titre de séjour APS à Paris :" },
+    //             {
+    //               text: "Tu n'as pas besoin de prendre RDV. " +
+    //                 "Envoi par mail : " +
+    //                 "pp-dpg-sdae-6eb-aps-etudiant@interieur.gouv.fr"
+    //             },
+    //             {
+    //               text: "Tu n'as pas besoin de prendre RDV. " +
+    //                 "Envoi par la poste (courrier recommandé avec accusé " +
+    //                 "de réception) : Préfecture de Police \nCentre Étudiant " +
+    //                 " - Demande d’APS Master \nCité Universitaire - 17 BD " +
+    //                 "Jourdan 75014 Paris"
+    //             },
+    //           ]
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("should help users (Paris, VPF)", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/dossier_submission_method?prefecture=paris&selected_tds=vpf')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //
+    //         // TODO: this will change!
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             { text: "Voici la/les procédure(s) pour déposer un dossier " +
+    //                 "pour un titre de séjour Vie Privée et Familiale à Paris :" },
+    //             {
+    //               text: "Le RDV se prend Par téléphone. Dépôt sur place : " +
+    //                 "34 30 (0,06 €/min + prix d'un appel)"
+    //             },
+    //           ]
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("should help users if we don't have the info yet", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/dossier_submission_method?prefecture=nyc&selected_tds=aps')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //
+    //         // TODO: this will change!
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Je ne sais pas encore comment déposer un dossier " +
+    //               "pour un titre de séjour APS là-bas...",
+    //             },
+    //           ],
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    // });
+    //
+    // describe('/GET /v1/dossier_papers_list', () => {
+    //   it("should fail if missing parameters", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/dossier_papers_list')
+    //       .end((err, response) => {
+    //         response.should.have.status(400);
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("should help users if they have the info", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/dossier_papers_list?prefecture=paris&selected_tds=aps')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //
+    //         // TODO: this will change!
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Voici la liste de papiers pour un titre de séjour " +
+    //               "APS à Paris : https://drive.google.com/open?" +
+    //               "id=1SaFEnvlhEAuPEm9PyvnRdtJ386OgfLET9nWQoXVrBrA"
+    //             }
+    //           ]
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    //
+    //   it("return an apology if we don't have the info", (done) => {
+    //     chai.request(server)
+    //       .get('/v1/dossier_papers_list?prefecture=NOPE&selected_tds=aps')
+    //       .end((err, response) => {
+    //         response.should.have.status(200);
+    //
+    //         // TODO: this will change!
+    //         response.body.should.be.deep.eql({
+    //           messages: [
+    //             {
+    //               text: "Pour le moment nous n'avons la liste pour la " +
+    //               "préfecture dans notre base de données mais en attendant, " +
+    //               "je t'invite à regarder la liste de Nanterre car c'est " +
+    //               "très générique et il se peut qu'elle corresponde à 90% à " +
+    //               "la liste de ta préfecture 🙂",
+    //             },
+    //             {
+    //               text: "Voici la liste de papiers pour un titre de séjour APS à Nanterre : " +
+    //               "https://drive.google.com/open?" +
+    //               "id=1W0IMm0EeZc5Q_KwYuud-VmDSfvMqRhuj2dnRPIw4Xgs",
+    //             }
+    //           ]
+    //         });
+    //
+    //         done();
+    //       });
+    //   });
+    // });
   });
 });
