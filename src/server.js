@@ -75,7 +75,6 @@ app.route('/v1/get_visas').get(function(request, response) {
                 {
                   type: "show_block",
                   block_names: [
-                    "Ask for prefecture",
                     "Dossier papers list",
                   ],
                   title: "Voir liste papiers",
@@ -91,9 +90,10 @@ app.route('/v1/get_visas').get(function(request, response) {
     });
 
     result.messages.push({
-      text: "Tu as encore des questions ? Écris ta question directement ci-dessous.  \n" +
+      text: "Tu as encore des questions ? Écris ta question directement " +
+          "ci-dessous.\n" +
           "Par exemple : Comment déposer un dossier pour le passeport " +
-          "talent à Nanterre ?\n",
+          "talent à Nanterre ?",
     });
   } else {
     result.redirect_to_blocks = [ "No recommendation" ];
@@ -397,33 +397,13 @@ app.route('/v1/nlp').get(function(request, response) {
           }
         }
 
-        // should we ask questions?
-        var questionBlocks = [];
-        if (!prefecture) {
-          questionBlocks.push("Ask for prefecture");
-        }
-        if (!selected_tds) {
-          questionBlocks.push("Select TDS type");
-        }
+        var result = Utilities.prefTdsRequired(prefecture, selected_tds);
 
         let blockForIntent = {
           "dossier-submission-method": "Dossier submission method",
           "dossier-list-papers": "Dossier papers list",
         }[intent.slug];
-
-        var result = {
-          redirect_to_blocks: questionBlocks.concat([
-            blockForIntent
-          ]),
-        };
-        if (questionBlocks.length) {
-          result.messages = [
-            {
-              text: "Pour t'aider j'ai besoin " +
-              "de quelques informations complémentaires",
-            },
-          ];
-        }
+        result.redirect_to_blocks.push(blockForIntent);
 
         // send these back even if they haven't been modified (but only
         // if they're defined)
@@ -477,8 +457,11 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
   let { selected_tds, prefecture } = request.query;
 
   if (!selected_tds || !prefecture) {
-    response.status(400)
-        .send('Missing selected_tds or prefecture parameter(s)');
+    var result = Utilities.prefTdsRequired(prefecture, selected_tds);
+
+    result.redirect_to_blocks.push("Dossier submission method");
+
+    response.json(result);
     return;
   }
 
@@ -543,8 +526,11 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
   let { selected_tds, prefecture } = request.query;
 
   if (!selected_tds || !prefecture) {
-    response.status(400)
-        .send('Missing selected_tds or prefecture parameter(s)');
+    var result = Utilities.prefTdsRequired(prefecture, selected_tds);
+
+    result.redirect_to_blocks.push("Dossier papers list");
+
+    response.json(result);
     return;
   }
 
