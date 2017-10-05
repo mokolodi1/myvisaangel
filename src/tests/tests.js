@@ -307,7 +307,17 @@ describe('My Visa Bot API', () => {
                               title: "Fiche récapitulative",
                               url: "https://docs.google.com/document/d/" +
                                 "1OakbDux-SRj4aqHgkiQRUWgrWTxBVlPxeNYI9bh5mww/",
-                            }
+                            },
+                            {
+                              block_names: [
+                                "Dossier papers list"
+                              ],
+                              set_attributes: {
+                                selected_tds: "aps",
+                              },
+                              title: "Voir liste papiers",
+                              type: "show_block",
+                            },
                           ],
                         },
                         {
@@ -317,7 +327,17 @@ describe('My Visa Bot API', () => {
                               "type": "web_url",
                               "url": "https://docs.google.com/document/d/" +
                                 "1TXg9zsDfzhgkPRl6pAWKJ7S0F02giJ-o9R1ry8NqAMo/",
-                            }
+                            },
+                            {
+                              block_names: [
+                                "Dossier papers list"
+                              ],
+                              set_attributes: {
+                                selected_tds: "ptsq",
+                              },
+                              title: "Voir liste papiers",
+                              type: "show_block",
+                            },
                           ],
                           "subtitle": "Ce titre pluriannuel t'autorise à " +
                               "travailler, créer une entreprise ou investir",
@@ -330,7 +350,17 @@ describe('My Visa Bot API', () => {
                               "type": "web_url",
                               "url": "https://docs.google.com/document/d/" +
                                 "1lb-4yLRCsyLbEVO_xUxDnUOHiBF5HC9IJTWA86_JDwo/",
-                            }
+                            },
+                            {
+                              block_names: [
+                                "Dossier papers list"
+                              ],
+                              set_attributes: {
+                                selected_tds: "salarie_tt",
+                              },
+                              title: "Voir liste papiers",
+                              type: "show_block",
+                            },
                           ],
                           "subtitle": "Porte la mention Salarié si tu as un " +
                               "CDI / Travailler temporaire si tu as un CDD",
@@ -399,6 +429,16 @@ describe('My Visa Bot API', () => {
                               title: "Fiche récapitulative",
                               url: "https://docs.google.com/document/d/" +
                                 "1OakbDux-SRj4aqHgkiQRUWgrWTxBVlPxeNYI9bh5mww/",
+                            },
+                            {
+                              block_names: [
+                                "Dossier papers list",
+                              ],
+                              set_attributes: {
+                                selected_tds: "aps",
+                              },
+                              title: "Voir liste papiers",
+                              type: "show_block",
                             }
                           ],
                         },
