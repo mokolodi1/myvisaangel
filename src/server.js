@@ -80,10 +80,8 @@ app.route('/v1/get_visas').get(function(request, response) {
     });
 
     result.messages.push({
-      text: "Tu peux me demander des questions celles-ci :\n" +
-          "C'est quoi la liste de papiers pour le titre de séjour " +
-          "salarié à Paris ?\n" +
-          "Je fais comment pour déposer mon dossier pour le passeport " +
+      text: "Tu as encore des questions ? Écris ta question directement ci-dessous.  \n" +
+          "Par exemple : Comment déposer un dossier pour le passeport " +
           "talent à Nanterre ?\n",
     });
   } else {
