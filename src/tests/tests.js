@@ -1038,6 +1038,21 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      it("should start the TDS recommendation flow if they want that", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=Quel titre de séjour demander ?')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            // TODO: this will change!
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: [ "TDS Questions" ]
+            });
+
+            done();
+          });
+      });
+
       it("should respond correctly to thank you", (done) => {
         chai.request(server)
           .get('/v1/nlp?last+user+freeform+input=Merci')
@@ -1049,6 +1064,25 @@ describe('My Visa Bot API', () => {
                 {
                   text: "Je t'en prie. C'etait un plaisir de parler avec " +
                   "toi 🙂",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should respond to hello", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?first%20name=Teo&last+user+freeform+input=Bonjour, Manu !')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            // TODO: this will change!
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Bonjour, Teo !",
                 },
               ],
             });

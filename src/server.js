@@ -67,6 +67,7 @@ app.route('/v1/get_visas').get(function(request, response) {
     delete result.messages;
   }
 
+  console.log("result:", result);
   response.json(result);
 });
 
@@ -410,6 +411,22 @@ app.route('/v1/nlp').get(function(request, response) {
         }
 
         response.json(result);
+      } else if (intent && intent.slug === "tds-recommendation") {
+        console.log("They want a recommendation for which TDS to get...");
+
+        response.json({
+          redirect_to_blocks: [ "TDS Questions" ],
+        });
+      } else if (intent && intent.slug === "greetings") {
+        console.log("Saying hello. How nice!");
+
+        response.json({
+          messages: [
+            {
+              text: `Bonjour, ${request.query["first name"]} !`
+            }
+          ],
+        });
       } else if (intent && intent.slug === "thanks") {
         console.log("They are saying thanks! It's nice being loved...");
 
@@ -522,7 +539,7 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
       prefectureSlug: prefecture,
     });
 
-    if (matchingRows.length > 0) {
+    if (matchingRows.length > 0 && matchingRows[0]["lien"]) {
       let papersListLink = matchingRows[0]["lien"];
       console.log("Returning the link:", papersListLink);
 
