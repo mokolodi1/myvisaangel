@@ -509,7 +509,7 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
       prefectureSlug: prefecture,
     });
 
-    if (matchingRows.length > 0) {
+    if (matchingRows.length > 0 && matchingRows[0]["lien"]) {
       let papersListLink = matchingRows[0]["lien"];
       console.log("Returning the link:", papersListLink);
 
