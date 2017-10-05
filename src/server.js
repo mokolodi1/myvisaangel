@@ -59,7 +59,8 @@ app.route('/v1/get_visas').get(function(request, response) {
       attachment: {
         type: "template",
         payload: {
-          template_type: "generic",
+          "template_type":"list",
+          "top_element_style":"large",
           elements: _.map(recommendedSlugs, (tdsSlug) => {
             let tdsInfo = tdsTypes[tdsSlug];;
 
@@ -78,6 +79,11 @@ app.route('/v1/get_visas').get(function(request, response) {
         }
       }
     });
+
+    // result.messages.push({
+    //   text: "Tu peux me demander des questions comme :\n",
+    //       ""
+    // });
   } else {
     result.redirect_to_blocks = [ "No recommendation" ];
   }
