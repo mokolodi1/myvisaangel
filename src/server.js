@@ -61,7 +61,7 @@ app.route('/v1/get_visas').get(function(request, response) {
         payload: {
           template_type: "generic",
           elements: _.map(recommendedSlugs, (tdsSlug) => {
-            let tdsInfo = tdsTypes[tdsSlug];;
+            let tdsInfo = tdsTypes[tdsSlug];
 
             return {
               title: tdsInfo.name,
@@ -71,7 +71,18 @@ app.route('/v1/get_visas').get(function(request, response) {
                   type: "web_url",
                   title: "Fiche récapitulative",
                   url: tdsInfo.summary_link,
-                }
+                },
+                {
+                  type: "show_block",
+                  block_names: [
+                    "Ask for prefecture",
+                    "Dossier papers list",
+                  ],
+                  title: "Voir liste papiers",
+                  set_attributes: {
+                    selected_tds: tdsSlug
+                  },
+                },
               ],
             };
           }),
