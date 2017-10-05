@@ -34,33 +34,52 @@ app.route('/v1/get_visas').get(function(request, response) {
   Utilities.cleanVisaQuery(request.query);
 
   var result = {
-    messages: [],
-    redirect_to_blocks: [],
-  }
+    messages: []
+  };
   var recommendedSlugs = [];
 
   _.each(tdsTypes, (tdsInfo, tdsSlug) => {
     let eligible = tdsInfo.eligible(request.query);
 
     if (eligible) {
+      recommendedSlugs.push(tdsSlug);
+
       if (eligible.messages) {
         result.messages = result.messages.concat(eligible.messages);
-      }
-
-      if (eligible.blockName) {
-        result.redirect_to_blocks =
-            result.redirect_to_blocks.concat(eligible.blockName);
-        recommendedSlugs.push(tdsSlug);
       }
     }
   });
 
-  if (result.redirect_to_blocks.length === 0) {
-    result.redirect_to_blocks.push("No recommendation")
-  } else {
+  if (result.redirect_to_blocks.length > 0) {
     result.set_attributes = {
       recommended_tds: recommendedSlugs.join("|"),
     };
+
+    result.messages.push({
+      attachment: {
+        type: "template",
+        payload: {
+          template_type: "generic",
+          elements: _.map(recommendedSlugs, (tdsSlug) => {
+            let tdsInfo = tdsTypes[tdsSlug];;
+
+            return {
+              title: tdsInfo.name,
+              subtitle: tdsInfo.description,
+              buttons: tdsInfo.summary_link && [
+                {
+                  type: "web_url",
+                  title: "Fiche récapitulative"
+                  url: tdsInfo.summary_link,
+                }
+              ],
+            };
+          }),
+        }
+      }
+    });
+  } else {
+    result.redirect_to_blocks.push("No recommendation")
   }
 
   if (result.messages.length === 0) {

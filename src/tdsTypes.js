@@ -6,18 +6,34 @@ var Data = require('./data.js');
 var tdsTypes = {
   aps: {
     name: "APS",
+    summary_link: "https://docs.google.com/document/d/" +
+        "1OakbDux-SRj4aqHgkiQRUWgrWTxBVlPxeNYI9bh5mww/",
+    description: "L'APS te permet de chercher, exercer un emploi ou créer " +
+        "une entreprise",
   },
   vpf: {
     name: "Vie Privée et Familiale",
+    description: "Ce titre t'autorise à travailler en France (comme salarié " +
+        "ou non-salarié)",
   },
   ptsq: {
     name: "Passeport Talent Salarié Qualifié",
+    summary_link: "https://docs.google.com/document/d/" +
+        "1TXg9zsDfzhgkPRl6pAWKJ7S0F02giJ-o9R1ry8NqAMo/",
+    description: "Ce titre pluriannuel t'autorise à travailler, créer une " +
+        "entreprise ou investir",
   },
   salarie_tt: {
     name: "Salarié/Travailleur Temporaire",
+    summary_link: "https://docs.google.com/document/d/" +
+        "1lb-4yLRCsyLbEVO_xUxDnUOHiBF5HC9IJTWA86_JDwo/",
+    description: "Porte la mention Salarié si tu as un CDI / Travailler " +
+        "temporaire si tu as un CDD",
   },
   commercant: {
     name: "Commerçant",
+    description: "T'autorise à exercer une activité commerciale, " +
+        "industrielle ou artisanale",
   },
 };
 
@@ -58,13 +74,10 @@ tdsTypes.aps.eligible = (query) => {
                 apsWarnings,
           }
         ],
-        blockName: "APS",
       };
     }
 
-    return {
-      blockName: "APS",
-    };
+    return {};
   }
 }
 
@@ -72,9 +85,7 @@ tdsTypes.aps.eligible = (query) => {
 // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
 tdsTypes.vpf.eligible = (query) => {
   if (_.contains(["married", "frenchKids", "pacsed"], query.familySituation)) {
-    return {
-      blockName: "Vie privée et familiale"
-    };
+    return {};
   }
 }
 
@@ -89,9 +100,7 @@ tdsTypes.ptsq.eligible = (query) => {
       _.contains(["masters", "masters_equiv"], diploma) &&
       employmentSituation === "cdi" &&
       smicMultiplier >= 2) {
-    return {
-      blockName: "Passeport Talent Salarié Qualifié"
-    }
+    return {}
   }
 }
 
@@ -110,9 +119,7 @@ tdsTypes.salarie_tt.eligible = (query) => {
       opposableReason += "que tu as une licence classique";
     }
 
-    let result = {
-      blockName: "Salarié/TT"
-    }
+    let result = {}
 
     if (opposableReason !== "") {
       _.extend(result, {
@@ -140,9 +147,7 @@ tdsTypes.salarie_tt.eligible = (query) => {
 tdsTypes.commercant.eligible = (query) => {
   // https://docs.google.com/spreadsheets/d/1pGqTtZCiQCKClGhvdZk7mAOhNYRiV5pwodIs9_xFVac/edit#gid=1679689044
   if (query.employmentSituation === "entrepreneur") {
-    return {
-      blockName: "Commerçant"
-    }
+    return {}
   }
 }
 
