@@ -44,7 +44,6 @@ describe('My Visa Bot API', () => {
                   "au master obtenu dans un établissement français.\n"
             },
           ],
-          blockName: "APS"
         })
 
         done();
@@ -70,7 +69,6 @@ describe('My Visa Bot API', () => {
                   "établissement français.\n"
             }
           ],
-          blockName: "APS"
         });
 
         done();
@@ -83,9 +81,7 @@ describe('My Visa Bot API', () => {
           diploma: "licence_pro",
         });
 
-        result.should.be.deep.eql({
-          blockName: "APS"
-        });
+        result.should.be.deep.eql({});
 
         done();
       });
@@ -97,9 +93,7 @@ describe('My Visa Bot API', () => {
           familySituation: "pacsed",
         });
 
-        result.should.be.deep.eql({
-          blockName: "Vie privée et familiale"
-        });
+        result.should.be.deep.eql({});
 
         done();
       });
@@ -123,9 +117,7 @@ describe('My Visa Bot API', () => {
           employmentSituation: "cdi"
         });
 
-        result.should.be.deep.eql({
-          blockName: "Passeport Talent Salarié Qualifié"
-        })
+        result.should.be.deep.eql({});
 
         done();
       });
@@ -150,9 +142,7 @@ describe('My Visa Bot API', () => {
           smicMultiplier: 1.5,
         });
 
-        result.should.be.deep.eql({
-          blockName: "Salarié/TT"
-        });
+        result.should.be.deep.eql({});
 
         done();
       });
@@ -177,7 +167,6 @@ describe('My Visa Bot API', () => {
               "UOHiBF5HC9IJTWA86_JDwo/edit?usp=sharing\n"
             }
           ],
-          blockName: "Salarié/TT"
         });
 
         done();
@@ -203,7 +192,6 @@ describe('My Visa Bot API', () => {
               "UOHiBF5HC9IJTWA86_JDwo/edit?usp=sharing\n"
             }
           ],
-          blockName: "Salarié/TT"
         });
 
         done();
@@ -231,7 +219,6 @@ describe('My Visa Bot API', () => {
               "UOHiBF5HC9IJTWA86_JDwo/edit?usp=sharing\n"
             }
           ],
-          blockName: "Salarié/TT"
         });
 
         done();
@@ -254,9 +241,7 @@ describe('My Visa Bot API', () => {
           employmentSituation: "entrepreneur"
         });
 
-        result.should.be.deep.eql({
-          blockName: "Commerçant"
-        });
+        result.should.be.deep.eql({});
 
         done();
       });

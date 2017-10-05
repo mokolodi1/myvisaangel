@@ -50,7 +50,7 @@ app.route('/v1/get_visas').get(function(request, response) {
     }
   });
 
-  if (recommendedSlugs > 0) {
+  if (recommendedSlugs.length > 0) {
     result.set_attributes = {
       recommended_tds: recommendedSlugs.join("|"),
     };
