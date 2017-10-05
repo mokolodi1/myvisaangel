@@ -531,7 +531,9 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
       response.json({
         messages: [
           {
-            text: `Voici la liste de papiers : ${papersListLink}`,
+            text: "Voici la liste de papiers pour un titre de séjour " +
+                `${tdsTypes[selected_tds].name} à ` +
+                `${Data.slugToPrefecture[prefecture]} : ${papersListLink}`,
           },
         ],
       });
@@ -553,8 +555,9 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
                 " préfecture 🙂",
           },
           {
-            text: "Voici la liste de papiers pour Nanterre pour " +
-                `${tdsTypes[selected_tds].name} : ${nanterreRows[0]["lien"]}`
+            text: "Voici la liste de papiers pour un titre de séjour " +
+                `${tdsTypes[selected_tds].name} à Nanterre : ` +
+                nanterreRows[0]["lien"],
           },
         ],
       });

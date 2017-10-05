@@ -1197,8 +1197,8 @@ describe('My Visa Bot API', () => {
             response.body.should.be.deep.eql({
               messages: [
                 {
-                  text: 'Voici la liste de papiers : ' +
-                  "https://drive.google.com/open?" +
+                  text: "Voici la liste de papiers pour un titre de séjour " +
+                  "APS à Paris : https://drive.google.com/open?" +
                   "id=1SaFEnvlhEAuPEm9PyvnRdtJ386OgfLET9nWQoXVrBrA"
                 }
               ]
@@ -1225,7 +1225,7 @@ describe('My Visa Bot API', () => {
                   "la liste de ta préfecture 🙂",
                 },
                 {
-                  text: "Voici la liste de papiers pour Nanterre pour APS : " +
+                  text: "Voici la liste de papiers pour un titre de séjour APS à Nanterre : " +
                   "https://drive.google.com/open?" +
                   "id=1W0IMm0EeZc5Q_KwYuud-VmDSfvMqRhuj2dnRPIw4Xgs",
                 }
