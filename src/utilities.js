@@ -1,8 +1,10 @@
 "use strict"
 
 var _ = require("underscore");
-var Data = require('./data.js');
+var Fuse = require("fuse.js");
 var GoogleSpreadsheet = require('google-spreadsheet');
+
+var Data = require('./data.js');
 
 // Change things like "CDD" to "cdd", >17764,2€ (1 SMIC)" to smicx1"
 function cleanVisaQuery(query) {
@@ -233,6 +235,35 @@ function mostConfident(recastEntityValue) {
   });
 }
 
+var tdsMappings = [
+  { tdsType: "aps", description: "aps" },
+  { tdsType: "aps", description: "autorisation_provisoire_de_sejour" },
+  { tdsType: "ptsq", description: "passeport_talent" },
+  { tdsType: "vpf", description: "vie_privee_et_familiale" },
+  { tdsType: "salarie_tt", description: "travailleur" },
+  { tdsType: "salarie_tt", description: "salarie" },
+  { tdsType: "salarie_tt", description: "travailleur_temporaire" },
+  { tdsType: "commercant", description: "commercant" },
+  { tdsType: "commercant", description: "entrepreneur" },
+  { tdsType: "commercant", description: "profession_liberale" },
+];
+var tdsFuse = new Fuse(tdsMappings, {
+  shouldSort: true,
+  includeScore: true,
+  maxPatternLength: 32,
+  minMatchCharLength: 2,
+  keys: [ "description" ]
+});
+function tdsFromRecast(tdsDescription) {
+  if (!tdsDescription) { return undefined; }
+
+  let tdsMatches = tdsFuse.search(slugishify(tdsDescription));
+
+  if (tdsMatches && tdsMatches.length && tdsMatches[0].score < .4) {
+    return tdsMatches[0].item.tdsType;
+  }
+}
+
 module.exports = {
   removeDiacritics,
   slugishify,
@@ -240,4 +271,5 @@ module.exports = {
   getSubmissionMethods,
   getPapersList,
   mostConfident,
+  tdsFromRecast,
 }

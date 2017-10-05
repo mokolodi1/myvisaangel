@@ -353,25 +353,10 @@ app.route('/v1/nlp').get(function(request, response) {
 
           let recastTds = Utilities.mostConfident(entities["visa-type"]);
           if (recastTds) {
-            // convert from recast's recognition to slugs
-            // TODO: ask Paola or Abdel to confirm these
-            // TODO: fuzzy search on this?
-            let newSelectedTds = {
-              "passport_talent": "ptsq",
-              "passeport_talent": "ptsq",
-              "travailleur_temporaire": "salarie_tt",
-              "commercant": "commercant",
-              "aps": "aps",
-              "autorisation_provisoire_de_sejour": "aps",
-              "vie_privee_et_familiale": "vpf",
-              "travailleur": "salarie_tt",
-              "salarie": "salarie_tt",
-              "entrepreneur": "commercant",
-              "profession_liberale": "???",
-            }[Utilities.slugishify(recastTds.value)];
+            let tds = Utilities.tdsFromRecast(recastTds && recastTds.value);
 
-            if (newSelectedTds) {
-              selected_tds = newSelectedTds;
+            if (tds) {
+              selected_tds = tds;
             }
           }
         }
