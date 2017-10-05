@@ -1071,6 +1071,25 @@ describe('My Visa Bot API', () => {
             done();
           });
       });
+
+      it("should respond to hello", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?first%20name=Teo&last+user+freeform+input=Bonjour, Manu !')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            // TODO: this will change!
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Bonjour, Teo !",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
     });
 
     describe('/GET /v1/dossier_submission_method', () => {

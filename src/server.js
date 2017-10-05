@@ -417,6 +417,16 @@ app.route('/v1/nlp').get(function(request, response) {
         response.json({
           redirect_to_blocks: [ "TDS Questions" ],
         });
+      } else if (intent && intent.slug === "greetings") {
+        console.log("Saying hello. How nice!");
+
+        response.json({
+          messages: [
+            {
+              text: `Bonjour, ${request.query["first name"]} !`
+            }
+          ],
+        });
       } else if (intent && intent.slug === "thanks") {
         console.log("They are saying thanks! It's nice being loved...");
 
@@ -516,7 +526,7 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
       prefectureSlug: prefecture,
     });
 
-    if (matchingRows.length > 0) {
+    if (matchingRows.length > 0 && matchingRows[0]["lien"]) {
       let papersListLink = matchingRows[0]["lien"];
       console.log("Returning the link:", papersListLink);
 
