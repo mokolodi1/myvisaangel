@@ -410,6 +410,16 @@ app.route('/v1/nlp').get(function(request, response) {
         }
 
         response.json(result);
+      } else if (intent && intent.slug === "greetings") {
+        console.log("Saying hello. How nice!");
+
+        response.json({
+          messages: [
+            {
+              text: `Bonjour, ${request.query["first name"]} !`
+            }
+          ],
+        });
       } else if (intent && intent.slug === "thanks") {
         console.log("They are saying thanks! It's nice being loved...");
 
