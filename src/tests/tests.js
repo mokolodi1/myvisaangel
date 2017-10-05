@@ -1165,7 +1165,8 @@ describe('My Visa Bot API', () => {
               messages: [
                 {
                   text: 'Voici la liste de papiers : ' +
-                  'https://drive.google.com/open?id=1SaFEnvlhEAuPEm9PyvnRdtJ386OgfLET9nWQoXVrBrA'
+                  "https://drive.google.com/open?" +
+                  "id=1SaFEnvlhEAuPEm9PyvnRdtJ386OgfLET9nWQoXVrBrA"
                 }
               ]
             });
@@ -1184,8 +1185,16 @@ describe('My Visa Bot API', () => {
             response.body.should.be.deep.eql({
               messages: [
                 {
-                  text: "Je ne connais pas encore la liste de papiers " +
-                  "pour là-bas 😔"
+                  text: "Pour le moment nous n'avons la liste pour la " +
+                  "préfecture dans notre base de données mais en attendant, " +
+                  "je t'invite à regarder la liste de Nanterre car c'est " +
+                  "très générique et il se peut qu'elle corresponde à 90% à " +
+                  "la liste de ta préfecture 🙂",
+                },
+                {
+                  text: "Voici la liste de papiers pour Nanterre pour APS : " +
+                  "https://drive.google.com/open?" +
+                  "id=1W0IMm0EeZc5Q_KwYuud-VmDSfvMqRhuj2dnRPIw4Xgs",
                 }
               ]
             });
