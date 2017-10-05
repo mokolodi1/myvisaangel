@@ -50,7 +50,7 @@ app.route('/v1/get_visas').get(function(request, response) {
     }
   });
 
-  if (result.redirect_to_blocks.length > 0) {
+  if (recommendedSlugs > 0) {
     result.set_attributes = {
       recommended_tds: recommendedSlugs.join("|"),
     };
@@ -69,7 +69,7 @@ app.route('/v1/get_visas').get(function(request, response) {
               buttons: tdsInfo.summary_link && [
                 {
                   type: "web_url",
-                  title: "Fiche récapitulative"
+                  title: "Fiche récapitulative",
                   url: tdsInfo.summary_link,
                 }
               ],
@@ -79,7 +79,7 @@ app.route('/v1/get_visas').get(function(request, response) {
       }
     });
   } else {
-    result.redirect_to_blocks.push("No recommendation")
+    result.redirect_to_blocks = [ "No recommendation" ];
   }
 
   if (result.messages.length === 0) {
