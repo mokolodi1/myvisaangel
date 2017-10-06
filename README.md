@@ -131,6 +131,7 @@ tmux
 # (Hold control and press B, then press ")
 
 # Start it up!
+# NOTE: use beta_start.sh for betas so they don't write to prod logs
 ./scripts/prod_start.sh
 ```
 

@@ -232,6 +232,8 @@ var gitHash = require('child_process')
   .toString().trim();
 function logInSheet(sheetDescription, logObject) {
   // https://docs.google.com/spreadsheets/d/1rwp_fErdkFWw-5YNjnbFGPp7XpJjbQFteMxpopdzF1A
+  // NOTE: the addRow call should fail when running on a dev/beta machine
+  //    because it'll be linked up to a fake Google Sheet
   var isDevSheets = {
     true: "asdf",
     false: "1rwp_fErdkFWw-5YNjnbFGPp7XpJjbQFteMxpopdzF1A",
@@ -244,6 +246,7 @@ function logInSheet(sheetDescription, logObject) {
       return;
     }
 
+    logObject.boxNumber = process.env.BOX_NUMBER;
     logObject.gitHash = gitHash;
     logObject.date = new Date();
 
