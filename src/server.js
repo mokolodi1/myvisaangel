@@ -551,6 +551,7 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
         messages: [
           {
             text: "Pour le moment nous n'avons la liste pour la préfecture " +
+                `de ${Data.slugToPrefecture[prefecture]} ` +
                 "dans notre base de données mais en attendant, je t'invite " +
                 "à regarder la liste de Nanterre car c'est très générique " +
                 "et il se peut qu'elle corresponde à 90% à la liste de ta" +
