@@ -360,9 +360,14 @@ app.route('/v1/nlp').get(function(request, response) {
       let intent = recastResponse.intent();
       console.log("Recast intent:", intent);
 
+      let { query } = request;
+      query.intentSlug = intent && intent.slug;
+      query.intentConfidence = intent && intent.confidence;
+      Utilities.logInSheet("nlp", query);
+
       if (intent && (intent.slug === "dossier-submission-method" ||
                       intent.slug === "dossier-list-papers")) {
-        var { prefecture, selected_tds } = request.query;
+        var { prefecture, selected_tds } = query;
 
         // grab prefecture/TDS from Recast if they have been defined
         let { entities } = recastResponse;
@@ -411,7 +416,7 @@ app.route('/v1/nlp').get(function(request, response) {
         response.json({
           messages: [
             {
-              text: `Bonjour, ${request.query["first name"]} !`
+              text: `Bonjour, ${query["first name"]} !`
             }
           ],
         });
