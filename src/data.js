@@ -478,6 +478,8 @@ module.exports.countries = countries;
 
 module.exports.slugToPrefecture = {};
 module.exports.prefectures = [
+  // NOPE is here for testing
+  "NOPE",
   "Les-Andelys",
   "Les-Sables-d’Olonne",
   "Metz",

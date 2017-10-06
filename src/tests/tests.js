@@ -1319,7 +1319,7 @@ describe('My Visa Bot API', () => {
 
       it("return an apology if we don't have the info", (done) => {
         chai.request(server)
-          .get('/v1/dossier_papers_list?prefecture=NOPE&selected_tds=aps')
+          .get('/v1/dossier_papers_list?prefecture=nope&selected_tds=aps')
           .end((err, response) => {
             response.should.have.status(200);
 
@@ -1328,7 +1328,8 @@ describe('My Visa Bot API', () => {
               messages: [
                 {
                   text: "Pour le moment nous n'avons la liste pour la " +
-                  "préfecture dans notre base de données mais en attendant, " +
+                  "préfecture de NOPE dans notre base de données mais en " +
+                  "attendant, " +
                   "je t'invite à regarder la liste de Nanterre car c'est " +
                   "très générique et il se peut qu'elle corresponde à 90% à " +
                   "la liste de ta préfecture 🙂",
