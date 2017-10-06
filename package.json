@@ -6,8 +6,8 @@
   "scripts": {
     "prod": "PORT=80 /usr/local/n/versions/node/8.4.0/bin/node src/server.js",
     "start": "NODE_ENV=dev node src/server.js",
-    "test": "mocha --timeout 10000 src/tests",
-    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha src/tests"
+    "test": "NODE_ENV=dev mocha --timeout 10000 src/tests",
+    "coverage": "NODE_ENV=dev istanbul cover ./node_modules/mocha/bin/_mocha src/tests"
   },
   "repository": {
     "type": "git",

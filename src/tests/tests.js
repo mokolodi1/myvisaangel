@@ -8,6 +8,7 @@ let should = chai.should();
 var qs = require('qs');
 
 var tdsTypes = require("../tdsTypes.js");
+var Utilities = require("../utilities.js");
 
 chai.use(chaiHttp);
 
@@ -254,6 +255,13 @@ describe('My Visa Bot API', () => {
         should.equal(result, undefined);
 
         done();
+      });
+    });
+
+    describe("Utilities", () => {
+      it("should work: tdsFromRecast", () => {
+        should.equal(Utilities.tdsFromRecast("passport_talent"), "ptsq");
+        should.equal(Utilities.tdsFromRecast("asdfasdfasdf"), undefined);
       });
     });
   });

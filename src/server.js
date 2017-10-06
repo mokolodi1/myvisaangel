@@ -18,6 +18,14 @@ app.all('*', (request, response, next) => {
     console.log("\n" + new Date(), request.path, request.query);
   }
 
+  // put in a little print function for everything that we send back...
+  var oldSend = response.send;
+  response.send = function (data) {
+    console.log("response:", data);
+
+    oldSend.apply(response, arguments);
+  }
+
   next();
 });
 
@@ -32,6 +40,7 @@ Figure out which visas the user is eligible for
 */
 app.route('/v1/get_visas').get(function(request, response) {
   Utilities.cleanVisaQuery(request.query);
+  Utilities.logInSheet("get_visas", request.query);
 
   var result = {
     messages: []
@@ -105,7 +114,6 @@ app.route('/v1/get_visas').get(function(request, response) {
     delete result.messages;
   }
 
-  console.log("result:", result);
   response.json(result);
 });
 
@@ -134,9 +142,6 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   let slugy = Utilities.slugishify(nationality);
   if (bestResult &&
       _.contains(bestResult.item.slugishNames, slugy)) {
-    console.log("Perfect nationality match:", nationality,
-        bestResult.item.slug);
-
     response.json({
       set_attributes: {
         nationality: bestResult.item.slug,
@@ -145,9 +150,6 @@ app.route('/v1/parse_nationality').get(function(request, response) {
     });
   } else if (bestResult && bestResult.score <= .25 &&
       !(results[1] && results[1].score - results[0].score < .05)) {
-    console.log("Asking to confirm nationality:", nationality,
-        bestResult.item.slug);
-
     response.json({
       "messages": [
         {
@@ -192,7 +194,6 @@ app.route('/v1/parse_nationality').get(function(request, response) {
     });
 
     let countryOptions = _.pluck(quick_replies, "title").join(", ");
-    console.log("Result country options:", countryOptions);
 
     response.json({
       "messages": [
@@ -203,8 +204,6 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       ],
     });
   } else {
-    console.log("Couldn't figure out what they said :(");
-
     let messages = [
       {
         text: "Je n'arrive pas à comprendre 😔. Vérifie l'orthographe stp et " +
@@ -238,7 +237,7 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
 
   Utilities.getSubmissionMethods((error, result) => {
     if (error) {
-      console.log("Error reading from Google doc:", error);
+      console.error("Error reading from Google doc:", error);
       response.status(500).send('Error reading from Google doc');
     } else {
       let prefecturesHash = _.reduce(result, (memo, row) => {
@@ -266,9 +265,6 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
 
       if (bestResult &&
           bestResult.item.slugishName === Utilities.slugishify(prefecture)) {
-        console.log("Perfect prefecture match:", prefecture,
-            bestResult.item.name);
-
         response.json({
           set_attributes: {
             prefecture: bestResult.item.slugishName,
@@ -277,9 +273,6 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
         });
       } else if (bestResult && bestResult.score <= .25 &&
           !(results[1] && results[1].score - results[0].score < .05)) {
-        console.log("Asking to confirm prefecture:", prefecture,
-            bestResult.item.name);
-
         response.json({
           "messages": [
             {
@@ -303,8 +296,6 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
           ],
         });
       } else {
-        console.log("Couldn't figure out what they said :(");
-
         let messages = [
           {
             text: "Je n'arrive pas à comprendre 😔. Vérifie l'orthographe stp et " +
@@ -338,7 +329,6 @@ app.route('/v1/select_tds').get(function(request, response) {
     tdsChoices = Object.keys(tdsTypes);
   }
 
-  console.log("Select from list:", tdsChoices);
   response.json({
     messages: [
       {
@@ -368,11 +358,10 @@ app.route('/v1/nlp').get(function(request, response) {
   recastClient.analyseText(message)
     .then(function(recastResponse) {
       let intent = recastResponse.intent();
+      console.log("Recast intent:", intent);
 
       if (intent && (intent.slug === "dossier-submission-method" ||
                       intent.slug === "dossier-list-papers")) {
-        console.log("They need dossier help!", intent.slug);
-
         var { prefecture, selected_tds } = request.query;
 
         // grab prefecture/TDS from Recast if they have been defined
@@ -391,7 +380,7 @@ app.route('/v1/nlp').get(function(request, response) {
 
           let recastTds = Utilities.mostConfident(entities["visa-type"]);
           if (recastTds) {
-            let tds = Utilities.tdsFromRecast(recastTds && recastTds.value);
+            let tds = Utilities.tdsFromRecast(recastTds.value);
 
             if (tds) {
               selected_tds = tds;
@@ -415,14 +404,10 @@ app.route('/v1/nlp').get(function(request, response) {
 
         response.json(result);
       } else if (intent && intent.slug === "tds-recommendation") {
-        console.log("They want a recommendation for which TDS to get...");
-
         response.json({
           redirect_to_blocks: [ "TDS Questions" ],
         });
       } else if (intent && intent.slug === "greetings") {
-        console.log("Saying hello. How nice!");
-
         response.json({
           messages: [
             {
@@ -431,8 +416,6 @@ app.route('/v1/nlp').get(function(request, response) {
           ],
         });
       } else if (intent && intent.slug === "thanks") {
-        console.log("They are saying thanks! It's nice being loved...");
-
         response.json({
           messages: [
             {
@@ -441,15 +424,13 @@ app.route('/v1/nlp').get(function(request, response) {
           ],
         });
       } else {
-        console.log("Don't know what they asked -- chat with creators");
-
         response.json({
           redirect_to_blocks: ["Introduce creators chat"],
         });
       }
     })
     .catch(function (error) {
-      console.log("Error dealing with Recast:", error);
+      console.error("Error dealing with Recast:", error);
 
       response.status(500).send("Problem connecting with Recast.ai");
     });
@@ -469,7 +450,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
 
   Utilities.getSubmissionMethods((error, result) => {
     if (error) {
-      console.log("error:", error);
+      console.error("error:", error);
       response.status(500).send("Error getting the prefecture submission info");
       return;
     }
@@ -498,8 +479,6 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
         };
       });
 
-      console.log("submissionPossibilities:", submissionPossibilities);
-
       response.json({
         messages: [
           {
@@ -510,8 +489,6 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
         ].concat(submissionPossibilities),
       });
     } else {
-      console.log("No info yet for that submission type.");
-
       response.json({
         messages: [
           {
@@ -538,7 +515,7 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
 
   Utilities.getPapersList((error, result) => {
     if (error) {
-      console.log("error:", error);
+      console.error("error:", error);
       response.status(500).send("Error getting the prefecture papers list");
       return;
     }
@@ -550,8 +527,6 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
 
     if (matchingRows.length > 0 && matchingRows[0]["lien"]) {
       let papersListLink = matchingRows[0]["lien"];
-      console.log("Returning the link:", papersListLink);
-
       response.json({
         messages: [
           {
@@ -562,8 +537,6 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
         ],
       });
     } else {
-      console.log("No info yet for that tds type - suggesting Nanterre papers");
-
       let nanterreRows = _.where(result, {
         tdsSlug: selected_tds,
         prefectureSlug: "nanterre",
