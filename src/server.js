@@ -318,8 +318,14 @@ app.route('/v1/select_tds').get(function(request, response) {
   });
 });
 
+var nlpDisabledUsers = {};
 const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'fr');
 app.route('/v1/nlp').get(function(request, response) {
+  if (nlpDisabledUsers[request.query["messenger user id"]]) {
+    response.status(200).send("NLP disabled for this user");
+    return;
+  }
+
   let message = request.query["last user freeform input"];
 
   if (!message) {
@@ -435,6 +441,15 @@ app.route('/v1/nlp').get(function(request, response) {
 
       response.status(500).send("Problem connecting with Recast.ai");
     });
+});
+
+app.route('/v1/disable_nlp_responses').get(function (request, response) {
+  let messengerUserId = request.query["messenger user id"];
+
+  console.log("Disabling NLP for user:", messengerUserId);
+  nlpDisabledUsers[messengerUserId] = true;
+
+  response.status(200).send("Disabled");
 });
 
 app.route('/v1/dossier_submission_method').get(function(request, response) {
