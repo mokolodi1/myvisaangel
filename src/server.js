@@ -322,7 +322,7 @@ var nlpDisabledUsers = {};
 const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'fr');
 app.route('/v1/nlp').get(function(request, response) {
   if (nlpDisabledUsers[request.query["messenger user id"]]) {
-    response.status(200).send("NLP disabled for this user");
+    response.json({ messages: [] });
     return;
   }
 
@@ -449,7 +449,7 @@ app.route('/v1/disable_nlp_responses').get(function (request, response) {
   console.log("Disabling NLP for user:", messengerUserId);
   nlpDisabledUsers[messengerUserId] = true;
 
-  response.status(200).send("Disabled");
+  response.json({ messages: [] });
 });
 
 app.route('/v1/dossier_submission_method').get(function(request, response) {

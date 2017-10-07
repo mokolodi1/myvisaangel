@@ -1098,12 +1098,13 @@ describe('My Visa Bot API', () => {
           .get('/v1/disable_nlp_responses?messenger user id=asdf')
           .end((err, response) => {
             response.should.have.status(200);
+            response.body.should.be.deep.eql({ messages: [] });
 
             chai.request(server)
               .get('/v1/nlp?first%20name=Teo&last+user+freeform+input=Bonjour, Manu !&messenger user id=asdf')
               .end((err, response) => {
                 response.should.have.status(200);
-                response.body.should.be.deep.eql({});
+                response.body.should.be.deep.eql({ messages: [] });
 
                 done();
               });
