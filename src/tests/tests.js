@@ -1090,24 +1090,21 @@ describe('My Visa Bot API', () => {
             done();
           });
       });
-    });
 
-    describe('/GET /v1/disable_nlp_responses', () => {
       it("should not respond if NLP disabled", (done) => {
         chai.request(server)
-          .get('/v1/disable_nlp_responses?messenger user id=asdf')
+          .get('/v1/nlp?first%20name=Teo&last+user+freeform+input=Bonjour, Manu !&nlp_disabled=yes')
           .end((err, response) => {
             response.should.have.status(200);
-            response.body.should.be.deep.eql({ messages: [] });
 
-            chai.request(server)
-              .get('/v1/nlp?first%20name=Teo&last+user+freeform+input=Bonjour, Manu !&messenger user id=asdf')
-              .end((err, response) => {
-                response.should.have.status(200);
-                response.body.should.be.deep.eql({ messages: [] });
+            // TODO: this will change!
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                nlp_disabled: "yes"
+              }
+            });
 
-                done();
-              });
+            done();
           });
       });
     });
@@ -1207,7 +1204,6 @@ describe('My Visa Bot API', () => {
           .end((err, response) => {
             response.should.have.status(200);
 
-            // TODO: this will change!
             response.body.should.be.deep.eql({
               messages: [
                 {
