@@ -865,7 +865,7 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              redirect_to_blocks: ["Introduce creators chat"],
+              redirect_to_blocks: ["Silent creators respond"],
             });
 
             done();
@@ -1161,14 +1161,8 @@ describe('My Visa Bot API', () => {
           .end((err, response) => {
             response.should.have.status(200);
 
-            // TODO: this will change!
             response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Je ne sais pas encore comment déposer un dossier " +
-                  "pour un titre de séjour APS là-bas...",
-                },
-              ],
+              redirect_to_blocks: ["Silent creators respond"],
             });
 
             done();

@@ -426,7 +426,7 @@ app.route('/v1/nlp').get(function(request, response) {
         console.log("Don't know what they asked -- chat with creators");
 
         response.json({
-          redirect_to_blocks: ["Introduce creators chat"],
+          redirect_to_blocks: ["Silent creators respond"],
         });
       }
     })
@@ -492,12 +492,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
       console.log("No info yet for that submission type.");
 
       response.json({
-        messages: [
-          {
-            text: "Je ne sais pas encore comment déposer un dossier " +
-            `pour un titre de séjour ${tdsTypes[selected_tds].name} là-bas...`,
-          },
-        ],
+        redirect_to_blocks: ["Silent creators respond"],
       });
     }
   });
