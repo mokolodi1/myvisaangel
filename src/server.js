@@ -348,6 +348,12 @@ app.route('/v1/select_tds').get(function(request, response) {
 
 const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'fr');
 app.route('/v1/nlp').get(function(request, response) {
+  let { nlp_disabled } = request.query;
+  if (nlp_disabled) {
+    response.json({ set_attributes: { nlp_disabled } });
+    return;
+  }
+
   let message = request.query["last user freeform input"];
 
   if (!message) {
@@ -430,7 +436,7 @@ app.route('/v1/nlp').get(function(request, response) {
         });
       } else {
         response.json({
-          redirect_to_blocks: ["Introduce creators chat"],
+          redirect_to_blocks: ["Silent creators respond"],
         });
       }
     })
@@ -495,12 +501,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
       });
     } else {
       response.json({
-        messages: [
-          {
-            text: "Je ne sais pas encore comment déposer un dossier " +
-            `pour un titre de séjour ${tdsTypes[selected_tds].name} là-bas...`,
-          },
-        ],
+        redirect_to_blocks: ["Silent creators respond"],
       });
     }
   });
