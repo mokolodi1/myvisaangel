@@ -227,6 +227,42 @@ function getPapersList(callback) {
   return getDoc('1siXjOK8OCE1UJER5khZmknJVrfQGsBraQt7AoXwPkks', callback);
 }
 
+var gitHash = require('child_process')
+  .execSync('git rev-parse HEAD')
+  .toString().trim();
+function logInSheet(sheetDescription, logObject) {
+  // https://docs.google.com/spreadsheets/d/1rwp_fErdkFWw-5YNjnbFGPp7XpJjbQFteMxpopdzF1A
+  // NOTE: the addRow call should fail when running on a dev/beta machine
+  //    because it'll be linked up to a fake Google Sheet
+  var isDevSheets = {
+    true: "asdf",
+    false: "1rwp_fErdkFWw-5YNjnbFGPp7XpJjbQFteMxpopdzF1A",
+  };
+  let doc = new GoogleSpreadsheet(isDevSheets[process.env.NODE_ENV === "dev"]);
+
+  doc.useServiceAccountAuth(googleCredentials, (error, result) => {
+    if (error) {
+      console.error("auth error logging:", error);
+      return;
+    }
+
+    logObject.boxNumber = process.env.BOX_NUMBER;
+    logObject.gitHash = gitHash;
+    logObject.date = new Date();
+
+    var sheetMap = {
+      "get_visas": 1,
+      "nlp": 2,
+    };
+    doc.addRow(sheetMap[sheetDescription], logObject, (error, result) => {
+      // // Uncomment to log for testing
+      // if (error) {
+      //   console.log("error logging:", error);
+      // }
+    });
+  });
+}
+
 function mostConfident(recastEntityValue) {
   if (!recastEntityValue) { return undefined; }
 
@@ -255,13 +291,35 @@ var tdsFuse = new Fuse(tdsMappings, {
   keys: [ "description" ]
 });
 function tdsFromRecast(tdsDescription) {
-  if (!tdsDescription) { return undefined; }
-
   let tdsMatches = tdsFuse.search(slugishify(tdsDescription));
 
   if (tdsMatches && tdsMatches.length && tdsMatches[0].score < .4) {
     return tdsMatches[0].item.tdsType;
   }
+}
+
+function prefTdsRequired(prefecture, selected_tds) {
+  var result = {
+    redirect_to_blocks: []
+  };
+
+  if (!prefecture) {
+    result.redirect_to_blocks.push("Ask for prefecture");
+  }
+  if (!selected_tds) {
+    result.redirect_to_blocks.push("Select TDS type");
+  }
+
+  if (result.redirect_to_blocks.length) {
+    result.messages = [
+      {
+        text: "Pour t'aider j'ai besoin " +
+            "de quelques informations complémentaires",
+      },
+    ];
+  }
+
+  return result;
 }
 
 module.exports = {
@@ -270,6 +328,8 @@ module.exports = {
   cleanVisaQuery,
   getSubmissionMethods,
   getPapersList,
+  logInSheet,
   mostConfident,
   tdsFromRecast,
+  prefTdsRequired,
 }

@@ -8,6 +8,7 @@ let should = chai.should();
 var qs = require('qs');
 
 var tdsTypes = require("../tdsTypes.js");
+var Utilities = require("../utilities.js");
 
 chai.use(chaiHttp);
 
@@ -44,7 +45,6 @@ describe('My Visa Bot API', () => {
                   "au master obtenu dans un établissement français.\n"
             },
           ],
-          blockName: "APS"
         })
 
         done();
@@ -70,7 +70,6 @@ describe('My Visa Bot API', () => {
                   "établissement français.\n"
             }
           ],
-          blockName: "APS"
         });
 
         done();
@@ -83,9 +82,7 @@ describe('My Visa Bot API', () => {
           diploma: "licence_pro",
         });
 
-        result.should.be.deep.eql({
-          blockName: "APS"
-        });
+        result.should.be.deep.eql({});
 
         done();
       });
@@ -97,9 +94,7 @@ describe('My Visa Bot API', () => {
           familySituation: "pacsed",
         });
 
-        result.should.be.deep.eql({
-          blockName: "Vie privée et familiale"
-        });
+        result.should.be.deep.eql({});
 
         done();
       });
@@ -123,9 +118,7 @@ describe('My Visa Bot API', () => {
           employmentSituation: "cdi"
         });
 
-        result.should.be.deep.eql({
-          blockName: "Passeport Talent Salarié Qualifié"
-        })
+        result.should.be.deep.eql({});
 
         done();
       });
@@ -150,9 +143,7 @@ describe('My Visa Bot API', () => {
           smicMultiplier: 1.5,
         });
 
-        result.should.be.deep.eql({
-          blockName: "Salarié/TT"
-        });
+        result.should.be.deep.eql({});
 
         done();
       });
@@ -177,7 +168,6 @@ describe('My Visa Bot API', () => {
               "UOHiBF5HC9IJTWA86_JDwo/edit?usp=sharing\n"
             }
           ],
-          blockName: "Salarié/TT"
         });
 
         done();
@@ -203,7 +193,6 @@ describe('My Visa Bot API', () => {
               "UOHiBF5HC9IJTWA86_JDwo/edit?usp=sharing\n"
             }
           ],
-          blockName: "Salarié/TT"
         });
 
         done();
@@ -231,7 +220,6 @@ describe('My Visa Bot API', () => {
               "UOHiBF5HC9IJTWA86_JDwo/edit?usp=sharing\n"
             }
           ],
-          blockName: "Salarié/TT"
         });
 
         done();
@@ -254,9 +242,7 @@ describe('My Visa Bot API', () => {
           employmentSituation: "entrepreneur"
         });
 
-        result.should.be.deep.eql({
-          blockName: "Commerçant"
-        });
+        result.should.be.deep.eql({});
 
         done();
       });
@@ -269,6 +255,13 @@ describe('My Visa Bot API', () => {
         should.equal(result, undefined);
 
         done();
+      });
+    });
+
+    describe("Utilities", () => {
+      it("should work: tdsFromRecast", () => {
+        should.equal(Utilities.tdsFromRecast("passport_talent"), "ptsq");
+        should.equal(Utilities.tdsFromRecast("asdfasdfasdf"), undefined);
       });
     });
   });
@@ -305,13 +298,72 @@ describe('My Visa Bot API', () => {
             response.body.should.be.a('object');
 
             response.body.should.be.deep.eql({
-              redirect_to_blocks: [
-                'APS',
-                'Passeport Talent Salarié Qualifié',
-                'Salarié/TT'
+              messages: [
+                {
+                  attachment: {
+                    type: "template",
+                    payload: {
+                      template_type: "generic",
+                      elements: [
+                        {
+                          title: "APS",
+                          subtitle: "L'APS te permet de chercher, exercer " +
+                              "un emploi ou créer une entreprise",
+                          buttons: [
+                            {
+                              type: "web_url",
+                              title: "Fiche récapitulative",
+                              url: "https://docs.google.com/document/d/" +
+                                "1OakbDux-SRj4aqHgkiQRUWgrWTxBVlPxeNYI9bh5mww/",
+                            },
+                            {
+                              block_names: [
+                                "Dossier papers list"
+                              ],
+                              set_attributes: {
+                                selected_tds: "aps",
+                              },
+                              title: "Voir liste papiers",
+                              type: "show_block",
+                            },
+                          ],
+                        },
+                        {
+                          "buttons": [
+                            {
+                              "title": "Fiche récapitulative",
+                              "type": "web_url",
+                              "url": "https://docs.google.com/document/d/" +
+                                "1TXg9zsDfzhgkPRl6pAWKJ7S0F02giJ-o9R1ry8NqAMo/",
+                            },
+                            {
+                              block_names: [
+                                "Dossier papers list"
+                              ],
+                              set_attributes: {
+                                selected_tds: "ptsq",
+                              },
+                              title: "Voir liste papiers",
+                              type: "show_block",
+                            },
+                          ],
+                          "subtitle": "Ce titre pluriannuel t'autorise à " +
+                              "travailler, créer une entreprise ou investir",
+                          "title": "Passeport Talent Salarié Qualifié",
+                        },
+                      ],
+                    }
+                  }
+                },
+                {
+                  text: "Tu as encore des questions ? Écris ta question " +
+                      "directement ci-dessous.\n" +
+                      "Par exemple : Comment déposer un dossier pour le " +
+                      "passeport talent à Nanterre ?",
+                }
               ],
               set_attributes: {
-                recommended_tds: "aps|ptsq|salarie_tt"
+                recommended_tds: "aps|ptsq"
               },
             });
 
@@ -345,9 +397,47 @@ describe('My Visa Bot API', () => {
                   "établissement français ou dans un établissement du pays " +
                   "d\'origine dans le cadre d\'une convention de délivrance " +
                   "de diplômes en partenariat international.\n"
+                },
+                {
+                  attachment: {
+                    type: "template",
+                    payload: {
+                      template_type: "generic",
+                      elements: [
+                        {
+                          title: "APS",
+                          subtitle: "L'APS te permet de chercher, exercer " +
+                              "un emploi ou créer une entreprise",
+                          buttons: [
+                            {
+                              type: "web_url",
+                              title: "Fiche récapitulative",
+                              url: "https://docs.google.com/document/d/" +
+                                "1OakbDux-SRj4aqHgkiQRUWgrWTxBVlPxeNYI9bh5mww/",
+                            },
+                            {
+                              block_names: [
+                                "Dossier papers list",
+                              ],
+                              set_attributes: {
+                                selected_tds: "aps",
+                              },
+                              title: "Voir liste papiers",
+                              type: "show_block",
+                            }
+                          ],
+                        },
+                      ],
+                    }
+                  }
+                },
+                {
+                  text: "Tu as encore des questions ? Écris ta question " +
+                      "directement ci-dessous.\n" +
+                      "Par exemple : Comment déposer un dossier pour le " +
+                      "passeport talent à Nanterre ?",
                 }
               ],
-              redirect_to_blocks: [ 'APS' ],
               set_attributes: {
                 recommended_tds: "aps"
               },
@@ -1114,7 +1204,21 @@ describe('My Visa Bot API', () => {
         chai.request(server)
           .get('/v1/dossier_submission_method')
           .end((err, response) => {
-            response.should.have.status(400);
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                    "de quelques informations complémentaires",
+                },
+              ],
+              redirect_to_blocks: [
+                "Ask for prefecture",
+                "Select TDS type",
+                "Dossier submission method",
+              ],
+            });
 
             done();
           });
@@ -1126,7 +1230,6 @@ describe('My Visa Bot API', () => {
           .end((err, response) => {
             response.should.have.status(200);
 
-            // TODO: this will change!
             response.body.should.be.deep.eql({
               messages: [
                 { text: "Voici la/les procédure(s) pour déposer un dossier " +
@@ -1192,7 +1295,21 @@ describe('My Visa Bot API', () => {
         chai.request(server)
           .get('/v1/dossier_papers_list')
           .end((err, response) => {
-            response.should.have.status(400);
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                      "de quelques informations complémentaires",
+                },
+              ],
+              redirect_to_blocks: [
+                "Ask for prefecture",
+                "Select TDS type",
+                "Dossier papers list",
+              ],
+            });
 
             done();
           });
@@ -1220,7 +1337,7 @@ describe('My Visa Bot API', () => {
 
       it("return an apology if we don't have the info", (done) => {
         chai.request(server)
-          .get('/v1/dossier_papers_list?prefecture=NOPE&selected_tds=aps')
+          .get('/v1/dossier_papers_list?prefecture=nope&selected_tds=aps')
           .end((err, response) => {
             response.should.have.status(200);
 
@@ -1229,7 +1346,8 @@ describe('My Visa Bot API', () => {
               messages: [
                 {
                   text: "Pour le moment nous n'avons la liste pour la " +
-                  "préfecture dans notre base de données mais en attendant, " +
+                  "préfecture de NOPE dans notre base de données mais en " +
+                  "attendant, " +
                   "je t'invite à regarder la liste de Nanterre car c'est " +
                   "très générique et il se peut qu'elle corresponde à 90% à " +
                   "la liste de ta préfecture 🙂",
