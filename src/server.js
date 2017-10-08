@@ -348,12 +348,6 @@ app.route('/v1/select_tds').get(function(request, response) {
 
 const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'fr');
 app.route('/v1/nlp').get(function(request, response) {
-  let { nlp_disabled } = request.query;
-  if (nlp_disabled) {
-    response.json({ set_attributes: { nlp_disabled } });
-    return;
-  }
-
   let message = request.query["last user freeform input"];
 
   if (!message) {
@@ -370,6 +364,12 @@ app.route('/v1/nlp').get(function(request, response) {
       query.intentSlug = intent && intent.slug;
       query.intentConfidence = intent && intent.confidence;
       Utilities.logInSheet("nlp", query);
+
+      let { nlp_disabled } = request.query;
+      if (nlp_disabled) {
+        response.json({ set_attributes: { nlp_disabled } });
+        return;
+      }
 
       if (intent && (intent.slug === "dossier-submission-method" ||
                       intent.slug === "dossier-list-papers")) {
