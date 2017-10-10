@@ -136,3 +136,15 @@ tmux
 ```
 
 6. Give it a shot: http://b2.myvisaangel.com/v1/ping
+
+### Deploying the beta
+
+1. Test `MVA Beta`, start watching the logs for the beta
+2. Disconnect the beta bot from `MVA Beta` on Chatfuel
+3. Disconnect the old prod bot from `My Visa Angel` on Chatfuel
+4. Connect the beta bot to `My Visa Angel` on Chatfuel
+5. Test `My Visa Angel` (the new production bot)
+6. Change `api.myvisaangel.com` IP to the latest IP on [Hover](https://www.hover.com/control_panel/domain/myvisaangel.com)
+7. Rename `My Visa Angel N production` to `archive`
+8. Rename `My Visa Angel N beta` to `production`
+9. Stop watching logs or the now-production bot
