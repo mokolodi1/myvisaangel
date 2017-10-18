@@ -267,6 +267,18 @@ describe('My Visa Bot API', () => {
   });
 
 
+  describe("Check to see if some dev ops stuff works...", () => {
+    it("should be able able to recover from a crash", (done) => {
+      chai.request(server)
+        .get('/private/break')
+        .end((err, response) => {
+          console.log("err:", err);
+          done();
+      });
+    });
+  });
+
+
   describe("Make sure the API works...", () => {
     describe('/GET /v1/ping', () => {
       it('should return { pong: "It works!" }', (done) => {

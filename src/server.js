@@ -35,6 +35,27 @@ app.route('/v1/ping').get(function(request, response) {
   });
 });
 
+// NOTE: this route intentionally crashes the app for testing purposes
+app.route('/private/break').get(function(request, response) {
+  response.json({
+    hehe: "It's about to crash ;)"
+  });
+
+  require('child_process')
+    .exec('hello', () => {
+      asdf
+    });
+});
+
+process.on('uncaughtException', function (err) {
+  console.error("Uncaught exception! Here's the stack:");
+  console.error(err.stack);
+});
+
+
+// Now on to the real meat of the app...
+
+
 /*
 Figure out which visas the user is eligible for
 */
