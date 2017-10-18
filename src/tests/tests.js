@@ -1251,13 +1251,6 @@ describe('My Visa Bot API', () => {
                     "Envoi par mail : " +
                     "pp-dpg-sdae-6eb-aps-etudiant@interieur.gouv.fr"
                 },
-                {
-                  text: "Tu n'as pas besoin de prendre RDV. " +
-                    "Envoi par la poste (courrier recommandé avec accusé " +
-                    "de réception) : Préfecture de Police \nCentre Étudiant " +
-                    " - Demande d’APS Master \nCité Universitaire - 17 BD " +
-                    "Jourdan 75014 Paris"
-                },
               ]
             });
 
