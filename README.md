@@ -144,7 +144,7 @@ tmux
 3. Disconnect the old prod bot from `My Visa Angel` on Chatfuel
 4. Connect the beta bot to `My Visa Angel` on Chatfuel
 5. Test `My Visa Angel` (the new production bot)
-6. Change `api.myvisaangel.com` IP to the latest IP on [Hover](https://www.hover.com/control_panel/domain/myvisaangel.com)
+6. Change `api.myvisaangel.com` IP to the latest IP on [Hover](https://www.hover.com/control_panel/domain/myvisaangel.com/dns)
 7. Rename `My Visa Angel N production` to `archive`
 8. Rename `My Visa Angel N beta` to `production`
 9. Stop watching logs or the now-production bot
