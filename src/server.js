@@ -36,7 +36,7 @@ app.route('/v1/ping').get(function(request, response) {
 });
 
 // NOTE: this route intentionally crashes the app for testing purposes
-app.route('/private/break').get(function(request, response) {
+app.route('/private/crash').get(function(request, response) {
   response.json({
     hehe: "It's about to crash ;)"
   });

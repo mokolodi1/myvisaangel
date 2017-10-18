@@ -270,7 +270,7 @@ describe('My Visa Bot API', () => {
   describe("Check to see if some dev ops stuff works...", () => {
     it("should be able able to recover from a crash", (done) => {
       chai.request(server)
-        .get('/private/break')
+        .get('/private/crash')
         .end((err, response) => {
           console.log("err:", err);
           done();

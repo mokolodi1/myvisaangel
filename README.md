@@ -127,12 +127,13 @@ cd myvisaangel
 # after you close the window
 tmux
 
-# Do C-b " to split the tmux window into two.
-# (Hold control and press B, then press ")
+# Optional: do C-b " to split the tmux window into two. (Hold control and
+# press B, release everything, and then press ")
 
 # Start it up!
-# NOTE: use beta_start.sh for betas so they don't write to prod logs
-./scripts/prod_start.sh
+# NOTE: use beta_start.sh for betas so they don't write to prod logs, and you
+#       don't have to specify the BOX_NUMBER for that
+BOX_NUMBER=b4 ./scripts/prod_start.sh
 ```
 
 6. Give it a shot: http://b2.myvisaangel.com/v1/ping
@@ -148,3 +149,40 @@ tmux
 7. Rename `My Visa Angel N production` to `archive`
 8. Rename `My Visa Angel N beta` to `production`
 9. Stop watching logs or the now-production bot
+
+## Manu is down! Help!
+
+Hello person providing emergency assistance to Manu! Thanks so much in advance for helping out.
+
+#### Start here
+
+We're running a Node/Express app on an AWS box that connects with Chatfuel via an HTTP API. No databases or anything, and the node app isn't even built - super simple.
+
+Each version of the chatbot is versioned, and you can find the production version on the Chatfuel dashboard by looking for `My Visa Angel N production`, where `N` is the version. At the time of writing, the production version is `4`, so that's what'll be used from here on out.
+
+The URL for the AWS box that hosts the API is `b4.myvisaangel.com`. The `4` in `b4` refers to the version of the app. (The whole `b4` business is a little funky, I know. I'll explain the reasoning when I'm back online. - Teo)
+
+Grab the `myvisaangel.pem` file from Paola or Abdel (the one on Slack) and get connected to our server: `ssh -i ~/Downloads/myvisaangel.pem ubuntu@b4.myvisaangel.com`.
+
+The app is running in a tmux session, and you can connect with `tmux a`. (This is the first command you should type.)
+
+From there you should be able to see more or less what the problem is. If you've never used tmux it might be a little funky, but scrolling should work more or less. If you ever get stuck scrolling with the yellow box in the upper right, use `C-c` to stop scrolling. (`C-c` means type `c` while holding the control key.)
+
+To start the app, the command should look something like this: `BOX_NUMBER=b4 ./scripts/prod_start.sh`.
+
+Test if the API is up by checking this page: [http://b4.myvisaangel.com/v1/ping](http://b4.myvisaangel.com/v1/ping)
+
+#### More potentially useful information
+
+The two sections in this README about setting up a new box and deploying should provide you some more information as to how things are managed.
+
+The DNS for `myvisaangel.com` is managed on [Hover](https://www.hover.com/control_panel/domain/myvisaangel.com/dns). The email is `mokolodi1@gmail.com`, and you can get the password from Paola.
+
+Teo (aka `mokolodi1`) is the admin of the GitHub repo, so you won't be able to push anything to `master` if you edit locally. Feel free to deploy on a branch if you have to set up a new box.
+
+If you change the url for the production box you'll have to change it on Chatfuel in each of the places it connects to the API. Paola should be able to help with that.
+
+#### TODO list for Teo if this action plan is ever used
+- change the `.pem` files for the production boxes on AWS
+- change my Hover password
+- buy whoever helped us a beer
