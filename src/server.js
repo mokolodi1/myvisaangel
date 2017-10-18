@@ -36,16 +36,18 @@ app.route('/v1/ping').get(function(request, response) {
 });
 
 // NOTE: this route intentionally crashes the app for testing purposes
-app.route('/private/crash').get(function(request, response) {
-  response.json({
-    hehe: "It's about to crash ;)"
-  });
+if (process.env.NODE_ENV === "dev") {
+  app.route('/private/crash').get(function(request, response) {
+    response.json({
+      hehe: "It's about to crash ;)"
+    });
 
-  require('child_process')
-    .exec('hello', () => {
+    // to crash node the invalid JS has to be in a callback
+    require('child_process').exec('hello', () => {
       asdf
     });
-});
+  });
+}
 
 process.on('uncaughtException', function (err) {
   console.error("Uncaught exception! Here's the stack:");
