@@ -398,6 +398,12 @@ app.route('/v1/nlp').get(function(request, response) {
         "dossier-submission-method": "Dossier submission method",
         "dossier-list-papers": "Dossier papers list",
         "tds-processing-time": "Dossier processing time",
+        "tds-summary": "TDS summary",
+        "tds-conditions": "TDS conditions",
+        "tds-price": "TDS price",
+        "tds-advantages": "TDS dis/advantages",
+        "tds-disadvantages": "TDS dis/advantages",
+        "tds-duration": "TDS duration",
       };
       if (intent && blockForIntent[intent.slug]) {
         var { prefecture, selected_tds } = query;
