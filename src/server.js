@@ -394,8 +394,12 @@ app.route('/v1/nlp').get(function(request, response) {
         return;
       }
 
-      if (intent && (intent.slug === "dossier-submission-method" ||
-                      intent.slug === "dossier-list-papers")) {
+      let blockForIntent = {
+        "dossier-submission-method": "Dossier submission method",
+        "dossier-list-papers": "Dossier papers list",
+        "tds-processing-time": "Dossier processing time",
+      };
+      if (intent && blockForIntent[intent.slug]) {
         var { prefecture, selected_tds } = query;
 
         // grab prefecture/TDS from Recast if they have been defined
@@ -424,12 +428,7 @@ app.route('/v1/nlp').get(function(request, response) {
 
         var result = Utilities.prefTdsRequired(prefecture, selected_tds);
 
-        let blockForIntent = {
-          "dossier-submission-method": "Dossier submission method",
-          "dossier-list-papers": "Dossier papers list",
-          "tds-processing-time": "Dossier processing time",
-        }[intent.slug];
-        result.redirect_to_blocks.push(blockForIntent);
+        result.redirect_to_blocks.push(blockForIntent[intent.slug]);
 
         // send these back even if they haven't been modified (but only
         // if they're defined)
@@ -617,7 +616,6 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
       prefectureSlug: prefecture,
     });
 
-    console.log("matchingRows[0]:", matchingRows[0]);
     if (matchingRows.length > 0 && matchingRows[0]["délai"]) {
       let delayText = matchingRows[0]["délai"].replace(/\n/g, ' ');
 
