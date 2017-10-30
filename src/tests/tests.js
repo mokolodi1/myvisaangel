@@ -1435,5 +1435,189 @@ describe('My Visa Bot API', () => {
           });
       });
     });
+
+    describe('/GET TDS info routes', () => {
+      it("should ask for more info if missing parameters", (done) => {
+        chai.request(server)
+          .get('/v1/tds_duration')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                      "de quelques informations complémentaires",
+                },
+              ],
+              redirect_to_blocks: [
+                "Select TDS type",
+                "TDS duration",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should drop into live chat if not defined", (done) => {
+        chai.request(server)
+          .get('/v1/tds_summary?selected_tds=nope')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: ["Silent creators respond"],
+            });
+
+            done();
+          });
+      });
+
+      it("should give tds summary for aps", (done) => {
+        chai.request(server)
+          .get('/v1/tds_summary?selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "L’Autorisation Provisoire de Séjour est donnée aux " +
+                      "étudiants étrangers récemment diplômés d’un " +
+                      "établissement français et qui veulent : \n" +
+                      "- Créer une entreprise dans un domaine correspondant" +
+                      " à leur formation.\n" +
+                      "- Chercher et exercer un emploi : En relation avec " +
+                      "leur formation Avec une rémunération au moins égale " +
+                      "à 2 220,40€ bruts mensuels (c’est-à-dire 2 fois le " +
+                      "SMIC) et conforme au minimum conventionnel ou aux " +
+                      "salaires pratiqués dans la branche. ",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should give the duration for ptsq", (done) => {
+        chai.request(server)
+          .get('/v1/tds_duration?selected_tds=ptsq')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "La durée du passeport talent mention salarié " +
+                      "qualifié est de 4 ans (renouvelable)",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should give the price for aps", (done) => {
+        chai.request(server)
+          .get('/v1/tds_price?selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "L'autorisation provisoire de séjour est gratuite.",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should give the advantages for vpf", (done) => {
+        chai.request(server)
+          .get('/v1/tds_advantages?selected_tds=vpf')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Avantages d'une carte de séjour vie privée et " +
+                      "familiale :\n- On peut changer d’employeur autant " +
+                      "qu’on le souhaite, sans avoir à notifier la " +
+                      "préfecture. \n- Elle autorise son détenteur à " +
+                      "travailler en CDD, CDI, être au chômage ou encore " +
+                      "créer son entreprise, sans avoir besoin de fournir " +
+                      "des justificatifs.",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should give the disadvantages for salarie_tt", (done) => {
+        chai.request(server)
+          .get('/v1/tds_disadvantages?selected_tds=salarie_tt')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Inconvénients de la carte salarié ou travailleur " +
+                      "temporaire :\n- Valable pour un poste, un employeur " +
+                      "et une zone géographique. Si vous changez de poste, " +
+                      "d’employeur ou de zone au cours de la première année, " +
+                      "vous devez refaire une demande. \n- Vous serez " +
+                      "opposable à l’emploi si vous faites un changement de " +
+                      "statut sans passer par un APS. C’est-à-dire que " +
+                      "l’administration peut vous refuser l’autorisation si " +
+                      "elle estime que le niveau de chômage est trop " +
+                      "important, sauf si le métier que vous cherchez à " +
+                      "exercer est un métier dit en tension.",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should give the conditions for commercant", (done) => {
+        chai.request(server)
+          .get('/v1/tds_conditions?selected_tds=commercant')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Conditions pour obtenir une carte commerçant :\n" +
+                      "- Justifier d'une activité viable sur le plan " +
+                      "économique ou, s'il intègre une entreprise existante, " +
+                      "de sa capacité à lui verser une rémunération " +
+                      "suffisante (au moins égale au Smic),\n" +
+                      "- Justifier d'une activité compatible avec la " +
+                      "sécurité, la salubrité et la tranquillité publique,\n" +
+                      "- Respecter les obligations de cette profession " +
+                      "(conditions de diplômes ou d'expérience " +
+                      "professionnelle, par exemple),\n" +
+                      "- Absence de condamnation ou d'interdiction " +
+                      "d'exercice.",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
+    });
   });
 });

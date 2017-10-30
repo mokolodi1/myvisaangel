@@ -258,7 +258,7 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
     return;
   }
 
-  Utilities.tdsInfoSheet((error, result) => {
+  Utilities.submissionMethodSheet((error, result) => {
     if (error) {
       console.error("Error reading from Google doc:", error);
       response.status(500).send('Error reading from Google doc');
@@ -482,7 +482,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
     return;
   }
 
-  Utilities.tdsInfoSheet((error, result) => {
+  Utilities.submissionMethodSheet((error, result) => {
     if (error) {
       console.error("error:", error);
       response.status(500).send("Error getting the prefecture submission info");
@@ -641,6 +641,70 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
       });
     }
   });
+});
+
+function tdsInformation(request, response, blockName, sheetColumn) {
+  let { selected_tds } = request.query;
+
+  if (!selected_tds) {
+    response.json({
+      messages: [
+        {
+          text: "Pour t'aider j'ai besoin " +
+              "de quelques informations complémentaires",
+        },
+      ],
+      redirect_to_blocks: [
+        "Select TDS type",
+        blockName,
+      ],
+    });
+    return;
+  }
+
+  Utilities.tdsInfoSheet((error, result) => {
+    if (error) {
+      console.error("error:", error);
+      response.status(500).send("Error getting the TDS info");
+      return;
+    }
+
+    let matchingRows = _.where(result, {
+      tdsSlug: selected_tds,
+    });
+
+    if (matchingRows.length > 0 && matchingRows[0][sheetColumn]) {
+      response.json({
+        messages: [
+          {
+            text: matchingRows[0][sheetColumn],
+          },
+        ],
+      });
+    } else {
+      response.json({
+        redirect_to_blocks: ["Silent creators respond"],
+      });
+    }
+  });
+}
+app.route('/v1/tds_summary').get(function(request, response) {
+  tdsInformation(request, response, "TDS summary", "présentation");
+});
+app.route('/v1/tds_duration').get(function(request, response) {
+  tdsInformation(request, response, "TDS duration", "durée");
+});
+app.route('/v1/tds_price').get(function(request, response) {
+  tdsInformation(request, response, "TDS price", "coût");
+});
+app.route('/v1/tds_advantages').get(function(request, response) {
+  tdsInformation(request, response, "TDS advantages", "avantages");
+});
+app.route('/v1/tds_disadvantages').get(function(request, response) {
+  tdsInformation(request, response, "TDS disadvantages", "inconvénients");
+});
+app.route('/v1/tds_conditions').get(function(request, response) {
+  tdsInformation(request, response, "TDS conditions", "conditions");
 });
 
 var server = app.listen(port);

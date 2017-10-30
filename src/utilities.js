@@ -228,11 +228,14 @@ function getDBSheet(sheetNumber, callback) {
 function papersListSheet(callback) {
   return getDBSheet(1, callback);
 }
-function tdsInfoSheet(callback) {
+function submissionMethodSheet(callback) {
   return getDBSheet(2, callback);
 }
 function processingTimeSheet(callback) {
   return getDBSheet(3, callback);
+}
+function tdsInfoSheet(callback) {
+  return getDBSheet(4, callback);
 }
 
 var gitHash = require('child_process')
@@ -335,8 +338,9 @@ module.exports = {
   slugishify,
   cleanVisaQuery,
   papersListSheet,
-  tdsInfoSheet,
+  submissionMethodSheet,
   processingTimeSheet,
+  tdsInfoSheet,
   logInSheet,
   mostConfident,
   tdsFromRecast,
