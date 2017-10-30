@@ -427,6 +427,7 @@ app.route('/v1/nlp').get(function(request, response) {
         let blockForIntent = {
           "dossier-submission-method": "Dossier submission method",
           "dossier-list-papers": "Dossier papers list",
+          "delai-visa": "Dossier processing time",
         }[intent.slug];
         result.redirect_to_blocks.push(blockForIntent);
 
