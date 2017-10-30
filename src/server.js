@@ -258,7 +258,7 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
     return;
   }
 
-  Utilities.getSubmissionMethods((error, result) => {
+  Utilities.tdsInfoSheet((error, result) => {
     if (error) {
       console.error("Error reading from Google doc:", error);
       response.status(500).send('Error reading from Google doc');
@@ -482,7 +482,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
     return;
   }
 
-  Utilities.getSubmissionMethods((error, result) => {
+  Utilities.tdsInfoSheet((error, result) => {
     if (error) {
       console.error("error:", error);
       response.status(500).send("Error getting the prefecture submission info");
@@ -542,10 +542,10 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
     return;
   }
 
-  Utilities.getPapersList((error, result) => {
+  Utilities.papersListSheet((error, result) => {
     if (error) {
       console.error("error:", error);
-      response.status(500).send("Error getting the prefecture papers list");
+      response.status(500).send("Error getting the submission information");
       return;
     }
 
@@ -586,6 +586,58 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
                 `${tdsTypes[selected_tds].name} à Nanterre : ` +
                 nanterreRows[0]["lien"],
           },
+        ],
+      });
+    }
+  });
+});
+
+app.route('/v1/dossier_processing_time').get(function(request, response) {
+  let { selected_tds, prefecture } = request.query;
+
+  if (!selected_tds || !prefecture) {
+    var result = Utilities.prefTdsRequired(prefecture, selected_tds);
+
+    result.redirect_to_blocks.push("Dossier processing time");
+
+    response.json(result);
+    return;
+  }
+
+  Utilities.processingTimeSheet((error, result) => {
+    if (error) {
+      console.error("error:", error);
+      response.status(500).send("Error getting the submission information");
+      return;
+    }
+
+    let matchingRows = _.where(result, {
+      tdsSlug: selected_tds,
+      prefectureSlug: prefecture,
+    });
+
+    console.log("matchingRows[0]:", matchingRows[0]);
+    if (matchingRows.length > 0 && matchingRows[0]["délai"]) {
+      let delayText = matchingRows[0]["délai"].replace(/\n/g, ' ');
+
+      response.json({
+        messages: [
+          {
+            text: `Normalement ${delayText} pour le ` +
+                `${tdsTypes[selected_tds].name} à ` +
+                `${Data.slugToPrefecture[prefecture]}`,
+          },
+        ],
+      });
+    } else {
+      response.json({
+        messages: [
+          {
+            text: "Nous n'avons pas encore des retours sur les délais pour " +
+                "cette procédure. N'hésite pas à nous faire un retour " +
+                "d'expérience quand tu auras fait les démarches afin de " +
+                "pouvoir aider la communauté 😉"
+          }
         ],
       });
     }

@@ -1369,5 +1369,71 @@ describe('My Visa Bot API', () => {
           });
       });
     });
+
+    describe('/GET /v1/dossier_processing_time', () => {
+      it("should fail if missing parameters", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_processing_time')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                      "de quelques informations complémentaires",
+                },
+              ],
+              redirect_to_blocks: [
+                "Ask for prefecture",
+                "Select TDS type",
+                "Dossier processing time",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should help users if they have the info", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_processing_time?prefecture=antony&selected_tds=ptsq')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Normalement 5 mois environ (REX d'avril 2017) " +
+                      "pour le Passeport Talent Salarié Qualifié à Antony"
+                }
+              ]
+            });
+
+            done();
+          });
+      });
+
+      it("return an apology if we don't have the info", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_processing_time?prefecture=nope&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Nous n'avons pas encore des retours sur les délais pour " +
+                      "cette procédure. N'hésite pas à nous faire un retour " +
+                      "d'expérience quand tu auras fait les démarches afin de " +
+                      "pouvoir aider la communauté 😉",
+                },
+              ]
+            });
+
+            done();
+          });
+      });
+    });
   });
 });
