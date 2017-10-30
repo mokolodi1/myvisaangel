@@ -1520,16 +1520,17 @@ describe('My Visa Bot API', () => {
           });
       });
 
-      it("should give the price for aps", (done) => {
+      it("should give the price for salarie_tt", (done) => {
         chai.request(server)
-          .get('/v1/tds_price?selected_tds=aps')
+          .get('/v1/tds_price?selected_tds=salarie_tt')
           .end((err, response) => {
             response.should.have.status(200);
 
             response.body.should.be.deep.eql({
               messages: [
                 {
-                  text: "L'autorisation provisoire de séjour est gratuite.",
+                  text: "- Mention Salarié : 269€\n" +
+                      "- Mention Travailleur temporaire : 19€",
                 },
               ],
             });
@@ -1538,9 +1539,9 @@ describe('My Visa Bot API', () => {
           });
       });
 
-      it("should give the advantages for vpf", (done) => {
+      it("should give the dis/advantages for vpf", (done) => {
         chai.request(server)
-          .get('/v1/tds_advantages?selected_tds=vpf')
+          .get('/v1/tds_dis_advantages?selected_tds=vpf')
           .end((err, response) => {
             response.should.have.status(200);
 
@@ -1553,35 +1554,11 @@ describe('My Visa Bot API', () => {
                       "préfecture. \n- Elle autorise son détenteur à " +
                       "travailler en CDD, CDI, être au chômage ou encore " +
                       "créer son entreprise, sans avoir besoin de fournir " +
-                      "des justificatifs.",
-                },
-              ],
-            });
-
-            done();
-          });
-      });
-
-      it("should give the disadvantages for salarie_tt", (done) => {
-        chai.request(server)
-          .get('/v1/tds_disadvantages?selected_tds=salarie_tt')
-          .end((err, response) => {
-            response.should.have.status(200);
-
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Inconvénients de la carte salarié ou travailleur " +
-                      "temporaire :\n- Valable pour un poste, un employeur " +
-                      "et une zone géographique. Si vous changez de poste, " +
-                      "d’employeur ou de zone au cours de la première année, " +
-                      "vous devez refaire une demande. \n- Vous serez " +
-                      "opposable à l’emploi si vous faites un changement de " +
-                      "statut sans passer par un APS. C’est-à-dire que " +
-                      "l’administration peut vous refuser l’autorisation si " +
-                      "elle estime que le niveau de chômage est trop " +
-                      "important, sauf si le métier que vous cherchez à " +
-                      "exercer est un métier dit en tension.",
+                      "des justificatifs.\n\n" +
+                      "Inconvénients de la carte vie privée et familiale :\n" +
+                      "Tu es lié à ton/ta concubin(e) et si jamais vous vous " +
+                      "séparez, tu devras demander un changement de statut " +
+                      "pour changer de titre de séjour.",
                 },
               ],
             });
