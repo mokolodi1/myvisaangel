@@ -1010,6 +1010,9 @@ describe('My Visa Bot API', () => {
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
               redirect_to_blocks: ["Silent creators respond"],
+              set_attributes: {
+                nlp_disabled: "yes",
+              },
             });
 
             done();
@@ -1243,6 +1246,7 @@ describe('My Visa Bot API', () => {
 
             // TODO: this will change!
             response.body.should.be.deep.eql({
+              redirect_to_blocks: ["Silent creators respond"],
               set_attributes: {
                 nlp_disabled: "yes"
               }

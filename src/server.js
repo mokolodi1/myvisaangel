@@ -4,6 +4,7 @@ var _ = require("underscore");
 var express = require("express");
 var Fuse = require("fuse.js");
 const recastai = require('recastai')
+var Slack = require('slack-node');
 
 var app = express();
 var port = process.env.PORT || 3000;
@@ -385,8 +386,12 @@ app.route('/v1/select_tds').get(function(request, response) {
 });
 
 const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'fr');
+const slack = new Slack();
+slack.setWebhook("https://hooks.slack.com/services/" +
+    "T6NNVGX1A/B7SNPJD3P/imdZum8DJF2PbSHmXLDF0rHy");
 app.route('/v1/nlp').get(function(request, response) {
-  let message = request.query["last user freeform input"];
+  let { query } = request;
+  let message = query["last user freeform input"];
 
   if (!message) {
     response.status(400).send('Missing "last user freeform input" parameter');
@@ -398,91 +403,106 @@ app.route('/v1/nlp').get(function(request, response) {
       let intent = recastResponse.intent();
       console.log("Recast intent:", intent);
 
-      let { query } = request;
       query.intentSlug = intent && intent.slug;
       query.intentConfidence = intent && intent.confidence;
       Utilities.logInSheet("nlp", query);
 
-      let { nlp_disabled } = request.query;
-      if (nlp_disabled) {
-        response.json({ set_attributes: { nlp_disabled } });
-        return;
-      }
+      if (intent && !query.nlp_disabled) {
+        let blockForIntent = {
+          "dossier-submission-method": "Dossier submission method",
+          "dossier-list-papers": "Dossier papers list",
+          "tds-processing-time": "Dossier processing time",
+          "tds-summary": "TDS summary",
+          "tds-conditions": "TDS conditions",
+          "tds-price": "TDS price",
+          "tds-advantages": "TDS dis/advantages",
+          "tds-disadvantages": "TDS dis/advantages",
+          "tds-duration": "TDS duration",
+        };
 
-      let blockForIntent = {
-        "dossier-submission-method": "Dossier submission method",
-        "dossier-list-papers": "Dossier papers list",
-        "tds-processing-time": "Dossier processing time",
-        "tds-summary": "TDS summary",
-        "tds-conditions": "TDS conditions",
-        "tds-price": "TDS price",
-        "tds-advantages": "TDS dis/advantages",
-        "tds-disadvantages": "TDS dis/advantages",
-        "tds-duration": "TDS duration",
-      };
-      if (intent && blockForIntent[intent.slug]) {
-        var { prefecture, selected_tds } = query;
+        if (blockForIntent[intent.slug]) {
+          var { prefecture, selected_tds } = query;
 
-        // grab prefecture/TDS from Recast if they have been defined
-        let { entities } = recastResponse;
-        if (entities) {
-          // TODO: test this
-          // remove "papiers" from the list of prefecture entries - it
-          // recognizes the word "papiers" as the prefecture "Pamiers"
-          let withoutPapiers = _.filter(entities.prefecture, (entry) => {
-            return Utilities.slugishify(entry.raw) !== "papiers";
+          // grab prefecture/TDS from Recast if they have been defined
+          let { entities } = recastResponse;
+          if (entities) {
+            // TODO: test this
+            // remove "papiers" from the list of prefecture entries - it
+            // recognizes the word "papiers" as the prefecture "Pamiers"
+            let withoutPapiers = _.filter(entities.prefecture, (entry) => {
+              return Utilities.slugishify(entry.raw) !== "papiers";
+            });
+            if (withoutPapiers && withoutPapiers.length > 0) {
+              let newPrefecture = Utilities.mostConfident(withoutPapiers);
+              prefecture = Utilities.slugishify(newPrefecture.value);
+            }
+
+            let recastTds = Utilities.mostConfident(entities["visa-type"]);
+            if (recastTds) {
+              let tds = Utilities.tdsFromRecast(recastTds.value);
+
+              if (tds) {
+                selected_tds = tds;
+              }
+            }
+          }
+
+          var result = Utilities.prefTdsRequired(prefecture, selected_tds);
+
+          result.redirect_to_blocks.push(blockForIntent[intent.slug]);
+
+          // send these back even if they haven't been modified (but only
+          // if they're defined)
+          if (prefecture || selected_tds) {
+            result.set_attributes = { prefecture, selected_tds };
+          }
+
+          response.json(result);
+          return;
+        } else if (intent.slug === "tds-recommendation") {
+          response.json({
+            redirect_to_blocks: [ "TDS Questions" ],
           });
-          if (withoutPapiers && withoutPapiers.length > 0) {
-            let newPrefecture = Utilities.mostConfident(withoutPapiers);
-            prefecture = Utilities.slugishify(newPrefecture.value);
-          }
-
-          let recastTds = Utilities.mostConfident(entities["visa-type"]);
-          if (recastTds) {
-            let tds = Utilities.tdsFromRecast(recastTds.value);
-
-            if (tds) {
-              selected_tds = tds;
-            }
-          }
+          return;
+        } else if (intent.slug === "greetings") {
+          response.json({
+            messages: [
+              {
+                text: `Bonjour, ${query["first name"]} !`
+              }
+            ],
+          });
+          return;
+        } else if (intent.slug === "thanks") {
+          response.json({
+            messages: [
+              {
+                text: "Je t'en prie. C'etait un plaisir de parler avec toi 🙂"
+              }
+            ],
+          });
+          return;
         }
-
-        var result = Utilities.prefTdsRequired(prefecture, selected_tds);
-
-        result.redirect_to_blocks.push(blockForIntent[intent.slug]);
-
-        // send these back even if they haven't been modified (but only
-        // if they're defined)
-        if (prefecture || selected_tds) {
-          result.set_attributes = { prefecture, selected_tds };
-        }
-
-        response.json(result);
-      } else if (intent && intent.slug === "tds-recommendation") {
-        response.json({
-          redirect_to_blocks: [ "TDS Questions" ],
-        });
-      } else if (intent && intent.slug === "greetings") {
-        response.json({
-          messages: [
-            {
-              text: `Bonjour, ${query["first name"]} !`
-            }
-          ],
-        });
-      } else if (intent && intent.slug === "thanks") {
-        response.json({
-          messages: [
-            {
-              text: "Je t'en prie. C'etait un plaisir de parler avec toi 🙂"
-            }
-          ],
-        });
-      } else {
-        response.json({
-          redirect_to_blocks: ["Silent creators respond"],
-        });
       }
+
+      if (process.env.NODE_ENV !== "dev") {
+        slack.webhook({
+          channel: "#livechat",
+          username: "teo-clone",
+          text: `New message from ${query["first name"]} ` +
+              `${query["last name"]}: https://www.facebook.com/My-Visa-Angel-` +
+              "108759689812666/inbox/?selected_item_id=" +
+              `${query["messenger user id"]} \`\`\`${message}\`\`\``,
+          icon_emoji: ":mailbox_with_mail:",
+        }, function(err, response) {});
+      }
+
+      response.json({
+        redirect_to_blocks: ["Silent creators respond"],
+        set_attributes: {
+          nlp_disabled: "yes",
+        },
+      });
     })
     .catch(function (error) {
       console.error("Error dealing with Recast:", error);
