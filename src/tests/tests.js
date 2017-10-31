@@ -323,10 +323,14 @@ describe('My Visa Bot API', () => {
                               "un emploi ou créer une entreprise",
                           buttons: [
                             {
-                              type: "web_url",
+                              type: "show_block",
                               title: "Fiche récapitulative",
-                              url: "https://docs.google.com/document/d/" +
-                                "1OakbDux-SRj4aqHgkiQRUWgrWTxBVlPxeNYI9bh5mww/",
+                              block_names: [
+                                "TDS all info",
+                              ],
+                              set_attributes: {
+                                selected_tds: "aps"
+                              },
                             },
                             {
                               block_names: [
@@ -343,10 +347,14 @@ describe('My Visa Bot API', () => {
                         {
                           "buttons": [
                             {
-                              "title": "Fiche récapitulative",
-                              "type": "web_url",
-                              "url": "https://docs.google.com/document/d/" +
-                                "1TXg9zsDfzhgkPRl6pAWKJ7S0F02giJ-o9R1ry8NqAMo/",
+                              type: "show_block",
+                              title: "Fiche récapitulative",
+                              block_names: [
+                                "TDS all info",
+                              ],
+                              set_attributes: {
+                                selected_tds: "ptsq"
+                              },
                             },
                             {
                               block_names: [
@@ -422,10 +430,14 @@ describe('My Visa Bot API', () => {
                               "un emploi ou créer une entreprise",
                           buttons: [
                             {
-                              type: "web_url",
+                              type: "show_block",
                               title: "Fiche récapitulative",
-                              url: "https://docs.google.com/document/d/" +
-                                "1OakbDux-SRj4aqHgkiQRUWgrWTxBVlPxeNYI9bh5mww/",
+                              block_names: [
+                                "TDS all info",
+                              ],
+                              set_attributes: {
+                                selected_tds: "aps"
+                              },
                             },
                             {
                               block_names: [

@@ -102,16 +102,21 @@ app.route('/v1/get_visas').get(function(request, response) {
               subtitle: tdsInfo.description,
               buttons: tdsInfo.summary_link && [
                 {
-                  type: "web_url",
+                  type: "show_block",
                   title: "Fiche récapitulative",
-                  url: tdsInfo.summary_link,
+                  block_names: [
+                    "TDS all info",
+                  ],
+                  set_attributes: {
+                    selected_tds: tdsSlug
+                  },
                 },
                 {
                   type: "show_block",
+                  title: "Voir liste papiers",
                   block_names: [
                     "Dossier papers list",
                   ],
-                  title: "Voir liste papiers",
                   set_attributes: {
                     selected_tds: tdsSlug
                   },
