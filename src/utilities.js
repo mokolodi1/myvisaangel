@@ -237,6 +237,9 @@ function processingTimeSheet(callback) {
 function tdsInfoSheet(callback) {
   return getDBSheet(4, callback);
 }
+function cerfaSheet(callback) {
+  return getDBSheet(5, callback);
+}
 
 var gitHash = require('child_process')
   .execSync('git rev-parse HEAD')
@@ -333,6 +336,50 @@ function prefTdsRequired(prefecture, selected_tds) {
   return result;
 }
 
+function tdsRequired(lastBlockName) {
+  return {
+    messages: [
+      {
+        text: "Pour t'aider j'ai besoin " +
+            "de quelques informations complémentaires",
+      },
+    ],
+    redirect_to_blocks: [
+      "Select TDS type",
+      lastBlockName,
+    ],
+  };
+}
+
+function dropToLiveChat(query) {
+  if (process.env.NODE_ENV !== "dev") {
+    slack.webhook({
+      channel: "#livechat",
+      username: "teo-clone",
+      text: `New message from ${query["first name"]} ` +
+          `${query["last name"]}: https://www.facebook.com/My-Visa-Angel-` +
+          "108759689812666/inbox/?selected_item_id=" +
+          `${query["messenger user id"]} \`\`\`${message}\`\`\``,
+      icon_emoji: ":mailbox_with_mail:",
+    }, function(err, response) {});
+  }
+
+  return {
+    redirect_to_blocks: ["Silent creators respond"],
+    set_attributes: {
+      nlp_disabled: "yes",
+    },
+  };
+}
+
+function handleError(error, response, errorNumber, errorMessage) {
+  console.error(`HTTP=${errorNumber}\t${errorMessage}`);
+  console.error(error);
+  response.status(errorNumber).send(errorMessage);
+}
+
+
+
 module.exports = {
   removeDiacritics,
   slugishify,
@@ -341,8 +388,12 @@ module.exports = {
   submissionMethodSheet,
   processingTimeSheet,
   tdsInfoSheet,
+  cerfaSheet,
   logInSheet,
   mostConfident,
   tdsFromRecast,
   prefTdsRequired,
+  tdsRequired,
+  dropToLiveChat,
+  handleError,
 }

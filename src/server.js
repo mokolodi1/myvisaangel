@@ -171,8 +171,8 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   let { nationality } = request.query;
 
   if (!nationality && nationality !== "") {
-    response.status(400).send('Missing nationality parameter');
-    return;
+    return Utilities.handleError(undefined, response, 400,
+        "Missing nationality param");
   }
 
   let results = countriesFuse.search(nationality);
@@ -270,14 +270,14 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
   let { prefecture } = request.query;
 
   if (!prefecture && prefecture !== "") {
-    response.status(400).send('Missing prefecture parameter');
-    return;
+    return Utilities.handleError(undefined, response, 400,
+        "Missing prefecture parameter");
   }
 
   Utilities.submissionMethodSheet((error, result) => {
     if (error) {
-      console.error("Error reading from Google doc:", error);
-      response.status(500).send('Error reading from Google doc');
+      return Utilities.handleError(error, response, 500,
+          "Error reading from Google");
     } else {
       let prefecturesHash = _.reduce(result, (memo, row) => {
         memo[row["préfecture"]] = true;
@@ -394,8 +394,8 @@ app.route('/v1/nlp').get(function(request, response) {
   let message = query["last user freeform input"];
 
   if (!message) {
-    response.status(400).send('Missing "last user freeform input" parameter');
-    return;
+    return Utilities.handleError(undefined, response, 400,
+        "Missing freeform param");
   }
 
   recastClient.analyseText(message)
@@ -418,6 +418,7 @@ app.route('/v1/nlp').get(function(request, response) {
           "tds-advantages": "TDS dis/advantages",
           "tds-disadvantages": "TDS dis/advantages",
           "tds-duration": "TDS duration",
+          "tds-cerfa": "TDS cerfa",
         };
 
         if (blockForIntent[intent.slug]) {
@@ -485,29 +486,11 @@ app.route('/v1/nlp').get(function(request, response) {
         }
       }
 
-      if (process.env.NODE_ENV !== "dev") {
-        slack.webhook({
-          channel: "#livechat",
-          username: "teo-clone",
-          text: `New message from ${query["first name"]} ` +
-              `${query["last name"]}: https://www.facebook.com/My-Visa-Angel-` +
-              "108759689812666/inbox/?selected_item_id=" +
-              `${query["messenger user id"]} \`\`\`${message}\`\`\``,
-          icon_emoji: ":mailbox_with_mail:",
-        }, function(err, response) {});
-      }
-
-      response.json({
-        redirect_to_blocks: ["Silent creators respond"],
-        set_attributes: {
-          nlp_disabled: "yes",
-        },
-      });
+      response.json(Utilities.dropToLiveChat(query));
     })
     .catch(function (error) {
-      console.error("Error dealing with Recast:", error);
-
-      response.status(500).send("Problem connecting with Recast.ai");
+      return Utilities.handleError(error, response, 500,
+            "Error dealing with recast");
     });
 });
 
@@ -525,9 +508,8 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
 
   Utilities.submissionMethodSheet((error, result) => {
     if (error) {
-      console.error("error:", error);
-      response.status(500).send("Error getting the prefecture submission info");
-      return;
+      return Utilities.handleError(error, response, 500,
+            "Error getting the prefecture submission info");
     }
 
     let matchingRows = _.chain(result)
@@ -564,9 +546,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
         ].concat(submissionPossibilities),
       });
     } else {
-      response.json({
-        redirect_to_blocks: ["Silent creators respond"],
-      });
+      response.json(Utilities.dropToLiveChat(request.query));
     }
   });
 });
@@ -585,9 +565,8 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
 
   Utilities.papersListSheet((error, result) => {
     if (error) {
-      console.error("error:", error);
-      response.status(500).send("Error getting the submission information");
-      return;
+      return Utilities.handleError(error, response, 500,
+            "Error getting the submission information");
     }
 
     let matchingRows = _.where(result, {
@@ -653,9 +632,8 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
 
   Utilities.processingTimeSheet((error, result) => {
     if (error) {
-      console.error("error:", error);
-      response.status(500).send("Error getting the submission information");
-      return;
+      return Utilities.handleError(error, response, 500,
+            "Error getting the submission information");
     }
 
     let matchingRows = _.where(result, {
@@ -694,26 +672,14 @@ function tdsInformation(request, response, blockName, sheetColumn) {
   let { selected_tds } = request.query;
 
   if (!selected_tds) {
-    response.json({
-      messages: [
-        {
-          text: "Pour t'aider j'ai besoin " +
-              "de quelques informations complémentaires",
-        },
-      ],
-      redirect_to_blocks: [
-        "Select TDS type",
-        blockName,
-      ],
-    });
+    response.json(Utilities.tdsRequired(blockName));
     return;
   }
 
   Utilities.tdsInfoSheet((error, result) => {
     if (error) {
-      console.error("error:", error);
-      response.status(500).send("Error getting the TDS info");
-      return;
+      return Utilities.handleError(error, response, 500,
+          "Error getting the TDS info");
     }
 
     let matchingRows = _.where(result, {
@@ -729,9 +695,7 @@ function tdsInformation(request, response, blockName, sheetColumn) {
         ],
       });
     } else {
-      response.json({
-        redirect_to_blocks: ["Silent creators respond"],
-      });
+      response.json(Utilities.dropToLiveChat(request.query));
     }
   });
 }
@@ -758,26 +722,14 @@ app.route('/v1/tds_all_info').get(function(request, response) {
   let { selected_tds } = request.query;
 
   if (!selected_tds) {
-    response.json({
-      messages: [
-        {
-          text: "Pour t'aider j'ai besoin " +
-              "de quelques informations complémentaires",
-        },
-      ],
-      redirect_to_blocks: [
-        "Select TDS type",
-        "TDS all info",
-      ],
-    });
+    response.json(Utilities.tdsRequired("TDS all info"));
     return;
   }
 
   Utilities.tdsInfoSheet((error, result) => {
     if (error) {
-      console.error("error:", error);
-      response.status(500).send("Error getting the TDS info");
-      return;
+      return Utilities.handleError(error, response, 500,
+          "Error getting the TDS info");
     }
 
     let matchingRows = _.where(result, {
@@ -796,9 +748,37 @@ app.route('/v1/tds_all_info').get(function(request, response) {
         ],
       });
     } else {
+      response.json(Utilities.dropToLiveChat(request.query));
+    }
+  });
+});
+
+app.route('/v1/tds_cerfa').get(function (request, response) {
+  let { selected_tds } = request.query;
+
+  if (!selected_tds) {
+    response.json(Utilities.tdsRequired("TDS cerfa"));
+    return;
+  }
+
+  Utilities.cerfaSheet((error, result) => {
+    if (error) {
+      return Utilities.handleError(error, repsonse, 500,
+          "Error getting the cerfa info");
+    }
+
+    let matchingRows = _.where(result, {
+      tdsSlug: selected_tds,
+    });
+
+    if (matchingRows.length > 0 && matchingRows[0]) {
       response.json({
-        redirect_to_blocks: ["Silent creators respond"],
+        messages: [
+          { text: matchingRows[0]["cerfa"] },
+        ],
       });
+    } else {
+      response.json(Utilities.dropToLiveChat(request.query));
     }
   });
 });

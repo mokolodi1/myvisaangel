@@ -1334,6 +1334,9 @@ describe('My Visa Bot API', () => {
 
             response.body.should.be.deep.eql({
               redirect_to_blocks: ["Silent creators respond"],
+              set_attributes: {
+                nlp_disabled: "yes",
+              },
             });
 
             done();
@@ -1520,6 +1523,9 @@ describe('My Visa Bot API', () => {
 
             response.body.should.be.deep.eql({
               redirect_to_blocks: ["Silent creators respond"],
+              set_attributes: {
+                nlp_disabled: "yes",
+              },
             });
 
             done();
@@ -1665,6 +1671,46 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      it("should ask for more info for all info if needed", (done) => {
+        chai.request(server)
+          .get('/v1/tds_all_info?selected_tds=')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                  "de quelques informations complémentaires",
+                },
+              ],
+              redirect_to_blocks: [
+                "Select TDS type",
+                "TDS all info",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should drop into live chat if all info not defined", (done) => {
+        chai.request(server)
+          .get('/v1/tds_all_info?selected_tds=nope')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: ["Silent creators respond"],
+              set_attributes: {
+                nlp_disabled: "yes",
+              },
+            });
+
+            done();
+          });
+      });
+
       it("should give all info for commercant", (done) => {
         chai.request(server)
           .get('/v1/tds_all_info?selected_tds=commercant')
@@ -1708,6 +1754,64 @@ describe('My Visa Bot API', () => {
                       "condamnation ou d'interdiction d'exercice."
                 }
               ]
+            });
+
+            done();
+          });
+      });
+
+      it("should ask for more info for cerfa if needed", (done) => {
+        chai.request(server)
+          .get('/v1/tds_cerfa?selected_tds=')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                  "de quelques informations complémentaires",
+                },
+              ],
+              redirect_to_blocks: [
+                "Select TDS type",
+                "TDS cerfa",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should drop into live chat if not defined", (done) => {
+        chai.request(server)
+          .get('/v1/tds_cerfa?selected_tds=nope')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: ["Silent creators respond"],
+              set_attributes: {
+                nlp_disabled: "yes",
+              },
+            });
+
+            done();
+          });
+      });
+
+      it("should give the cerfa for the APS", (done) => {
+        chai.request(server)
+          .get('/v1/tds_cerfa?selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pas besoin de cerfa pour l'APS",
+                },
+              ],
             });
 
             done();
