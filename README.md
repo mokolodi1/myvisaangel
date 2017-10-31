@@ -138,18 +138,20 @@ tmux
 
 6. Give it a shot: http://b2.myvisaangel.com/v1/ping
 
-### Deploying the beta
+### Deploying from the beta to production
 
-0. Test `MVA Beta`
-1. Relaunch and start watching the logs for the beta: `BOX_NUMBER=b4 ./scripts/prod_start.sh`
-2. Disconnect the beta bot from `MVA Beta` on Chatfuel
-3. Disconnect the old prod bot from `My Visa Angel` on Chatfuel
-4. Connect the beta bot to `My Visa Angel` on Chatfuel
-5. Test `My Visa Angel` (the new production bot)
-6. Change `api.myvisaangel.com` IP to the latest IP on [Hover](https://www.hover.com/control_panel/domain/myvisaangel.com/dns)
-7. Rename `My Visa Angel N production` to `archive`
-8. Rename `My Visa Angel N beta` to `production`
-9. Stop watching logs on the now-production bot
+1. Merge the latest PR, and `git pull` on the new box
+2. Relaunch on the new box: `BOX_NUMBER=b4 ./scripts/prod_start.sh`
+3. Watch [the logs](https://docs.google.com/spreadsheets/d/1rwp_fErdkFWw-5YNjnbFGPp7XpJjbQFteMxpopdzF1A/edit#gid=1859852654) and `tail -f ~/chatbot_logs.txt`, test `MVA Beta` one last time
+4. Make sure no one is using `My Visa Angel`
+5. Disconnect the beta bot from `MVA Beta` on Chatfuel
+6. Update the `api` record with the latest IP on [Hover](https://www.hover.com/control_panel/domain/myvisaangel.com/dns)
+7. Open both the `My Visa Angel` and `MVA Beta` in tabs
+8. Disconnect the old prod bot from `My Visa Angel` on Chatfuel
+9. Connect the beta bot to `My Visa Angel` on Chatfuel
+10. Test `My Visa Angel` (the new production bot). (Could take up to 5 minutes for DNS to propagate.)
+11. Rename `My Visa Angel N production` to `archive`
+12. Rename `My Visa Angel N beta` to `production`
 
 ## Manu is down! Help!
 
