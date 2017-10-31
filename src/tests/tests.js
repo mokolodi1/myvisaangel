@@ -1373,7 +1373,13 @@ describe('My Visa Bot API', () => {
                   text: "Voici la liste de papiers pour un titre de séjour APS à Nanterre : " +
                   "https://drive.google.com/open?" +
                   "id=1W0IMm0EeZc5Q_KwYuud-VmDSfvMqRhuj2dnRPIw4Xgs",
-                }
+                },
+                {
+                  text: "D'ailleurs, nous te serions très reconnaissants si une " +
+                      "fois ton dossier déposé, tu pouvais nous faire un retour " +
+                      "d'expérience sur ta préfecture pour enrichir notre base " +
+                      "de données 😍",
+                },
               ]
             });
 

@@ -597,6 +597,12 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
                 `${tdsTypes[selected_tds].name} à Nanterre : ` +
                 nanterreRows[0]["lien"],
           },
+          {
+            text: "D'ailleurs, nous te serions très reconnaissants si une " +
+                "fois ton dossier déposé, tu pouvais nous faire un retour " +
+                "d'expérience sur ta préfecture pour enrichir notre base " +
+                "de données 😍",
+          }
         ],
       });
     }
