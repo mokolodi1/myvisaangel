@@ -334,6 +334,16 @@ describe('My Visa Bot API', () => {
                             },
                             {
                               block_names: [
+                                "Dossier submission method"
+                              ],
+                              set_attributes: {
+                                selected_tds: "aps",
+                              },
+                              title: "Comment déposer",
+                              type: "show_block",
+                            },
+                            {
+                              block_names: [
                                 "Dossier papers list"
                               ],
                               set_attributes: {
@@ -355,6 +365,16 @@ describe('My Visa Bot API', () => {
                               set_attributes: {
                                 selected_tds: "ptsq"
                               },
+                            },
+                            {
+                              block_names: [
+                                "Dossier submission method"
+                              ],
+                              set_attributes: {
+                                selected_tds: "ptsq",
+                              },
+                              title: "Comment déposer",
+                              type: "show_block",
                             },
                             {
                               block_names: [
@@ -438,6 +458,16 @@ describe('My Visa Bot API', () => {
                               set_attributes: {
                                 selected_tds: "aps"
                               },
+                            },
+                            {
+                              block_names: [
+                                "Dossier submission method"
+                              ],
+                              set_attributes: {
+                                selected_tds: "aps",
+                              },
+                              title: "Comment déposer",
+                              type: "show_block",
                             },
                             {
                               block_names: [

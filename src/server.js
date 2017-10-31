@@ -113,6 +113,16 @@ app.route('/v1/get_visas').get(function(request, response) {
                 },
                 {
                   type: "show_block",
+                  title: "Comment déposer",
+                  block_names: [
+                    "Dossier submission method",
+                  ],
+                  set_attributes: {
+                    selected_tds: tdsSlug
+                  },
+                },
+                {
+                  type: "show_block",
                   title: "Voir liste papiers",
                   block_names: [
                     "Dossier papers list",
