@@ -4,6 +4,7 @@ var _ = require("underscore");
 var express = require("express");
 var Fuse = require("fuse.js");
 const recastai = require('recastai')
+var Slack = require('slack-node');
 
 var app = express();
 var port = process.env.PORT || 3000;
@@ -28,6 +29,9 @@ app.all('*', (request, response, next) => {
 
   next();
 });
+
+// serve static content like images
+app.use('/static', express.static('public'));
 
 app.route('/v1/ping').get(function(request, response) {
   response.json({
@@ -97,26 +101,45 @@ app.route('/v1/get_visas').get(function(request, response) {
           elements: _.map(recommendedSlugs, (tdsSlug) => {
             let tdsInfo = tdsTypes[tdsSlug];
 
+            let subdomain = process.env.NODE_ENV === "dev" ? "dev" : "api";
+
             return {
               title: tdsInfo.name,
               subtitle: tdsInfo.description,
               buttons: tdsInfo.summary_link && [
                 {
-                  type: "web_url",
+                  type: "show_block",
                   title: "Fiche récapitulative",
-                  url: tdsInfo.summary_link,
+                  block_names: [
+                    "TDS all info",
+                  ],
+                  set_attributes: {
+                    selected_tds: tdsSlug
+                  },
                 },
                 {
                   type: "show_block",
+                  title: "Comment déposer",
+                  block_names: [
+                    "Dossier submission method",
+                  ],
+                  set_attributes: {
+                    selected_tds: tdsSlug
+                  },
+                },
+                {
+                  type: "show_block",
+                  title: "Voir liste papiers",
                   block_names: [
                     "Dossier papers list",
                   ],
-                  title: "Voir liste papiers",
                   set_attributes: {
                     selected_tds: tdsSlug
                   },
                 },
               ],
+              image_url: `http://${subdomain}.myvisaangel.com/static/` +
+                  `${tdsSlug}.jpg`,
             };
           }),
         }
@@ -155,8 +178,8 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   let { nationality } = request.query;
 
   if (!nationality && nationality !== "") {
-    response.status(400).send('Missing nationality parameter');
-    return;
+    return Utilities.handleError(undefined, response, 400,
+        "Missing nationality param");
   }
 
   let results = countriesFuse.search(nationality);
@@ -254,14 +277,14 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
   let { prefecture } = request.query;
 
   if (!prefecture && prefecture !== "") {
-    response.status(400).send('Missing prefecture parameter');
-    return;
+    return Utilities.handleError(undefined, response, 400,
+        "Missing prefecture parameter");
   }
 
-  Utilities.getSubmissionMethods((error, result) => {
+  Utilities.submissionMethodSheet((error, result) => {
     if (error) {
-      console.error("Error reading from Google doc:", error);
-      response.status(500).send('Error reading from Google doc');
+      return Utilities.handleError(error, response, 500,
+          "Error reading from Google");
     } else {
       let prefecturesHash = _.reduce(result, (memo, row) => {
         memo[row["préfecture"]] = true;
@@ -370,12 +393,16 @@ app.route('/v1/select_tds').get(function(request, response) {
 });
 
 const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'fr');
+const slack = new Slack();
+slack.setWebhook("https://hooks.slack.com/services/" +
+    "T6NNVGX1A/B7SNPJD3P/imdZum8DJF2PbSHmXLDF0rHy");
 app.route('/v1/nlp').get(function(request, response) {
-  let message = request.query["last user freeform input"];
+  let { query } = request;
+  let message = query["last user freeform input"];
 
   if (!message) {
-    response.status(400).send('Missing "last user freeform input" parameter');
-    return;
+    return Utilities.handleError(undefined, response, 400,
+        "Missing freeform param");
   }
 
   // Recast has a caracter limit
@@ -391,90 +418,94 @@ app.route('/v1/nlp').get(function(request, response) {
       let intent = recastResponse.intent();
       console.log("Recast intent:", intent);
 
-      let { query } = request;
       query.intentSlug = intent && intent.slug;
       query.intentConfidence = intent && intent.confidence;
       Utilities.logInSheet("nlp", query);
 
-      let { nlp_disabled } = request.query;
-      if (nlp_disabled) {
-        response.json({ set_attributes: { nlp_disabled } });
-        return;
-      }
-
-      if (intent && (intent.slug === "dossier-submission-method" ||
-                      intent.slug === "dossier-list-papers")) {
-        var { prefecture, selected_tds } = query;
-
-        // grab prefecture/TDS from Recast if they have been defined
-        let { entities } = recastResponse;
-        if (entities) {
-          // TODO: test this
-          // remove "papiers" from the list of prefecture entries - it
-          // recognizes the word "papiers" as the prefecture "Pamiers"
-          let withoutPapiers = _.filter(entities.prefecture, (entry) => {
-            return Utilities.slugishify(entry.raw) !== "papiers";
-          });
-          if (withoutPapiers && withoutPapiers.length > 0) {
-            let newPrefecture = Utilities.mostConfident(withoutPapiers);
-            prefecture = Utilities.slugishify(newPrefecture.value);
-          }
-
-          let recastTds = Utilities.mostConfident(entities["visa-type"]);
-          if (recastTds) {
-            let tds = Utilities.tdsFromRecast(recastTds.value);
-
-            if (tds) {
-              selected_tds = tds;
-            }
-          }
-        }
-
-        var result = Utilities.prefTdsRequired(prefecture, selected_tds);
-
+      if (intent && !query.nlp_disabled) {
         let blockForIntent = {
           "dossier-submission-method": "Dossier submission method",
           "dossier-list-papers": "Dossier papers list",
-        }[intent.slug];
-        result.redirect_to_blocks.push(blockForIntent);
+          "tds-processing-time": "Dossier processing time",
+          "tds-summary": "TDS summary",
+          "tds-conditions": "TDS conditions",
+          "tds-price": "TDS price",
+          "tds-advantages": "TDS dis/advantages",
+          "tds-disadvantages": "TDS dis/advantages",
+          "tds-duration": "TDS duration",
+          "tds-cerfa": "TDS cerfa",
+        };
 
-        // send these back even if they haven't been modified (but only
-        // if they're defined)
-        if (prefecture || selected_tds) {
-          result.set_attributes = { prefecture, selected_tds };
+        if (blockForIntent[intent.slug]) {
+          var { prefecture, selected_tds } = query;
+
+          // grab prefecture/TDS from Recast if they have been defined
+          let { entities } = recastResponse;
+          if (entities) {
+            // TODO: test this
+            // remove "papiers" from the list of prefecture entries - it
+            // recognizes the word "papiers" as the prefecture "Pamiers"
+            let withoutPapiers = _.filter(entities.prefecture, (entry) => {
+              return Utilities.slugishify(entry.raw) !== "papiers";
+            });
+            if (withoutPapiers && withoutPapiers.length > 0) {
+              let newPrefecture = Utilities.mostConfident(withoutPapiers);
+              prefecture = Utilities.slugishify(newPrefecture.value);
+            }
+
+            let recastTds = Utilities.mostConfident(entities["visa-type"]);
+            if (recastTds) {
+              let tds = Utilities.tdsFromRecast(recastTds.value);
+
+              if (tds) {
+                selected_tds = tds;
+              }
+            }
+          }
+
+          var result = {
+            redirect_to_blocks: [ blockForIntent[intent.slug] ],
+          };
+
+          // send these back even if they haven't been modified (but only
+          // if they're defined)
+          if (prefecture || selected_tds) {
+            result.set_attributes = { prefecture, selected_tds };
+          }
+
+          response.json(result);
+          return;
+        } else if (intent.slug === "tds-recommendation") {
+          response.json({
+            redirect_to_blocks: [ "TDS Questions" ],
+          });
+          return;
+        } else if (intent.slug === "greetings") {
+          response.json({
+            messages: [
+              {
+                text: `Bonjour, ${query["first name"]} !`
+              }
+            ],
+          });
+          return;
+        } else if (intent.slug === "thanks") {
+          response.json({
+            messages: [
+              {
+                text: "Je t'en prie. C'etait un plaisir de parler avec toi 🙂"
+              }
+            ],
+          });
+          return;
         }
-
-        response.json(result);
-      } else if (intent && intent.slug === "tds-recommendation") {
-        response.json({
-          redirect_to_blocks: [ "TDS Questions" ],
-        });
-      } else if (intent && intent.slug === "greetings") {
-        response.json({
-          messages: [
-            {
-              text: `Bonjour, ${query["first name"]} !`
-            }
-          ],
-        });
-      } else if (intent && intent.slug === "thanks") {
-        response.json({
-          messages: [
-            {
-              text: "Je t'en prie. C'etait un plaisir de parler avec toi 🙂"
-            }
-          ],
-        });
-      } else {
-        response.json({
-          redirect_to_blocks: ["Silent creators respond"],
-        });
       }
+
+      response.json(Utilities.dropToLiveChat(query));
     })
     .catch(function (error) {
-      console.error("Error dealing with Recast:", error);
-
-      response.status(500).send("Problem connecting with Recast.ai");
+      return Utilities.handleError(error, response, 500,
+            "Error dealing with recast");
     });
 });
 
@@ -490,11 +521,10 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
     return;
   }
 
-  Utilities.getSubmissionMethods((error, result) => {
+  Utilities.submissionMethodSheet((error, result) => {
     if (error) {
-      console.error("error:", error);
-      response.status(500).send("Error getting the prefecture submission info");
-      return;
+      return Utilities.handleError(error, response, 500,
+            "Error getting the prefecture submission info");
     }
 
     let matchingRows = _.chain(result)
@@ -532,7 +562,19 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
       });
     } else {
       response.json({
-        redirect_to_blocks: ["Silent creators respond"],
+        messages: [
+          {
+            text: "Pour le moment nous n'avons la procedure pour la " +
+            `préfecture de ${Data.slugToPrefecture[prefecture]} dans notre ` +
+            "base de données.",
+          },
+          {
+            text: "D'ailleurs, nous te serions très reconnaissants si une " +
+                "fois ton dossier déposé, tu pouvais nous faire un retour " +
+                "d'expérience sur ta préfecture pour enrichir notre base " +
+                "de données 😍",
+          },
+        ],
       });
     }
   });
@@ -550,11 +592,10 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
     return;
   }
 
-  Utilities.getPapersList((error, result) => {
+  Utilities.papersListSheet((error, result) => {
     if (error) {
-      console.error("error:", error);
-      response.status(500).send("Error getting the prefecture papers list");
-      return;
+      return Utilities.handleError(error, response, 500,
+            "Error getting the submission information");
     }
 
     let matchingRows = _.where(result, {
@@ -594,8 +635,179 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
                 `${tdsTypes[selected_tds].name} à Nanterre : ` +
                 nanterreRows[0]["lien"],
           },
+          {
+            text: "D'ailleurs, nous te serions très reconnaissants si une " +
+                "fois ton dossier déposé, tu pouvais nous faire un retour " +
+                "d'expérience sur ta préfecture pour enrichir notre base " +
+                "de données 😍",
+          }
         ],
       });
+    }
+  });
+});
+
+app.route('/v1/dossier_processing_time').get(function(request, response) {
+  let { selected_tds, prefecture } = request.query;
+
+  if (!selected_tds || !prefecture) {
+    var result = Utilities.prefTdsRequired(prefecture, selected_tds);
+
+    result.redirect_to_blocks.push("Dossier processing time");
+
+    response.json(result);
+    return;
+  }
+
+  Utilities.processingTimeSheet((error, result) => {
+    if (error) {
+      return Utilities.handleError(error, response, 500,
+            "Error getting the submission information");
+    }
+
+    let matchingRows = _.where(result, {
+      tdsSlug: selected_tds,
+      prefectureSlug: prefecture,
+    });
+
+    if (matchingRows.length > 0 && matchingRows[0]["délai"]) {
+      let delayText = matchingRows[0]["délai"].replace(/\n/g, ' ');
+
+      response.json({
+        messages: [
+          {
+            text: `Normalement ${delayText} pour le ` +
+                `${tdsTypes[selected_tds].name} à ` +
+                `${Data.slugToPrefecture[prefecture]}`,
+          },
+        ],
+      });
+    } else {
+      response.json({
+        messages: [
+          {
+            text: "Nous n'avons pas encore des retours sur les délais pour " +
+                "cette procédure. N'hésite pas à nous faire un retour " +
+                "d'expérience quand tu auras fait les démarches afin de " +
+                "pouvoir aider la communauté 😉"
+          }
+        ],
+      });
+    }
+  });
+});
+
+function tdsInformation(request, response, blockName, sheetColumn) {
+  let { selected_tds } = request.query;
+
+  if (!selected_tds) {
+    response.json(Utilities.tdsRequired(blockName));
+    return;
+  }
+
+  Utilities.tdsInfoSheet((error, result) => {
+    if (error) {
+      return Utilities.handleError(error, response, 500,
+          "Error getting the TDS info");
+    }
+
+    let matchingRows = _.where(result, {
+      tdsSlug: selected_tds,
+    });
+
+    if (matchingRows.length > 0 && matchingRows[0][sheetColumn]) {
+      response.json({
+        messages: [
+          {
+            text: matchingRows[0][sheetColumn],
+          },
+        ],
+      });
+    } else {
+      response.json(Utilities.dropToLiveChat(request.query));
+    }
+  });
+}
+app.route('/v1/tds_summary').get(function(request, response) {
+  tdsInformation(request, response, "TDS summary", "présentation");
+});
+app.route('/v1/tds_duration').get(function(request, response) {
+  tdsInformation(request, response, "TDS duration", "durée");
+});
+app.route('/v1/tds_price').get(function(request, response) {
+  tdsInformation(request, response, "TDS price", "coût");
+});
+app.route('/v1/tds_advantages').get(function(request, response) {
+  tdsInformation(request, response, "TDS dis/advantages", "avantages");
+});
+app.route('/v1/tds_disadvantages').get(function(request, response) {
+  tdsInformation(request, response, "TDS dis/advantages", "inconvénients");
+});
+app.route('/v1/tds_conditions').get(function(request, response) {
+  tdsInformation(request, response, "TDS conditions", "conditions");
+});
+
+app.route('/v1/tds_all_info').get(function(request, response) {
+  let { selected_tds } = request.query;
+
+  if (!selected_tds) {
+    response.json(Utilities.tdsRequired("TDS all info"));
+    return;
+  }
+
+  Utilities.tdsInfoSheet((error, result) => {
+    if (error) {
+      return Utilities.handleError(error, response, 500,
+          "Error getting the TDS info");
+    }
+
+    let matchingRows = _.where(result, {
+      tdsSlug: selected_tds,
+    });
+
+    if (matchingRows.length > 0 && matchingRows[0]) {
+      response.json({
+        messages: [
+          { text: matchingRows[0]["présentation"] },
+          { text: matchingRows[0]["durée"] },
+          { text: matchingRows[0]["coût"] },
+          { text: matchingRows[0]["avantages"] },
+          { text: matchingRows[0]["inconvénients"] },
+          { text: matchingRows[0]["conditions"] },
+        ],
+      });
+    } else {
+      response.json(Utilities.dropToLiveChat(request.query));
+    }
+  });
+});
+
+app.route('/v1/tds_cerfa').get(function (request, response) {
+  let { selected_tds } = request.query;
+
+  if (!selected_tds) {
+    response.json(Utilities.tdsRequired("TDS cerfa"));
+    return;
+  }
+
+  Utilities.cerfaSheet((error, result) => {
+    if (error) {
+      return Utilities.handleError(error, repsonse, 500,
+          "Error getting the cerfa info");
+    }
+
+    let matchingRows = _.where(result, {
+      tdsSlug: selected_tds,
+    });
+
+    if (matchingRows.length > 0 && matchingRows[0]) {
+      response.json({
+        messages: [
+          { text: matchingRows[0]["cerfa"] },
+        ],
+      });
+    } else {
+      response.json(Utilities.dropToLiveChat(request.query));
     }
   });
 });

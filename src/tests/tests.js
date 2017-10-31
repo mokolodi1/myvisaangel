@@ -38,7 +38,7 @@ describe('My Visa Bot API', () => {
         result.should.be.deep.eql({
           messages: [
             {
-              "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
+              text: "⚠️ Attention, ton pays a un accord spécial avec la " +
                   "France qui change les choses suivantes pour l'APS :\n" +
                   "Condition de durée : 9 mois à la place de 12\n" +
                   "Condition de diplôme : Diplôme au moins équivalent " +
@@ -61,7 +61,7 @@ describe('My Visa Bot API', () => {
         result.should.be.deep.eql({
           messages: [
             {
-              "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
+              text: "⚠️ Attention, ton pays a un accord spécial avec la " +
                   "France qui change les choses suivantes pour l'APS :\n" +
                   "Condition de durée : 9 mois à la place de 12\n" +
                   "Renouvellement : renouvelable une fois\n" +
@@ -267,7 +267,7 @@ describe('My Visa Bot API', () => {
   });
 
 
-  describe("Check to see if some dev ops stuff works...", () => {
+  describe("Check to see if some general/dev-ops stuff works...", () => {
     it("should be able able to recover from a crash", (done) => {
       chai.request(server)
         .get('/private/crash')
@@ -275,6 +275,17 @@ describe('My Visa Bot API', () => {
           console.log("err:", err);
           done();
       });
+    });
+
+    it("should be able to get an image", function (done) {
+      chai.request(server)
+        .get('/static/aps.jpg')
+        .end((err, response) => {
+          response.should.have.status(200);
+          // TODO: check image data
+
+          done();
+        });
     });
   });
 
@@ -323,10 +334,24 @@ describe('My Visa Bot API', () => {
                               "un emploi ou créer une entreprise",
                           buttons: [
                             {
-                              type: "web_url",
+                              type: "show_block",
                               title: "Fiche récapitulative",
-                              url: "https://docs.google.com/document/d/" +
-                                "1OakbDux-SRj4aqHgkiQRUWgrWTxBVlPxeNYI9bh5mww/",
+                              block_names: [
+                                "TDS all info",
+                              ],
+                              set_attributes: {
+                                selected_tds: "aps"
+                              },
+                            },
+                            {
+                              block_names: [
+                                "Dossier submission method"
+                              ],
+                              set_attributes: {
+                                selected_tds: "aps",
+                              },
+                              title: "Comment déposer",
+                              type: "show_block",
                             },
                             {
                               block_names: [
@@ -339,14 +364,29 @@ describe('My Visa Bot API', () => {
                               type: "show_block",
                             },
                           ],
+                          image_url: "http://dev.myvisaangel.com/static/aps.jpg",
                         },
                         {
                           "buttons": [
                             {
-                              "title": "Fiche récapitulative",
-                              "type": "web_url",
-                              "url": "https://docs.google.com/document/d/" +
-                                "1TXg9zsDfzhgkPRl6pAWKJ7S0F02giJ-o9R1ry8NqAMo/",
+                              type: "show_block",
+                              title: "Fiche récapitulative",
+                              block_names: [
+                                "TDS all info",
+                              ],
+                              set_attributes: {
+                                selected_tds: "ptsq"
+                              },
+                            },
+                            {
+                              block_names: [
+                                "Dossier submission method"
+                              ],
+                              set_attributes: {
+                                selected_tds: "ptsq",
+                              },
+                              title: "Comment déposer",
+                              type: "show_block",
                             },
                             {
                               block_names: [
@@ -362,6 +402,7 @@ describe('My Visa Bot API', () => {
                           "subtitle": "Ce titre pluriannuel t'autorise à " +
                               "travailler, créer une entreprise ou investir",
                           "title": "Passeport Talent Salarié Qualifié",
+                          image_url: "http://dev.myvisaangel.com/static/ptsq.jpg",
                         },
                       ],
                     }
@@ -422,10 +463,24 @@ describe('My Visa Bot API', () => {
                               "un emploi ou créer une entreprise",
                           buttons: [
                             {
-                              type: "web_url",
+                              type: "show_block",
                               title: "Fiche récapitulative",
-                              url: "https://docs.google.com/document/d/" +
-                                "1OakbDux-SRj4aqHgkiQRUWgrWTxBVlPxeNYI9bh5mww/",
+                              block_names: [
+                                "TDS all info",
+                              ],
+                              set_attributes: {
+                                selected_tds: "aps"
+                              },
+                            },
+                            {
+                              block_names: [
+                                "Dossier submission method"
+                              ],
+                              set_attributes: {
+                                selected_tds: "aps",
+                              },
+                              title: "Comment déposer",
+                              type: "show_block",
                             },
                             {
                               block_names: [
@@ -436,8 +491,9 @@ describe('My Visa Bot API', () => {
                               },
                               title: "Voir liste papiers",
                               type: "show_block",
-                            }
+                            },
                           ],
+                          image_url: "http://dev.myvisaangel.com/static/aps.jpg",
                         },
                       ],
                     }
@@ -981,6 +1037,9 @@ describe('My Visa Bot API', () => {
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
               redirect_to_blocks: ["Silent creators respond"],
+              set_attributes: {
+                nlp_disabled: "yes",
+              },
             });
 
             done();
@@ -994,15 +1053,7 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
               redirect_to_blocks: [
-                "Ask for prefecture",
-                "Select TDS type",
                 "Dossier submission method",
               ],
             });
@@ -1038,17 +1089,10 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
               set_attributes: {
                 selected_tds: "ptsq",
               },
               redirect_to_blocks: [
-                "Ask for prefecture",
                 "Dossier submission method",
               ],
             });
@@ -1064,17 +1108,10 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
               set_attributes: {
                 prefecture: "paris",
               },
               redirect_to_blocks: [
-                "Select TDS type",
                 "Dossier submission method",
               ],
             });
@@ -1110,15 +1147,7 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
               redirect_to_blocks: [
-                "Ask for prefecture",
-                "Select TDS type",
                 "Dossier papers list",
               ],
             });
@@ -1134,17 +1163,10 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
               set_attributes: {
                 prefecture: "pamiers",
               },
               redirect_to_blocks: [
-                "Select TDS type",
                 "Dossier papers list",
               ],
             });
@@ -1214,6 +1236,7 @@ describe('My Visa Bot API', () => {
 
             // TODO: this will change!
             response.body.should.be.deep.eql({
+              redirect_to_blocks: ["Silent creators respond"],
               set_attributes: {
                 nlp_disabled: "yes"
               }
@@ -1295,12 +1318,23 @@ describe('My Visa Bot API', () => {
 
       it("should help users if we don't have the info yet", (done) => {
         chai.request(server)
-          .get('/v1/dossier_submission_method?prefecture=nyc&selected_tds=aps')
+          .get('/v1/dossier_submission_method?prefecture=nope&selected_tds=aps')
           .end((err, response) => {
             response.should.have.status(200);
 
             response.body.should.be.deep.eql({
-              redirect_to_blocks: ["Silent creators respond"],
+              messages: [
+                {
+                  text: "Pour le moment nous n'avons la procedure pour la " +
+                  "préfecture de NOPE dans notre base de données.",
+                },
+                {
+                  text: "D'ailleurs, nous te serions très reconnaissants si une " +
+                      "fois ton dossier déposé, tu pouvais nous faire un retour " +
+                      "d'expérience sur ta préfecture pour enrichir notre base " +
+                      "de données 😍",
+                },
+              ],
             });
 
             done();
@@ -1359,7 +1393,6 @@ describe('My Visa Bot API', () => {
           .end((err, response) => {
             response.should.have.status(200);
 
-            // TODO: this will change!
             response.body.should.be.deep.eql({
               messages: [
                 {
@@ -1374,8 +1407,408 @@ describe('My Visa Bot API', () => {
                   text: "Voici la liste de papiers pour un titre de séjour APS à Nanterre : " +
                   "https://drive.google.com/open?" +
                   "id=1W0IMm0EeZc5Q_KwYuud-VmDSfvMqRhuj2dnRPIw4Xgs",
+                },
+                {
+                  text: "D'ailleurs, nous te serions très reconnaissants si une " +
+                      "fois ton dossier déposé, tu pouvais nous faire un retour " +
+                      "d'expérience sur ta préfecture pour enrichir notre base " +
+                      "de données 😍",
+                },
+              ]
+            });
+
+            done();
+          });
+      });
+    });
+
+    describe('/GET /v1/dossier_processing_time', () => {
+      it("should fail if missing parameters", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_processing_time')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                      "de quelques informations complémentaires",
+                },
+              ],
+              redirect_to_blocks: [
+                "Ask for prefecture",
+                "Select TDS type",
+                "Dossier processing time",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should help users if they have the info", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_processing_time?prefecture=antony&selected_tds=ptsq')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Normalement 5 mois environ (REX d'avril 2017) " +
+                      "pour le Passeport Talent Salarié Qualifié à Antony"
                 }
               ]
+            });
+
+            done();
+          });
+      });
+
+      it("return an apology if we don't have the info", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_processing_time?prefecture=nope&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Nous n'avons pas encore des retours sur les délais pour " +
+                      "cette procédure. N'hésite pas à nous faire un retour " +
+                      "d'expérience quand tu auras fait les démarches afin de " +
+                      "pouvoir aider la communauté 😉",
+                },
+              ]
+            });
+
+            done();
+          });
+      });
+    });
+
+    describe('/GET TDS info routes', () => {
+      it("should ask for more info if missing parameters", (done) => {
+        chai.request(server)
+          .get('/v1/tds_duration')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                      "de quelques informations complémentaires",
+                },
+              ],
+              redirect_to_blocks: [
+                "Select TDS type",
+                "TDS duration",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should drop into live chat if not defined", (done) => {
+        chai.request(server)
+          .get('/v1/tds_summary?selected_tds=nope')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: ["Silent creators respond"],
+              set_attributes: {
+                nlp_disabled: "yes",
+              },
+            });
+
+            done();
+          });
+      });
+
+      it("should give tds summary for aps", (done) => {
+        chai.request(server)
+          .get('/v1/tds_summary?selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "L’Autorisation Provisoire de Séjour est donnée aux " +
+                      "étudiants étrangers récemment diplômés d’un " +
+                      "établissement français et qui veulent : \n" +
+                      "- Créer une entreprise dans un domaine correspondant" +
+                      " à leur formation.\n" +
+                      "- Chercher et exercer un emploi : En relation avec " +
+                      "leur formation Avec une rémunération au moins égale " +
+                      "à 2 220,40€ bruts mensuels (c’est-à-dire 2 fois le " +
+                      "SMIC) et conforme au minimum conventionnel ou aux " +
+                      "salaires pratiqués dans la branche. ",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should give the duration for ptsq", (done) => {
+        chai.request(server)
+          .get('/v1/tds_duration?selected_tds=ptsq')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "La durée du passeport talent mention salarié " +
+                      "qualifié est de 4 ans (renouvelable)",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should give the price for salarie_tt", (done) => {
+        chai.request(server)
+          .get('/v1/tds_price?selected_tds=salarie_tt')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "- Mention Salarié : 269€\n" +
+                      "- Mention Travailleur temporaire : 19€",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should give the advantages for vpf", (done) => {
+        chai.request(server)
+          .get('/v1/tds_advantages?selected_tds=vpf')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Avantages d'une carte de séjour vie privée et " +
+                      "familiale :\n- On peut changer d’employeur autant " +
+                      "qu’on le souhaite, sans avoir à notifier la " +
+                      "préfecture. \n- Elle autorise son détenteur à " +
+                      "travailler en CDD, CDI, être au chômage ou encore " +
+                      "créer son entreprise, sans avoir besoin de fournir " +
+                      "des justificatifs."
+                },
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should give the disadvantages for vpf", (done) => {
+        chai.request(server)
+          .get('/v1/tds_disadvantages?selected_tds=vpf')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Inconvénients de la carte vie privée et familiale :\n" +
+                      "Tu es lié à ton/ta concubin(e) et si jamais vous vous " +
+                      "séparez, tu devras demander un changement de statut " +
+                      "pour changer de titre de séjour.",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should give the conditions for commercant", (done) => {
+        chai.request(server)
+          .get('/v1/tds_conditions?selected_tds=commercant')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Conditions pour obtenir une carte commerçant :\n" +
+                      "- Justifier d'une activité viable sur le plan " +
+                      "économique ou, s'il intègre une entreprise existante, " +
+                      "de sa capacité à lui verser une rémunération " +
+                      "suffisante (au moins égale au Smic),\n" +
+                      "- Justifier d'une activité compatible avec la " +
+                      "sécurité, la salubrité et la tranquillité publique,\n" +
+                      "- Respecter les obligations de cette profession " +
+                      "(conditions de diplômes ou d'expérience " +
+                      "professionnelle, par exemple),\n" +
+                      "- Absence de condamnation ou d'interdiction " +
+                      "d'exercice.",
+                },
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should ask for more info for all info if needed", (done) => {
+        chai.request(server)
+          .get('/v1/tds_all_info?selected_tds=')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                  "de quelques informations complémentaires",
+                },
+              ],
+              redirect_to_blocks: [
+                "Select TDS type",
+                "TDS all info",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should drop into live chat if all info not defined", (done) => {
+        chai.request(server)
+          .get('/v1/tds_all_info?selected_tds=nope')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: ["Silent creators respond"],
+              set_attributes: {
+                nlp_disabled: "yes",
+              },
+            });
+
+            done();
+          });
+      });
+
+      it("should give all info for commercant", (done) => {
+        chai.request(server)
+          .get('/v1/tds_all_info?selected_tds=commercant')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "C'est une carte de séjour temporaire qui permet " +
+                      "d'exercer une activité commerciale, industrielle, " +
+                      "artisanale ou autre profession non salariée sur le " +
+                      "territoire français pendant plus de 3 mois."
+                },
+                {
+                  text: "La durée de la carte commerçant est de  1 an " +
+                      "(renouvelable)"
+                },
+                {
+                  text: "Le prix d'une carte de séjour commerçant est de 269€"
+                },
+                {
+                  text: "Avantages d'une carte de séjour commerçant :\n- " +
+                      "Permet d'exercer une activité non-salariée."
+                },
+                {
+                  text: "Inconvénients de la carte commerçant :\nTu ne peux " +
+                      "pas exercer une activité salariée (CDD, CDI, intérim)."
+                },
+                {
+                  text: "Conditions pour obtenir une " +
+                      "carte commerçant :\n- Justifier d'une activité " +
+                      "viable sur le plan économique ou, s'il intègre une " +
+                      "entreprise existante, de sa capacité à lui verser " +
+                      "une rémunération suffisante (au moins égale au Smic)," +
+                      "\n- Justifier d'une activité compatible avec la " +
+                      "sécurité, la salubrité et la tranquillité " +
+                      "publique,\n- Respecter les obligations de cette " +
+                      "profession (conditions de diplômes ou d'expérience " +
+                      "professionnelle, par exemple),\n- Absence de " +
+                      "condamnation ou d'interdiction d'exercice."
+                }
+              ]
+            });
+
+            done();
+          });
+      });
+
+      it("should ask for more info for cerfa if needed", (done) => {
+        chai.request(server)
+          .get('/v1/tds_cerfa?selected_tds=')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                  "de quelques informations complémentaires",
+                },
+              ],
+              redirect_to_blocks: [
+                "Select TDS type",
+                "TDS cerfa",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should drop into live chat if not defined", (done) => {
+        chai.request(server)
+          .get('/v1/tds_cerfa?selected_tds=nope')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: ["Silent creators respond"],
+              set_attributes: {
+                nlp_disabled: "yes",
+              },
+            });
+
+            done();
+          });
+      });
+
+      it("should give the cerfa for the APS", (done) => {
+        chai.request(server)
+          .get('/v1/tds_cerfa?selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pas besoin de cerfa pour l'APS",
+                },
+              ],
             });
 
             done();

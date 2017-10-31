@@ -36,6 +36,7 @@
     "google-spreadsheet": "^2.0.4",
     "qs": "^6.5.1",
     "recastai": "^3.4.1",
+    "slack-node": "^0.1.8",
     "underscore": "^1.8.3"
   }
 }

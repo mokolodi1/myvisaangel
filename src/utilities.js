@@ -172,26 +172,26 @@ _.each(Data.countries, (country) => {
   country.slugishNames = _.map(names, slugishify);
 });
 
-const DOC_CACHE_TIMEOUT = 10000;
+const CACHE_TIMEOUT = 1000 * 60; // one minute
 var googleCredentials =
     require('../private/myvisaangel-f24414135324-service-account.json');
 // keyed by doc ID; each entry has lastUpdate and rows attributes
-var cachedDocs = {};
+var cachedSheets = {};
 
-function getDoc(docId, callback) {
-  let cachedDoc = cachedDocs[docId];
+function getDBSheet(sheetNumber, callback) {
+  let cachedSheet = cachedSheets[sheetNumber];
 
-  if (cachedDoc && new Date() - cachedDoc.lastUpdate < DOC_CACHE_TIMEOUT) {
-    callback(undefined, cachedDoc.rows);
+  if (cachedSheet && new Date() - cachedSheet.lastUpdate < CACHE_TIMEOUT) {
+    callback(undefined, cachedSheet.rows);
     return;
   }
 
-  let doc = new GoogleSpreadsheet(docId);
+  let doc = new GoogleSpreadsheet('1vh6x3xjP8PQuKG2_jFHKsLJQAZ6kCtXdORJS3cXoDkY');
 
   doc.useServiceAccountAuth(googleCredentials, (error, result) => {
     if (error) { callback(error, undefined); return; }
 
-    doc.getRows(1, { offset: 0, limit: 1000 }, (error, rows) => {
+    doc.getRows(sheetNumber, { offset: 0, limit: 1000 }, (error, rows) => {
       if (error) { callback(error, undefined); return; }
 
       // add some useful computer-generated info onto the result
@@ -204,12 +204,18 @@ function getDoc(docId, callback) {
       }
 
       _.each(rows, (row) => {
-        row.tdsSlug = tdsTypeMap[row["typededemande"]];
+        // two separate if statements seemed more bizarre than executing
+        // these two if statements iteration
+        if (row["typededemande"]) {
+          row.tdsSlug = tdsTypeMap[row["typededemande"]];
+        }
 
-        row.prefectureSlug = slugishify(row["préfecture"]);
+        if (row["préfecture"]) {
+          row.prefectureSlug = slugishify(row["préfecture"]);
+        }
       });
 
-      cachedDocs[docId] = {
+      cachedSheets[sheetNumber] = {
         lastUpdate: new Date(),
         rows,
       };
@@ -219,14 +225,22 @@ function getDoc(docId, callback) {
   });
 }
 
-function getSubmissionMethods(callback) {
-  // https://docs.google.com/spreadsheets/d/1_16hf6MZ8aqPt8qJQXE_-3Bh6hUo5ZZ0oAcPJ2g2i4U/edit#gid=1002124185
-  return getDoc('1_16hf6MZ8aqPt8qJQXE_-3Bh6hUo5ZZ0oAcPJ2g2i4U', callback);
+// Master DB:
+// https://docs.google.com/spreadsheets/d/1vh6x3xjP8PQuKG2_jFHKsLJQAZ6kCtXdORJS3cXoDkY/edit#gid=1002124185
+function papersListSheet(callback) {
+  return getDBSheet(1, callback);
 }
-
-function getPapersList(callback) {
-  // https://docs.google.com/spreadsheets/d/1siXjOK8OCE1UJER5khZmknJVrfQGsBraQt7AoXwPkks/edit#gid=1002124185
-  return getDoc('1siXjOK8OCE1UJER5khZmknJVrfQGsBraQt7AoXwPkks', callback);
+function submissionMethodSheet(callback) {
+  return getDBSheet(2, callback);
+}
+function processingTimeSheet(callback) {
+  return getDBSheet(3, callback);
+}
+function tdsInfoSheet(callback) {
+  return getDBSheet(4, callback);
+}
+function cerfaSheet(callback) {
+  return getDBSheet(5, callback);
 }
 
 var gitHash = require('child_process')
@@ -324,13 +338,63 @@ function prefTdsRequired(prefecture, selected_tds) {
   return result;
 }
 
+function tdsRequired(lastBlockName) {
+  return {
+    messages: [
+      {
+        text: "Pour t'aider j'ai besoin " +
+            "de quelques informations complémentaires",
+      },
+    ],
+    redirect_to_blocks: [
+      "Select TDS type",
+      lastBlockName,
+    ],
+  };
+}
+
+function dropToLiveChat(query) {
+  if (process.env.NODE_ENV !== "dev") {
+    slack.webhook({
+      channel: "#livechat",
+      username: "teo-clone",
+      text: `New message from ${query["first name"]} ` +
+          `${query["last name"]}: https://www.facebook.com/My-Visa-Angel-` +
+          "108759689812666/inbox/?selected_item_id=" +
+          `${query["messenger user id"]} \`\`\`${message}\`\`\``,
+      icon_emoji: ":mailbox_with_mail:",
+    }, function(err, response) {});
+  }
+
+  return {
+    redirect_to_blocks: ["Silent creators respond"],
+    set_attributes: {
+      nlp_disabled: "yes",
+    },
+  };
+}
+
+function handleError(error, response, errorNumber, errorMessage) {
+  console.error(`HTTP=${errorNumber}\t${errorMessage}`);
+  console.error(error);
+  response.status(errorNumber).send(errorMessage);
+}
+
+
+
 module.exports = {
   slugishify,
   cleanVisaQuery,
-  getSubmissionMethods,
-  getPapersList,
+  papersListSheet,
+  submissionMethodSheet,
+  processingTimeSheet,
+  tdsInfoSheet,
+  cerfaSheet,
   logInSheet,
   mostConfident,
   tdsFromRecast,
   prefTdsRequired,
+  tdsRequired,
+  dropToLiveChat,
+  handleError,
 }
