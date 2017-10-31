@@ -1318,7 +1318,7 @@ describe('My Visa Bot API', () => {
 
       it("should help users if we don't have the info yet", (done) => {
         chai.request(server)
-          .get('/v1/dossier_submission_method?prefecture=nyc&selected_tds=aps')
+          .get('/v1/dossier_submission_method?prefecture=nope&selected_tds=aps')
           .end((err, response) => {
             response.should.have.status(200);
 
