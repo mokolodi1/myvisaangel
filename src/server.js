@@ -565,7 +565,8 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
         messages: [
           {
             text: "Pour le moment nous n'avons la procedure pour la " +
-            "préfecture de NOPE dans notre base de données.",
+            `préfecture de ${Data.slugToPrefecture[prefecture]} dans notre ` +
+            "base de données.",
           },
           {
             text: "D'ailleurs, nous te serions très reconnaissants si une " +
