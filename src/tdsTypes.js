@@ -10,11 +10,13 @@ var tdsTypes = {
         "1OakbDux-SRj4aqHgkiQRUWgrWTxBVlPxeNYI9bh5mww/",
     description: "L'APS te permet de chercher, exercer un emploi ou créer " +
         "une entreprise",
+    photo_url: "http://myvisaangel.com/static/aps.jpg",
   },
   vpf: {
     name: "Vie Privée et Familiale",
     description: "Ce titre t'autorise à travailler en France (comme salarié " +
         "ou non-salarié)",
+    photo_url: "http://myvisaangel.com/static/vpf.jpg",
   },
   ptsq: {
     name: "Passeport Talent Salarié Qualifié",
@@ -22,6 +24,7 @@ var tdsTypes = {
         "1TXg9zsDfzhgkPRl6pAWKJ7S0F02giJ-o9R1ry8NqAMo/",
     description: "Ce titre pluriannuel t'autorise à travailler, créer une " +
         "entreprise ou investir",
+    photo_url: "http://myvisaangel.com/static/ptsq.jpg",
   },
   salarie_tt: {
     name: "Salarié/Travailleur Temporaire",
@@ -29,11 +32,13 @@ var tdsTypes = {
         "1lb-4yLRCsyLbEVO_xUxDnUOHiBF5HC9IJTWA86_JDwo/",
     description: "Porte la mention Salarié si tu as un CDI / Travailler " +
         "temporaire si tu as un CDD",
+    photo_url: "http://myvisaangel.com/static/salarie_tt.jpg",
   },
   commercant: {
     name: "Commerçant",
     description: "T'autorise à exercer une activité commerciale, " +
         "industrielle ou artisanale",
+    photo_url: "http://myvisaangel.com/static/salarie_tt.jpg",
   },
 };
 

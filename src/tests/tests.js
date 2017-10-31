@@ -267,7 +267,7 @@ describe('My Visa Bot API', () => {
   });
 
 
-  describe("Check to see if some dev ops stuff works...", () => {
+  describe("Check to see if some general/dev-ops stuff works...", () => {
     it("should be able able to recover from a crash", (done) => {
       chai.request(server)
         .get('/private/crash')
@@ -275,6 +275,17 @@ describe('My Visa Bot API', () => {
           console.log("err:", err);
           done();
       });
+    });
+
+    it("should be able to get an image", function (done) {
+      chai.request(server)
+        .get('/static/aps.jpg')
+        .end((err, response) => {
+          response.should.have.status(200);
+          // TODO: check image data
+
+          done();
+        });
     });
   });
 
@@ -353,6 +364,7 @@ describe('My Visa Bot API', () => {
                               type: "show_block",
                             },
                           ],
+                          image_url: "http://myvisaangel.com/static/aps.jpg",
                         },
                         {
                           "buttons": [
@@ -390,6 +402,7 @@ describe('My Visa Bot API', () => {
                           "subtitle": "Ce titre pluriannuel t'autorise à " +
                               "travailler, créer une entreprise ou investir",
                           "title": "Passeport Talent Salarié Qualifié",
+                          image_url: "http://myvisaangel.com/static/ptsq.jpg",
                         },
                       ],
                     }
@@ -478,8 +491,9 @@ describe('My Visa Bot API', () => {
                               },
                               title: "Voir liste papiers",
                               type: "show_block",
-                            }
+                            },
                           ],
+                          image_url: "http://myvisaangel.com/static/aps.jpg",
                         },
                       ],
                     }

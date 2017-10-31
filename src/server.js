@@ -30,6 +30,9 @@ app.all('*', (request, response, next) => {
   next();
 });
 
+// serve static content like images
+app.use('/static', express.static('public'));
+
 app.route('/v1/ping').get(function(request, response) {
   response.json({
     pong: "It works!",
@@ -133,6 +136,7 @@ app.route('/v1/get_visas').get(function(request, response) {
                   },
                 },
               ],
+              image_url: `http://myvisaangel.com/static/${tdsSlug}.jpg`,
             };
           }),
         }
