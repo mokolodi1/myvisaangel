@@ -3,6 +3,7 @@
 var _ = require("underscore");
 var Fuse = require("fuse.js");
 var GoogleSpreadsheet = require('google-spreadsheet');
+var Slack = require('slack-node');
 
 var Data = require('./data.js');
 
@@ -353,6 +354,9 @@ function tdsRequired(lastBlockName) {
   };
 }
 
+const slack = new Slack();
+slack.setWebhook("https://hooks.slack.com/services/" +
+    "T6NNVGX1A/B7SNPJD3P/imdZum8DJF2PbSHmXLDF0rHy");
 function dropToLiveChat(query) {
   if (process.env.NODE_ENV !== "dev") {
     slack.webhook({

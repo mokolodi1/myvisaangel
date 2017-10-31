@@ -4,7 +4,6 @@ var _ = require("underscore");
 var express = require("express");
 var Fuse = require("fuse.js");
 const recastai = require('recastai')
-var Slack = require('slack-node');
 
 var app = express();
 var port = process.env.PORT || 3000;
@@ -393,9 +392,6 @@ app.route('/v1/select_tds').get(function(request, response) {
 });
 
 const recastClient = new recastai.request('9c2055e6ba8361b582f9b5aa6457df67', 'fr');
-const slack = new Slack();
-slack.setWebhook("https://hooks.slack.com/services/" +
-    "T6NNVGX1A/B7SNPJD3P/imdZum8DJF2PbSHmXLDF0rHy");
 app.route('/v1/nlp').get(function(request, response) {
   let { query } = request;
   let message = query["last user freeform input"];
