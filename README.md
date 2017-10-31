@@ -110,7 +110,7 @@ Once connected to the AWS box, go to the shell that isn't currently running the 
 Work in progress!
 
 1. Create a new EC2 box. (Ubuntu Server 16.04 LTS)
-2. Add the IP to the DNS on [hover.com](https://hover.com).
+2. Add the `bN` and `dev` records to the DNS on [hover.com](https://hover.com)
 3. Add port 80 (HTTP) to the inbound rules for the security group.
 4. Connect: `ssh -i myvisaangel.pem ubuntu@b1.myvisaangel.com`
 5. Do the following:
@@ -133,14 +133,15 @@ tmux
 # Start it up!
 # NOTE: use beta_start.sh for betas so they don't write to prod logs, and you
 #       don't have to specify the BOX_NUMBER for that
-BOX_NUMBER=b4 ./scripts/prod_start.sh
+./scripts/beta_start.sh
 ```
 
 6. Give it a shot: http://b2.myvisaangel.com/v1/ping
 
 ### Deploying the beta
 
-1. Test `MVA Beta`, start watching the logs for the beta
+0. Test `MVA Beta`
+1. Relaunch and start watching the logs for the beta: `BOX_NUMBER=b4 ./scripts/prod_start.sh`
 2. Disconnect the beta bot from `MVA Beta` on Chatfuel
 3. Disconnect the old prod bot from `My Visa Angel` on Chatfuel
 4. Connect the beta bot to `My Visa Angel` on Chatfuel
@@ -148,7 +149,7 @@ BOX_NUMBER=b4 ./scripts/prod_start.sh
 6. Change `api.myvisaangel.com` IP to the latest IP on [Hover](https://www.hover.com/control_panel/domain/myvisaangel.com/dns)
 7. Rename `My Visa Angel N production` to `archive`
 8. Rename `My Visa Angel N beta` to `production`
-9. Stop watching logs or the now-production bot
+9. Stop watching logs on the now-production bot
 
 ## Manu is down! Help!
 

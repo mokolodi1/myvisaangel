@@ -101,6 +101,8 @@ app.route('/v1/get_visas').get(function(request, response) {
           elements: _.map(recommendedSlugs, (tdsSlug) => {
             let tdsInfo = tdsTypes[tdsSlug];
 
+            let subdomain = process.env.NODE_ENV === "dev" ? "dev" : "api";
+
             return {
               title: tdsInfo.name,
               subtitle: tdsInfo.description,
@@ -136,7 +138,8 @@ app.route('/v1/get_visas').get(function(request, response) {
                   },
                 },
               ],
-              image_url: `http://myvisaangel.com/static/${tdsSlug}.jpg`,
+              image_url: `http://${subdomain}.myvisaangel.com/static/` +
+                  `${tdsSlug}.jpg`,
             };
           }),
         }

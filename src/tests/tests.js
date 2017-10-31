@@ -364,7 +364,7 @@ describe('My Visa Bot API', () => {
                               type: "show_block",
                             },
                           ],
-                          image_url: "http://myvisaangel.com/static/aps.jpg",
+                          image_url: "http://dev.myvisaangel.com/static/aps.jpg",
                         },
                         {
                           "buttons": [
@@ -402,7 +402,7 @@ describe('My Visa Bot API', () => {
                           "subtitle": "Ce titre pluriannuel t'autorise à " +
                               "travailler, créer une entreprise ou investir",
                           "title": "Passeport Talent Salarié Qualifié",
-                          image_url: "http://myvisaangel.com/static/ptsq.jpg",
+                          image_url: "http://dev.myvisaangel.com/static/ptsq.jpg",
                         },
                       ],
                     }
@@ -493,7 +493,7 @@ describe('My Visa Bot API', () => {
                               type: "show_block",
                             },
                           ],
-                          image_url: "http://myvisaangel.com/static/aps.jpg",
+                          image_url: "http://dev.myvisaangel.com/static/aps.jpg",
                         },
                       ],
                     }
