@@ -151,7 +151,9 @@ function removeDiacritics (str) {
 
 function slugishify(name) {
   // remove diacritics, lowercase, replace everything but A-Z and numbers to _
-  return removeDiacritics(name).toLowerCase().replace(/[^A-Za-z0-9]/g, "_");
+  if (name) {
+    return removeDiacritics(name).toLowerCase().replace(/[^A-Za-z0-9]/g, "_");
+  }
 }
 
 // use slugishify to generate the slug to prefecture mapping
@@ -381,7 +383,6 @@ function handleError(error, response, errorNumber, errorMessage) {
 
 
 module.exports = {
-  removeDiacritics,
   slugishify,
   cleanVisaQuery,
   papersListSheet,

@@ -1016,6 +1016,19 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      it("should drop to live chat with a really long message", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=' + "a".repeat(513))
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: ["Silent creators respond"],
+            });
+
+            done();
+          });
+      });
+
       it("should work if we don't know what they want", (done) => {
         chai.request(server)
           .get('/v1/nlp?last+user+freeform+input=I+like+bacon+bits+and+racing+cars')

@@ -405,6 +405,14 @@ app.route('/v1/nlp').get(function(request, response) {
         "Missing freeform param");
   }
 
+  // Recast has a caracter limit
+  if (message.length > 512) {
+    response.json({
+      redirect_to_blocks: ["Silent creators respond"],
+    });
+    return;
+  }
+
   recastClient.analyseText(message)
     .then(function(recastResponse) {
       let intent = recastResponse.intent();
