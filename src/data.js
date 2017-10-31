@@ -463,7 +463,7 @@ let countries = [
   { slug: "venezuela", english: "Venezuela (Bolivarian Republic of)", country_code: "ve", french: "Venezuela" },
   { slug: "british_virgin_islands", english: "Virgin Islands (British)", country_code: "vg", french: "Îles Vierges britanniques" },
   { slug: "us_virgin_islands", english: "Virgin Islands (U.S.)", country_code: "vi", french: "Îles Vierges des États-Unis" },
-  { slug: "viet_nam", english: "Viet Nam", country_code: "vn", french: "Viêt Nam" },
+  { slug: "vietnam", english: "Vietnam", country_code: "vn", french: "Vietnam" },
   { slug: "vanuatu", english: "Vanuatu", country_code: "vu", french: "Vanuatu" },
   { slug: "wallis_and_futuna", english: "Wallis and Futuna", country_code: "wf", french: "Wallis-et-Futuna" },
   { slug: "samoa", english: "Samoa", country_code: "ws", french: "Samoa" },
