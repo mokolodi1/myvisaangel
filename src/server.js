@@ -452,9 +452,9 @@ app.route('/v1/nlp').get(function(request, response) {
             }
           }
 
-          var result = Utilities.prefTdsRequired(prefecture, selected_tds);
-
-          result.redirect_to_blocks.push(blockForIntent[intent.slug]);
+          var result = {
+            redirect_to_blocks: [ blockForIntent[intent.slug] ],
+          };
 
           // send these back even if they haven't been modified (but only
           // if they're defined)

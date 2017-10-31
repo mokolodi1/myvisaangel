@@ -1040,15 +1040,7 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
               redirect_to_blocks: [
-                "Ask for prefecture",
-                "Select TDS type",
                 "Dossier submission method",
               ],
             });
@@ -1084,17 +1076,10 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
               set_attributes: {
                 selected_tds: "ptsq",
               },
               redirect_to_blocks: [
-                "Ask for prefecture",
                 "Dossier submission method",
               ],
             });
@@ -1110,17 +1095,10 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
               set_attributes: {
                 prefecture: "paris",
               },
               redirect_to_blocks: [
-                "Select TDS type",
                 "Dossier submission method",
               ],
             });
@@ -1156,15 +1134,7 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
               redirect_to_blocks: [
-                "Ask for prefecture",
-                "Select TDS type",
                 "Dossier papers list",
               ],
             });
@@ -1180,17 +1150,10 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
               set_attributes: {
                 prefecture: "pamiers",
               },
               redirect_to_blocks: [
-                "Select TDS type",
                 "Dossier papers list",
               ],
             });

@@ -105,7 +105,7 @@ tdsTypes.ptsq.eligible = (query) => {
       _.contains(["masters", "masters_equiv"], diploma) &&
       employmentSituation === "cdi" &&
       smicMultiplier >= 2) {
-    return {}
+    return {};
   }
 }
 
