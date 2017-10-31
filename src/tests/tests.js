@@ -1310,10 +1310,18 @@ describe('My Visa Bot API', () => {
             response.should.have.status(200);
 
             response.body.should.be.deep.eql({
-              redirect_to_blocks: ["Silent creators respond"],
-              set_attributes: {
-                nlp_disabled: "yes",
-              },
+              messages: [
+                {
+                  text: "Pour le moment nous n'avons la procedure pour la " +
+                  "préfecture de NOPE dans notre base de données.",
+                },
+                {
+                  text: "D'ailleurs, nous te serions très reconnaissants si une " +
+                      "fois ton dossier déposé, tu pouvais nous faire un retour " +
+                      "d'expérience sur ta préfecture pour enrichir notre base " +
+                      "de données 😍",
+                },
+              ],
             });
 
             done();
@@ -1372,7 +1380,6 @@ describe('My Visa Bot API', () => {
           .end((err, response) => {
             response.should.have.status(200);
 
-            // TODO: this will change!
             response.body.should.be.deep.eql({
               messages: [
                 {

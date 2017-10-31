@@ -553,7 +553,20 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
         ].concat(submissionPossibilities),
       });
     } else {
-      response.json(Utilities.dropToLiveChat(request.query));
+      response.json({
+        messages: [
+          {
+            text: "Pour le moment nous n'avons la procedure pour la " +
+            "préfecture de NOPE dans notre base de données.",
+          },
+          {
+            text: "D'ailleurs, nous te serions très reconnaissants si une " +
+                "fois ton dossier déposé, tu pouvais nous faire un retour " +
+                "d'expérience sur ta préfecture pour enrichir notre base " +
+                "de données 😍",
+          },
+        ],
+      });
     }
   });
 });
