@@ -365,7 +365,8 @@ function dropToLiveChat(query) {
       text: `New message from ${query["first name"]} ` +
           `${query["last name"]}: https://www.facebook.com/My-Visa-Angel-` +
           "108759689812666/inbox/?selected_item_id=" +
-          `${query["messenger user id"]} \`\`\`${message}\`\`\``,
+          `${query["messenger user id"]} ` +
+          `\`\`\`${query["last user freeform input"]}\`\`\``,
       icon_emoji: ":mailbox_with_mail:",
     }, function(err, response) {});
   }
