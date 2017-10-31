@@ -711,6 +711,54 @@ app.route('/v1/tds_conditions').get(function(request, response) {
   tdsInformation(request, response, "TDS conditions", "conditions");
 });
 
+app.route('/v1/tds_all_info').get(function(request, response) {
+  let { selected_tds } = request.query;
+
+  if (!selected_tds) {
+    response.json({
+      messages: [
+        {
+          text: "Pour t'aider j'ai besoin " +
+              "de quelques informations complémentaires",
+        },
+      ],
+      redirect_to_blocks: [
+        "Select TDS type",
+        "TDS all info",
+      ],
+    });
+    return;
+  }
+
+  Utilities.tdsInfoSheet((error, result) => {
+    if (error) {
+      console.error("error:", error);
+      response.status(500).send("Error getting the TDS info");
+      return;
+    }
+
+    let matchingRows = _.where(result, {
+      tdsSlug: selected_tds,
+    });
+
+    if (matchingRows.length > 0 && matchingRows[0]) {
+      response.json({
+        messages: [
+          { text: matchingRows[0]["présentation"] },
+          { text: matchingRows[0]["durée"] },
+          { text: matchingRows[0]["coût"] },
+          { text: matchingRows[0]["avantagesetinconvénients"] },
+          { text: matchingRows[0]["conditions"] },
+        ],
+      });
+    } else {
+      response.json({
+        redirect_to_blocks: ["Silent creators respond"],
+      });
+    }
+  });
+});
+
 var server = app.listen(port);
 module.exports = server
 

@@ -38,7 +38,7 @@ describe('My Visa Bot API', () => {
         result.should.be.deep.eql({
           messages: [
             {
-              "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
+              text: "⚠️ Attention, ton pays a un accord spécial avec la " +
                   "France qui change les choses suivantes pour l'APS :\n" +
                   "Condition de durée : 9 mois à la place de 12\n" +
                   "Condition de diplôme : Diplôme au moins équivalent " +
@@ -61,7 +61,7 @@ describe('My Visa Bot API', () => {
         result.should.be.deep.eql({
           messages: [
             {
-              "text": "⚠️ Attention, ton pays a un accord spécial avec la " +
+              text: "⚠️ Attention, ton pays a un accord spécial avec la " +
                   "France qui change les choses suivantes pour l'APS :\n" +
                   "Condition de durée : 9 mois à la place de 12\n" +
                   "Renouvellement : renouvelable une fois\n" +
@@ -1590,6 +1590,53 @@ describe('My Visa Bot API', () => {
                       "d'exercice.",
                 },
               ],
+            });
+
+            done();
+          });
+      });
+
+      it("should give all info for commercant", (done) => {
+        chai.request(server)
+          .get('/v1/tds_all_info?selected_tds=commercant')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "C'est une carte de séjour temporaire qui permet " +
+                      "d'exercer une activité commerciale, industrielle, " +
+                      "artisanale ou autre profession non salariée sur le " +
+                      "territoire français pendant plus de 3 mois."
+                },
+                {
+                  text: "La durée de la carte commerçant est de  1 an " +
+                      "(renouvelable)"
+                },
+                {
+                  text: "Le prix d'une carte de séjour commerçant est de 269€"
+                },
+                {
+                  text: "Avantages d'une carte de séjour commerçant :\n- " +
+                      "Permet d'exercer une activité non-salariée.\n\n" +
+                      "Inconvénients de la carte commerçant :\nTu ne peux " +
+                      "pas exercer une activité salariée (CDD, CDI, intérim)."
+                },
+                {
+                  text: "Conditions pour obtenir une " +
+                      "carte commerçant :\n- Justifier d'une activité " +
+                      "viable sur le plan économique ou, s'il intègre une " +
+                      "entreprise existante, de sa capacité à lui verser " +
+                      "une rémunération suffisante (au moins égale au Smic)," +
+                      "\n- Justifier d'une activité compatible avec la " +
+                      "sécurité, la salubrité et la tranquillité " +
+                      "publique,\n- Respecter les obligations de cette " +
+                      "profession (conditions de diplômes ou d'expérience " +
+                      "professionnelle, par exemple),\n- Absence de " +
+                      "condamnation ou d'interdiction d'exercice."
+                }
+              ]
             });
 
             done();
