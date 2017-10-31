@@ -1551,9 +1551,9 @@ describe('My Visa Bot API', () => {
           });
       });
 
-      it("should give the dis/advantages for vpf", (done) => {
+      it("should give the advantages for vpf", (done) => {
         chai.request(server)
-          .get('/v1/tds_dis_advantages?selected_tds=vpf')
+          .get('/v1/tds_advantages?selected_tds=vpf')
           .end((err, response) => {
             response.should.have.status(200);
 
@@ -1566,8 +1566,25 @@ describe('My Visa Bot API', () => {
                       "préfecture. \n- Elle autorise son détenteur à " +
                       "travailler en CDD, CDI, être au chômage ou encore " +
                       "créer son entreprise, sans avoir besoin de fournir " +
-                      "des justificatifs.\n\n" +
-                      "Inconvénients de la carte vie privée et familiale :\n" +
+                      "des justificatifs."
+                },
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should give the disadvantages for vpf", (done) => {
+        chai.request(server)
+          .get('/v1/tds_disadvantages?selected_tds=vpf')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Inconvénients de la carte vie privée et familiale :\n" +
                       "Tu es lié à ton/ta concubin(e) et si jamais vous vous " +
                       "séparez, tu devras demander un changement de statut " +
                       "pour changer de titre de séjour.",
@@ -1631,8 +1648,10 @@ describe('My Visa Bot API', () => {
                 },
                 {
                   text: "Avantages d'une carte de séjour commerçant :\n- " +
-                      "Permet d'exercer une activité non-salariée.\n\n" +
-                      "Inconvénients de la carte commerçant :\nTu ne peux " +
+                      "Permet d'exercer une activité non-salariée."
+                },
+                {
+                  text: "Inconvénients de la carte commerçant :\nTu ne peux " +
                       "pas exercer une activité salariée (CDD, CDI, intérim)."
                 },
                 {

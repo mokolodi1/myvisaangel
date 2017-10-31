@@ -708,9 +708,11 @@ app.route('/v1/tds_duration').get(function(request, response) {
 app.route('/v1/tds_price').get(function(request, response) {
   tdsInformation(request, response, "TDS price", "coût");
 });
-app.route('/v1/tds_dis_advantages').get(function(request, response) {
-  tdsInformation(request, response, "TDS dis/advantages",
-      "avantagesetinconvénients");
+app.route('/v1/tds_advantages').get(function(request, response) {
+  tdsInformation(request, response, "TDS dis/advantages", "avantages");
+});
+app.route('/v1/tds_disadvantages').get(function(request, response) {
+  tdsInformation(request, response, "TDS dis/advantages", "inconvénients");
 });
 app.route('/v1/tds_conditions').get(function(request, response) {
   tdsInformation(request, response, "TDS conditions", "conditions");
@@ -752,7 +754,8 @@ app.route('/v1/tds_all_info').get(function(request, response) {
           { text: matchingRows[0]["présentation"] },
           { text: matchingRows[0]["durée"] },
           { text: matchingRows[0]["coût"] },
-          { text: matchingRows[0]["avantagesetinconvénients"] },
+          { text: matchingRows[0]["avantages"] },
+          { text: matchingRows[0]["inconvénients"] },
           { text: matchingRows[0]["conditions"] },
         ],
       });
