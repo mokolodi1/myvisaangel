@@ -105,15 +105,14 @@ tmux a
 
 Once connected to the AWS box, go to the shell that isn't currently running the server and run `git pull origin master` to pull all the latest code down from GitHub. Then you can go to the shell running the server and restart it by doing C-c (hold control and press C) and then calling the command to start the server (`sudo PORT=80 npm start`).
 
-### Setting up a new box
+### Setting up a new beta
 
 Work in progress!
 
-1. Create a new EC2 box. (Ubuntu Server 16.04 LTS)
-2. Add the `bN` and `dev` records to the DNS on [hover.com](https://hover.com)
-3. Add port 80 (HTTP) to the inbound rules for the security group.
-4. Connect: `ssh -i myvisaangel.pem ubuntu@b1.myvisaangel.com`
-5. Do the following:
+1. Create a new EC2 box (Ubuntu Server 16.04 LTS) with port 80 (HTTP) in the inbound rules for the security group.
+2. Add/edit the `bN` and `dev` records to the DNS with the new box's IP on [hover.com](https://hover.com)
+3. Connect: `ssh -i myvisaangel.pem ubuntu@bN.myvisaangel.com`
+4. Do the following:
 
 ```sh
 # Grab the code from GitHub and go into the code's folder
@@ -137,6 +136,11 @@ tmux
 ```
 
 6. Give it a shot: http://b2.myvisaangel.com/v1/ping
+7. Clone the production bot: increment the number and name `beta`
+8. Connect the beta bot to the `MVA Beta` Facebook page
+9. Go through all the blocks and change the URLs to the new version number. Note that you have to wait a second or two for Chatfuel to validate the URL before it saves.
+10. Verify you've changed all the block's URLs to the new version number. If you miss one that block won't work anymore when we kill what is now the current production box but will seem to work until then.
+11. Take the `MVA Beta` bot out for a whirl while watching the logs.
 
 ### Deploying from the beta to production
 
