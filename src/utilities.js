@@ -368,7 +368,7 @@ function dropToLiveChat(query) {
           `${query["messenger user id"]} ` +
           `\`\`\`${query["last user freeform input"]}\`\`\``,
       icon_emoji: ":mailbox_with_mail:",
-    }, function(err, response) {});
+    }, _.noop);
   }
 
   return {
@@ -379,9 +379,25 @@ function dropToLiveChat(query) {
   };
 }
 
-function handleError(error, response, errorNumber, errorMessage) {
+function logError(message, error) {
+  if (process.env.NODE_ENV !== "dev") {
+    slack.webhook({
+      channel: "#alerts",
+      username: "teo-clone",
+      text: `${message} \`\`\`${error}\`\`\``,
+      icon_emoji: ":robot_face:",
+    }, _.noop);
+  }
+}
+
+function httpError(response, errorNumber, errorMessage, error) {
   console.error(`HTTP=${errorNumber}\t${errorMessage}`);
-  console.error(error);
+  if (error) {
+    console.error(error);
+  }
+
+  logError(errorMessage + ` (HTTP=${errorNumber})`, error);
+
   response.status(errorNumber).send(errorMessage);
 }
 
@@ -401,5 +417,6 @@ module.exports = {
   prefTdsRequired,
   tdsRequired,
   dropToLiveChat,
-  handleError,
+  httpError,
+  logError,
 }

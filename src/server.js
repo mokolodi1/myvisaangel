@@ -55,6 +55,8 @@ if (process.env.NODE_ENV === "dev") {
 process.on('uncaughtException', function (err) {
   console.error("Uncaught exception! Here's the stack:");
   console.error(err.stack);
+
+  Utilities.logError("Uncaught exception", err);
 });
 
 
@@ -177,8 +179,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   let { nationality } = request.query;
 
   if (!nationality && nationality !== "") {
-    return Utilities.handleError(undefined, response, 400,
-        "Missing nationality param");
+    return Utilities.httpError(response, 400, "Missing nationality param");
   }
 
   let results = countriesFuse.search(nationality);
@@ -276,14 +277,13 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
   let { prefecture } = request.query;
 
   if (!prefecture && prefecture !== "") {
-    return Utilities.handleError(undefined, response, 400,
-        "Missing prefecture parameter");
+    return Utilities.httpError(response, 400, "Missing prefecture parameter");
   }
 
   Utilities.submissionMethodSheet((error, result) => {
     if (error) {
-      return Utilities.handleError(error, response, 500,
-          "Error reading from Google");
+      return Utilities.httpError(response, 500, "Error reading from Google",
+          error);
     } else {
       let prefecturesHash = _.reduce(result, (memo, row) => {
         memo[row["préfecture"]] = true;
@@ -397,8 +397,7 @@ app.route('/v1/nlp').get(function(request, response) {
   let message = query["last user freeform input"];
 
   if (!message) {
-    return Utilities.handleError(undefined, response, 400,
-        "Missing freeform param");
+    return Utilities.httpError(response, 400, "Missing freeform param");
   }
 
   // Recast has a caracter limit
@@ -500,8 +499,8 @@ app.route('/v1/nlp').get(function(request, response) {
       response.json(Utilities.dropToLiveChat(query));
     })
     .catch(function (error) {
-      return Utilities.handleError(error, response, 500,
-            "Error dealing with recast");
+      return Utilities.httpError(response, 500, "Error dealing with recast",
+          error);
     });
 });
 
@@ -519,8 +518,8 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
 
   Utilities.submissionMethodSheet((error, result) => {
     if (error) {
-      return Utilities.handleError(error, response, 500,
-            "Error getting the prefecture submission info");
+      return Utilities.httpError(response, 500,
+          "Error getting the prefecture submission info", error);
     }
 
     let matchingRows = _.chain(result)
@@ -590,8 +589,8 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
 
   Utilities.papersListSheet((error, result) => {
     if (error) {
-      return Utilities.handleError(error, response, 500,
-            "Error getting the submission information");
+      return Utilities.httpError(response, 500,
+          "Error getting the submission information", error);
     }
 
     let matchingRows = _.where(result, {
@@ -657,8 +656,8 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
 
   Utilities.processingTimeSheet((error, result) => {
     if (error) {
-      return Utilities.handleError(error, response, 500,
-            "Error getting the submission information");
+      return Utilities.httpError(response, 500,
+          "Error getting the submission information", error);
     }
 
     let matchingRows = _.where(result, {
@@ -703,8 +702,8 @@ function tdsInformation(request, response, blockName, sheetColumn) {
 
   Utilities.tdsInfoSheet((error, result) => {
     if (error) {
-      return Utilities.handleError(error, response, 500,
-          "Error getting the TDS info");
+      return Utilities.httpError(response, 500, "Error getting the TDS info",
+          error);
     }
 
     let matchingRows = _.where(result, {
@@ -753,8 +752,8 @@ app.route('/v1/tds_all_info').get(function(request, response) {
 
   Utilities.tdsInfoSheet((error, result) => {
     if (error) {
-      return Utilities.handleError(error, response, 500,
-          "Error getting the TDS info");
+      return Utilities.httpError(response, 500, "Error getting the TDS info",
+          error);
     }
 
     let matchingRows = _.where(result, {
@@ -788,8 +787,8 @@ app.route('/v1/tds_cerfa').get(function (request, response) {
 
   Utilities.cerfaSheet((error, result) => {
     if (error) {
-      return Utilities.handleError(error, repsonse, 500,
-          "Error getting the cerfa info");
+      return Utilities.httpError(repsonse, 500, "Error getting the cerfa info",
+          error);
     }
 
     let matchingRows = _.where(result, {
