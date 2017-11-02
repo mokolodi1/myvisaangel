@@ -178,8 +178,8 @@ var countriesFuse = new Fuse(Data.countries, {
 app.route('/v1/parse_nationality').get(function(request, response) {
   let { nationality } = request.query;
 
-  if (!nationality && nationality !== "") {
-    return Utilities.httpError(response, 400, "Missing nationality param");
+  if (!nationality) {
+    return Utilities.httpError(response, "Missing nationality param");
   }
 
   let results = countriesFuse.search(nationality);
@@ -274,15 +274,16 @@ app.route('/v1/parse_nationality').get(function(request, response) {
 });
 
 app.route('/v1/parse_prefecture').get(function(request, response) {
-  let { prefecture } = request.query;
+  let { prefecture, destination_block } = request.query;
 
-  if (!prefecture && prefecture !== "") {
-    return Utilities.httpError(response, 400, "Missing prefecture parameter");
+  if (!prefecture || !destination_block) {
+    return Utilities.httpError(response,
+        "Missing prefecture or destination parameter");
   }
 
   Utilities.submissionMethodSheet((error, result) => {
     if (error) {
-      return Utilities.httpError(response, 500, "Error reading from Google",
+      return Utilities.httpError(response, "Error reading from Google",
           error);
     } else {
       let prefecturesHash = _.reduce(result, (memo, row) => {
@@ -313,7 +314,6 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
         response.json({
           set_attributes: {
             prefecture: bestResult.item.slugishName,
-            validated_prefecture: "yes",
           }
         });
       } else if (bestResult && bestResult.score <= .25 &&
@@ -327,14 +327,14 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
                   title: "Oui 😀",
                   set_attributes: {
                     prefecture: bestResult.item.slugishName,
-                    validated_prefecture: "yes",
                   },
                 },
                 {
                   title: "Non 😔",
-                  set_attributes: {
-                    validated_prefecture: "no",
-                  },
+                  block_names: [
+                    "Ask for prefecture",
+                    destination_block,
+                  ],
                 },
               ],
             }
@@ -357,9 +357,10 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
 
         response.json({
           messages,
-          set_attributes: {
-            validated_prefecture: "no",
-          }
+          redirect_to_blocks: [
+            "Ask for prefecture",
+            destination_block,
+          ],
         });
       }
     }
@@ -397,15 +398,12 @@ app.route('/v1/nlp').get(function(request, response) {
   let message = query["last user freeform input"];
 
   if (!message) {
-    return Utilities.httpError(response, 400, "Missing freeform param");
+    return Utilities.httpError(response, "Missing freeform param");
   }
 
   // Recast has a caracter limit
   if (message.length > 512) {
-    response.json({
-      redirect_to_blocks: ["Silent creators respond"],
-    });
-    return;
+    return response.json(Utilities.dropToLiveChat(query));
   }
 
   recastClient.analyseText(message)
@@ -499,7 +497,7 @@ app.route('/v1/nlp').get(function(request, response) {
       response.json(Utilities.dropToLiveChat(query));
     })
     .catch(function (error) {
-      return Utilities.httpError(response, 500, "Error dealing with recast",
+      return Utilities.httpError(response, "Error dealing with recast",
           error);
     });
 });
@@ -508,17 +506,14 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
   let { selected_tds, prefecture } = request.query;
 
   if (!selected_tds || !prefecture) {
-    var result = Utilities.prefTdsRequired(prefecture, selected_tds);
-
-    result.redirect_to_blocks.push("Dossier submission method");
-
-    response.json(result);
+    response.json(Utilities.prefTdsRequired(prefecture, selected_tds,
+        "Dossier submission method"));
     return;
   }
 
   Utilities.submissionMethodSheet((error, result) => {
     if (error) {
-      return Utilities.httpError(response, 500,
+      return Utilities.httpError(response,
           "Error getting the prefecture submission info", error);
     }
 
@@ -579,17 +574,14 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
   let { selected_tds, prefecture } = request.query;
 
   if (!selected_tds || !prefecture) {
-    var result = Utilities.prefTdsRequired(prefecture, selected_tds);
-
-    result.redirect_to_blocks.push("Dossier papers list");
-
-    response.json(result);
+    response.json(Utilities.prefTdsRequired(prefecture, selected_tds,
+        "Dossier papers list"));
     return;
   }
 
   Utilities.papersListSheet((error, result) => {
     if (error) {
-      return Utilities.httpError(response, 500,
+      return Utilities.httpError(response,
           "Error getting the submission information", error);
     }
 
@@ -646,17 +638,14 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
   let { selected_tds, prefecture } = request.query;
 
   if (!selected_tds || !prefecture) {
-    var result = Utilities.prefTdsRequired(prefecture, selected_tds);
-
-    result.redirect_to_blocks.push("Dossier processing time");
-
-    response.json(result);
+    response.json(Utilities.prefTdsRequired(prefecture, selected_tds,
+        "Dossier processing time"));
     return;
   }
 
   Utilities.processingTimeSheet((error, result) => {
     if (error) {
-      return Utilities.httpError(response, 500,
+      return Utilities.httpError(response,
           "Error getting the submission information", error);
     }
 
@@ -702,7 +691,7 @@ function tdsInformation(request, response, blockName, sheetColumn) {
 
   Utilities.tdsInfoSheet((error, result) => {
     if (error) {
-      return Utilities.httpError(response, 500, "Error getting the TDS info",
+      return Utilities.httpError(response, "Error getting the TDS info",
           error);
     }
 
@@ -752,7 +741,7 @@ app.route('/v1/tds_all_info').get(function(request, response) {
 
   Utilities.tdsInfoSheet((error, result) => {
     if (error) {
-      return Utilities.httpError(response, 500, "Error getting the TDS info",
+      return Utilities.httpError(response, "Error getting the TDS info",
           error);
     }
 
@@ -787,7 +776,7 @@ app.route('/v1/tds_cerfa').get(function (request, response) {
 
   Utilities.cerfaSheet((error, result) => {
     if (error) {
-      return Utilities.httpError(repsonse, 500, "Error getting the cerfa info",
+      return Utilities.httpError(repsonse, "Error getting the cerfa info",
           error);
     }
 

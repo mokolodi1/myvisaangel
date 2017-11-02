@@ -315,9 +315,10 @@ function tdsFromRecast(tdsDescription) {
   }
 }
 
-function prefTdsRequired(prefecture, selected_tds) {
+function prefTdsRequired(prefecture, selected_tds, destination_block) {
   var result = {
-    redirect_to_blocks: []
+    redirect_to_blocks: [],
+    set_attributes: { destination_block },
   };
 
   if (!prefecture) {
@@ -336,10 +337,12 @@ function prefTdsRequired(prefecture, selected_tds) {
     ];
   }
 
+  result.redirect_to_blocks.push(destination_block);
+
   return result;
 }
 
-function tdsRequired(lastBlockName) {
+function tdsRequired(destination_block) {
   return {
     messages: [
       {
@@ -349,8 +352,9 @@ function tdsRequired(lastBlockName) {
     ],
     redirect_to_blocks: [
       "Select TDS type",
-      lastBlockName,
+      destination_block,
     ],
+    set_attributes: { destination_block },
   };
 }
 
@@ -362,11 +366,14 @@ function dropToLiveChat(query) {
     slack.webhook({
       channel: "#livechat",
       username: "teo-clone",
-      text: `New message from ${query["first name"]} ` +
+      // NOTE: be aware of the ternary operator here - I didn't want an if
+      // statement to count agsinst my lines of untested code... ;P
+      text: query ? `New message from ${query["first name"]} ` +
           `${query["last name"]}: https://www.facebook.com/My-Visa-Angel-` +
           "108759689812666/inbox/?selected_item_id=" +
           `${query["messenger user id"]} ` +
-          `\`\`\`${query["last user freeform input"]}\`\`\``,
+          `\`\`\`${query["last user freeform input"]}\`\`\`` :
+          "There was an error, so we've dropped the person into live chat.",
       icon_emoji: ":mailbox_with_mail:",
     }, _.noop);
   }
@@ -390,15 +397,15 @@ function logError(message, error) {
   }
 }
 
-function httpError(response, errorNumber, errorMessage, error) {
-  console.error(`HTTP=${errorNumber}\t${errorMessage}`);
+function httpError(response, errorMessage, error) {
+  console.error(`${errorMessage}`);
   if (error) {
     console.error(error);
   }
 
-  logError(errorMessage + ` (HTTP=${errorNumber})`, error);
+  logError(errorMessage, error);
 
-  response.status(errorNumber).send(errorMessage);
+  response.json(dropToLiveChat());
 }
 
 
