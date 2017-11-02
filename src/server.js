@@ -173,7 +173,7 @@ var countriesFuse = new Fuse(Data.countries, {
   includeScore: true,
   maxPatternLength: 32,
   minMatchCharLength: 2,
-  keys: [ "slugishNames" ]
+  keys: [ "allSluggedNames" ]
 });
 app.route('/v1/parse_nationality').get(function(request, response) {
   let { nationality } = request.query;
@@ -185,9 +185,10 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   let results = countriesFuse.search(nationality);
 
   let bestResult = results[0];
-  let slugy = Utilities.slugishify(nationality);
+  let nationalitySlug = Utilities.slugify(nationality);
+  console.log("bestResult && bestResult.score:", bestResult && bestResult.score);
   if (bestResult &&
-      _.contains(bestResult.item.slugishNames, slugy)) {
+      _.contains(bestResult.item.allSluggedNames, nationalitySlug)) {
     response.json({
       set_attributes: {
         nationality: bestResult.item.slug,
@@ -273,6 +274,13 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   }
 });
 
+var prefectureFuse = new Fuse(Data.prefectures, {
+  shouldSort: true,
+  includeScore: true,
+  maxPatternLength: 32,
+  minMatchCharLength: 2,
+  keys: [ "name", "alternatives" ],
+});
 app.route('/v1/parse_prefecture').get(function(request, response) {
   let { prefecture, destination_block } = request.query;
 
@@ -281,90 +289,64 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
         "Missing prefecture or destination parameter");
   }
 
-  Utilities.submissionMethodSheet((error, result) => {
-    if (error) {
-      return Utilities.httpError(response, "Error reading from Google",
-          error);
-    } else {
-      let prefecturesHash = _.reduce(result, (memo, row) => {
-        memo[row["préfecture"]] = true;
-        return memo;
-      }, {});
-      let prefectureNames = _.map(Object.keys(prefecturesHash), (name) => {
-        return {
-          name,
-          slugishName: Utilities.slugishify(name),
-        };
-      });
+  let sluggedPrefecture = Utilities.slugify(prefecture);
+  let results = prefectureFuse.search(sluggedPrefecture);
+  let bestResult = results[0];
 
-      var prefectureFuse = new Fuse(prefectureNames, {
-        shouldSort: true,
-        includeScore: true,
-        maxPatternLength: 32,
-        minMatchCharLength: 2,
-        keys: [ "name" ],
-      });
-
-      let slugishInput = Utilities.slugishify(prefecture);
-      let results = prefectureFuse.search(slugishInput);
-      let bestResult = results[0];
-
-      if (bestResult &&
-          bestResult.item.slugishName === Utilities.slugishify(prefecture)) {
-        response.json({
-          set_attributes: {
-            prefecture: bestResult.item.slugishName,
-          }
-        });
-      } else if (bestResult && bestResult.score <= .25 &&
-          !(results[1] && results[1].score - results[0].score < .05)) {
-        response.json({
-          "messages": [
-            {
-              "text":  `Est-ce que tu voulais dire ${bestResult.item.name} ?`,
-              quick_replies: [
-                {
-                  title: "Oui 😀",
-                  set_attributes: {
-                    prefecture: bestResult.item.slugishName,
-                  },
-                },
-                {
-                  title: "Non 😔",
-                  block_names: [
-                    "Ask for prefecture",
-                    destination_block,
-                  ],
-                },
-              ],
-            }
-          ],
-        });
-      } else {
-        let messages = [
-          {
-            text: "Je n'arrive pas à comprendre 😔. Vérifie l'orthographe stp et " +
-            "dis-moi à nouveau de quelle préfecture tu dépends."
-          }
-        ];
-
-        // if they put a space tell them to just put the country
-        if (_.contains(prefecture, " ")) {
-          messages.push({
-            text: "Essaye d'envoyer seulement le nom de la préfecture."
-          });
-        }
-
-        response.json({
-          messages,
-          redirect_to_blocks: [
-            "Ask for prefecture",
-            destination_block,
-          ],
-        });
+  if (bestResult &&
+      _.contains(bestResult.item.allSluggedNames, sluggedPrefecture)) {
+    response.json({
+      set_attributes: {
+        prefecture: bestResult.item.slug,
       }
+    });
+  } else if (bestResult && bestResult.score <= .25 &&
+      !(results[1] && results[1].score - results[0].score < .05)) {
+    response.json({
+      "messages": [
+        {
+          "text":  `Est-ce que tu voulais dire ${bestResult.item.name} ?`,
+          quick_replies: [
+            {
+              title: "Oui 😀",
+              set_attributes: {
+                prefecture: bestResult.item.slug,
+              },
+            },
+            {
+              title: "Non 😔",
+              block_names: [
+                "Ask for prefecture",
+                destination_block,
+              ],
+            },
+          ],
+        }
+      ],
+    });
+  } else {
+    let messages = [
+      {
+        text: "Je n'arrive pas à comprendre 😔. Vérifie l'orthographe stp et " +
+        "dis-moi à nouveau de quelle préfecture tu dépends."
+      }
+    ];
+
+    // if they put a space tell them to just put the country
+    if (_.contains(prefecture, " ")) {
+      messages.push({
+        text: "Essaye d'envoyer seulement le nom de la préfecture."
+      });
     }
-  });
+
+    response.json({
+      messages,
+      redirect_to_blocks: [
+        "Ask for prefecture",
+        destination_block,
+      ],
+    });
+  }
 });
 
 app.route('/v1/select_tds').get(function(request, response) {
@@ -439,11 +421,11 @@ app.route('/v1/nlp').get(function(request, response) {
             // remove "papiers" from the list of prefecture entries - it
             // recognizes the word "papiers" as the prefecture "Pamiers"
             let withoutPapiers = _.filter(entities.prefecture, (entry) => {
-              return Utilities.slugishify(entry.raw) !== "papiers";
+              return Utilities.slugify(entry.raw) !== "papiers";
             });
             if (withoutPapiers && withoutPapiers.length > 0) {
               let newPrefecture = Utilities.mostConfident(withoutPapiers);
-              prefecture = Utilities.slugishify(newPrefecture.value);
+              prefecture = Utilities.slugify(newPrefecture.value);
             }
 
             let recastTds = Utilities.mostConfident(entities["visa-type"]);
@@ -531,7 +513,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
     if (matchingRows.length > 0) {
       let submissionPossibilities = _.map(matchingRows, (row) => {
         let rdvMessage = "Tu n'as pas besoin de prendre RDV. ";
-        if (Utilities.slugishify(matchingRows[0]["besoinrdv"]) === "oui") {
+        if (Utilities.slugify(matchingRows[0]["besoinrdv"]) === "oui") {
           rdvMessage = "Le RDV se prend " +
               `${matchingRows[0]["commentprendrerdv"]}. `;
         }

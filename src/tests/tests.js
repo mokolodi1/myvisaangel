@@ -676,47 +676,49 @@ describe('My Visa Bot API', () => {
                   text: "De quel pays exactement parles-tu ?",
                   quick_replies: [
                     {
-                      title: "Macédoine",
-                      set_attributes: {
-                        nationality: "macedonia",
-                        validated_nationality: "yes",
-                      },
-                    },
-                    {
-                      title: "Malte",
-                      set_attributes: {
-                        nationality: "malta",
-                        validated_nationality: "yes"
-                      },
-                    },
-                    {
-                      title: "Mauritanie",
-                      set_attributes: {
-                        nationality: "mauritania",
-                        validated_nationality: "yes"
-                      },
-                    },
-                    {
                       title: "Maurice",
                       set_attributes: {
                         nationality: "mauritius",
-                        validated_nationality: "yes"
-                      },
+                        validated_nationality: "yes",
+                      }
+                    },
+                    {
+                      title: "Mayotte",
+                      set_attributes: {
+                        nationality: "mayotte",
+                        validated_nationality: "yes",
+                      }
                     },
                     {
                       title: "Martinique",
                       set_attributes: {
                         nationality: "martinique",
-                        validated_nationality: "yes"
-                      },
+                        validated_nationality: "yes",
+                      }
+                    },
+                    {
+                      title: "Maldives",
+                      set_attributes: {
+                        nationality: "maldives",
+                        validated_nationality: "yes",
+                      }
+                    },
+                    {
+                      title: "Malawi",
+                      set_attributes: {
+                        nationality: "malawi",
+                        validated_nationality: "yes",
+                      }
                     },
                     {
                       title: "Autre",
-                      set_attributes: { validated_nationality: "no" },
-                    },
-                  ],
-                },
-              ],
+                      set_attributes: {
+                        validated_nationality: "no"
+                      }
+                    }
+                  ]
+                }
+              ]
             });
 
             done();
@@ -757,6 +759,22 @@ describe('My Visa Bot API', () => {
             response.body.should.be.deep.eql({
               set_attributes: {
                 prefecture: "paris",
+              },
+            });
+
+            done();
+        });
+      });
+
+      it('should work for an alternative spelling', (done) => {
+        chai.request(server)
+          .get('/v1/parse_prefecture?prefecture=Massy Palaiseau&destination_block=Dossier submission')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                prefecture: "palaiseau",
               },
             });
 

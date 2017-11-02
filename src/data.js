@@ -785,7 +785,7 @@ let prefectures = [
   { departmentPostal: "89", prefectureType: "subprefecture", department: "Yonne", name: "Sens" },
   { departmentPostal: "90", prefectureType: "prefecture", department: "Territoire de Belfort", name: "Belfort" },
   { departmentPostal: "91", prefectureType: "prefecture", department: "Essonne", name: "Évry" },
-  { departmentPostal: "91", prefectureType: "subprefecture", department: "Essonne", name: "Palaiseau" },
+  { departmentPostal: "91", prefectureType: "subprefecture", department: "Essonne", name: "Palaiseau", alternatives: ["Massy Palaiseau"] },
   { departmentPostal: "91", prefectureType: "subprefecture", department: "Essonne", name: "Étampes" },
   { departmentPostal: "92", prefectureType: "prefecture", department: "Hauts-de-Seine", name: "Nanterre" },
   { departmentPostal: "92", prefectureType: "subprefecture", department: "Hauts-de-Seine", name: "Antony" },
@@ -796,7 +796,7 @@ let prefectures = [
   { departmentPostal: "94", prefectureType: "prefecture", department: "Val-de-Marne", name: "Créteil" },
   { departmentPostal: "94", prefectureType: "subprefecture", department: "Val-de-Marne", name: "Nogent-sur-Marne" },
   { departmentPostal: "94", prefectureType: "subprefecture", department: "Val-de-Marne", name: "L'Haÿ-les-Roses" },
-  { departmentPostal: "95", prefectureType: "prefecture", department: "Val-d'Oise", name: "Cergy-Pontoise" },
+  { departmentPostal: "95", prefectureType: "prefecture", department: "Val-d'Oise", name: "Cergy", alternatives: ["Cergy-Pontoise", "Pontoise"] },
   { departmentPostal: "95", prefectureType: "subprefecture", department: "Val-d'Oise", name: "Argenteuil" },
   { departmentPostal: "95", prefectureType: "subprefecture", department: "Val-d'Oise", name: "Sarcelles" },
 ];

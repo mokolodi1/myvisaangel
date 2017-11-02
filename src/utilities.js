@@ -150,27 +150,34 @@ function removeDiacritics (str) {
   return str;
 }
 
-function slugishify(name) {
+function slugify(name) {
   // remove diacritics, lowercase, replace everything but A-Z and numbers to _
   if (name) {
     return removeDiacritics(name).toLowerCase().replace(/[^A-Za-z0-9]/g, "_");
   }
 }
 
-// use slugishify to generate the slug to prefecture mapping
+// use slugify to generate the slug to prefecture mapping
 _.each(Data.prefectures, (prefecture) => {
-  Data.slugToPrefecture[slugishify(prefecture.name)] = prefecture;
+  prefecture.slug = slugify(prefecture.name);
+
+  Data.slugToPrefecture[prefecture.slug] = prefecture;
+  prefecture.allSluggedNames = [prefecture.slug];
+
+  _.each(prefecture.alternatives, (alternative) => {
+    prefecture.allSluggedNames.push(slugify(alternative));
+  });
 });
 
 // calculate the words without accents and such
 _.each(Data.countries, (country) => {
-  let names = [country.english, country.french];
+  let allNames = [country.english, country.french];
 
   if (country.alternatives) {
-    names = names.concat(country.alternatives);
+    allNames = allNames.concat(country.alternatives);
   }
 
-  country.slugishNames = _.map(names, slugishify);
+  country.allSluggedNames = _.map(allNames, slugify);
 });
 
 const CACHE_TIMEOUT = 1000 * 60; // one minute
@@ -212,7 +219,7 @@ function getDBSheet(sheetNumber, callback) {
         }
 
         if (row["préfecture"]) {
-          row.prefectureSlug = slugishify(row["préfecture"]);
+          row.prefectureSlug = slugify(row["préfecture"]);
         }
       });
 
@@ -308,7 +315,7 @@ var tdsFuse = new Fuse(tdsMappings, {
   keys: [ "description" ]
 });
 function tdsFromRecast(tdsDescription) {
-  let tdsMatches = tdsFuse.search(slugishify(tdsDescription));
+  let tdsMatches = tdsFuse.search(slugify(tdsDescription));
 
   if (tdsMatches && tdsMatches.length && tdsMatches[0].score < .4) {
     return tdsMatches[0].item.tdsType;
@@ -411,7 +418,7 @@ function httpError(response, errorMessage, error) {
 
 
 module.exports = {
-  slugishify,
+  slugify,
   cleanVisaQuery,
   papersListSheet,
   submissionMethodSheet,
