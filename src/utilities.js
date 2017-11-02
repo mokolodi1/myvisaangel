@@ -325,7 +325,6 @@ function tdsFromRecast(tdsDescription) {
 function prefTdsRequired(prefecture, selected_tds, destination_block) {
   var result = {
     redirect_to_blocks: [],
-    set_attributes: { destination_block },
   };
 
   if (!prefecture) {
@@ -361,7 +360,6 @@ function tdsRequired(destination_block) {
       "Select TDS type",
       destination_block,
     ],
-    set_attributes: { destination_block },
   };
 }
 

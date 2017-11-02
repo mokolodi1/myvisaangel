@@ -1267,9 +1267,6 @@ describe('My Visa Bot API', () => {
                 "Select TDS type",
                 "Dossier submission method",
               ],
-              set_attributes: {
-                destination_block: "Dossier submission method",
-              },
             });
 
             done();
@@ -1365,9 +1362,6 @@ describe('My Visa Bot API', () => {
                 "Select TDS type",
                 "Dossier papers list",
               ],
-              set_attributes: {
-                destination_block: "Dossier papers list",
-              },
             });
 
             done();
@@ -1448,9 +1442,6 @@ describe('My Visa Bot API', () => {
                 "Select TDS type",
                 "Dossier processing time",
               ],
-              set_attributes: {
-                destination_block: "Dossier processing time",
-              },
             });
 
             done();
@@ -1516,9 +1507,6 @@ describe('My Visa Bot API', () => {
                 "Select TDS type",
                 "TDS duration",
               ],
-              set_attributes: {
-                destination_block: "TDS duration",
-              },
             });
 
             done();
@@ -1693,9 +1681,6 @@ describe('My Visa Bot API', () => {
                 "Select TDS type",
                 "TDS all info",
               ],
-              set_attributes: {
-                destination_block: "TDS all info",
-              },
             });
 
             done();
@@ -1780,9 +1765,6 @@ describe('My Visa Bot API', () => {
                 "Select TDS type",
                 "TDS cerfa",
               ],
-              set_attributes: {
-                destination_block: "TDS cerfa",
-              },
             });
 
             done();
