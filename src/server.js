@@ -415,7 +415,7 @@ app.route('/v1/nlp').get(function(request, response) {
       query.intentConfidence = intent && intent.confidence;
       Utilities.logInSheet("nlp", query);
 
-      if (intent && !query.nlp_disabled) {
+      if (intent && intent.confidence >= .75 && !query.nlp_disabled) {
         let blockForIntent = {
           "dossier-submission-method": "Dossier submission method",
           "dossier-list-papers": "Dossier papers list",
