@@ -55,6 +55,8 @@ if (process.env.NODE_ENV === "dev") {
 process.on('uncaughtException', function (err) {
   console.error("Uncaught exception! Here's the stack:");
   console.error(err.stack);
+
+  Utilities.logError("Uncaught exception", err);
 });
 
 
@@ -171,22 +173,22 @@ var countriesFuse = new Fuse(Data.countries, {
   includeScore: true,
   maxPatternLength: 32,
   minMatchCharLength: 2,
-  keys: [ "slugishNames" ]
+  keys: [ "allSluggedNames" ]
 });
 app.route('/v1/parse_nationality').get(function(request, response) {
   let { nationality } = request.query;
 
-  if (!nationality && nationality !== "") {
-    return Utilities.handleError(undefined, response, 400,
-        "Missing nationality param");
+  if (!nationality) {
+    return Utilities.httpError(response, "Missing nationality param");
   }
 
   let results = countriesFuse.search(nationality);
 
   let bestResult = results[0];
-  let slugy = Utilities.slugishify(nationality);
+  let nationalitySlug = Utilities.slugify(nationality);
+  console.log("bestResult && bestResult.score:", bestResult && bestResult.score);
   if (bestResult &&
-      _.contains(bestResult.item.slugishNames, slugy)) {
+      _.contains(bestResult.item.allSluggedNames, nationalitySlug)) {
     response.json({
       set_attributes: {
         nationality: bestResult.item.slug,
@@ -272,98 +274,79 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   }
 });
 
+var prefectureFuse = new Fuse(Data.prefectures, {
+  shouldSort: true,
+  includeScore: true,
+  maxPatternLength: 32,
+  minMatchCharLength: 2,
+  keys: [ "name", "alternatives" ],
+});
 app.route('/v1/parse_prefecture').get(function(request, response) {
-  let { prefecture } = request.query;
+  let { prefecture, destination_block } = request.query;
 
-  if (!prefecture && prefecture !== "") {
-    return Utilities.handleError(undefined, response, 400,
-        "Missing prefecture parameter");
+  if (!prefecture || !destination_block) {
+    return Utilities.httpError(response,
+        "Missing prefecture or destination parameter");
   }
 
-  Utilities.submissionMethodSheet((error, result) => {
-    if (error) {
-      return Utilities.handleError(error, response, 500,
-          "Error reading from Google");
-    } else {
-      let prefecturesHash = _.reduce(result, (memo, row) => {
-        memo[row["préfecture"]] = true;
-        return memo;
-      }, {});
-      let prefectureNames = _.map(Object.keys(prefecturesHash), (name) => {
-        return {
-          name,
-          slugishName: Utilities.slugishify(name),
-        };
-      });
+  let sluggedPrefecture = Utilities.slugify(prefecture);
+  let results = prefectureFuse.search(sluggedPrefecture);
+  let bestResult = results[0];
 
-      var prefectureFuse = new Fuse(prefectureNames, {
-        shouldSort: true,
-        includeScore: true,
-        maxPatternLength: 32,
-        minMatchCharLength: 2,
-        keys: [ "name" ],
-      });
-
-      let slugishInput = Utilities.slugishify(prefecture);
-      let results = prefectureFuse.search(slugishInput);
-      let bestResult = results[0];
-
-      if (bestResult &&
-          bestResult.item.slugishName === Utilities.slugishify(prefecture)) {
-        response.json({
-          set_attributes: {
-            prefecture: bestResult.item.slugishName,
-            validated_prefecture: "yes",
-          }
-        });
-      } else if (bestResult && bestResult.score <= .25 &&
-          !(results[1] && results[1].score - results[0].score < .05)) {
-        response.json({
-          "messages": [
-            {
-              "text":  `Est-ce que tu voulais dire ${bestResult.item.name} ?`,
-              quick_replies: [
-                {
-                  title: "Oui 😀",
-                  set_attributes: {
-                    prefecture: bestResult.item.slugishName,
-                    validated_prefecture: "yes",
-                  },
-                },
-                {
-                  title: "Non 😔",
-                  set_attributes: {
-                    validated_prefecture: "no",
-                  },
-                },
-              ],
-            }
-          ],
-        });
-      } else {
-        let messages = [
-          {
-            text: "Je n'arrive pas à comprendre 😔. Vérifie l'orthographe stp et " +
-            "dis-moi à nouveau de quelle préfecture tu dépends."
-          }
-        ];
-
-        // if they put a space tell them to just put the country
-        if (_.contains(prefecture, " ")) {
-          messages.push({
-            text: "Essaye d'envoyer seulement le nom de la préfecture."
-          });
-        }
-
-        response.json({
-          messages,
-          set_attributes: {
-            validated_prefecture: "no",
-          }
-        });
+  if (bestResult &&
+      _.contains(bestResult.item.allSluggedNames, sluggedPrefecture)) {
+    response.json({
+      set_attributes: {
+        prefecture: bestResult.item.slug,
       }
+    });
+  } else if (bestResult && bestResult.score <= .25 &&
+      !(results[1] && results[1].score - results[0].score < .05)) {
+    response.json({
+      "messages": [
+        {
+          "text":  `Est-ce que tu voulais dire ${bestResult.item.name} ?`,
+          quick_replies: [
+            {
+              title: "Oui 😀",
+              set_attributes: {
+                prefecture: bestResult.item.slug,
+              },
+            },
+            {
+              title: "Non 😔",
+              block_names: [
+                "Ask for prefecture",
+                destination_block,
+              ],
+            },
+          ],
+        }
+      ],
+    });
+  } else {
+    let messages = [
+      {
+        text: "Je n'arrive pas à comprendre 😔. Vérifie l'orthographe stp et " +
+        "dis-moi à nouveau de quelle préfecture tu dépends."
+      }
+    ];
+
+    // if they put a space tell them to just put the country
+    if (_.contains(prefecture, " ")) {
+      messages.push({
+        text: "Essaye d'envoyer seulement le nom de la préfecture."
+      });
     }
-  });
+
+    response.json({
+      messages,
+      redirect_to_blocks: [
+        "Ask for prefecture",
+        destination_block,
+      ],
+    });
+  }
 });
 
 app.route('/v1/select_tds').get(function(request, response) {
@@ -397,16 +380,12 @@ app.route('/v1/nlp').get(function(request, response) {
   let message = query["last user freeform input"];
 
   if (!message) {
-    return Utilities.handleError(undefined, response, 400,
-        "Missing freeform param");
+    return Utilities.httpError(response, "Missing freeform param");
   }
 
   // Recast has a caracter limit
   if (message.length > 512) {
-    response.json({
-      redirect_to_blocks: ["Silent creators respond"],
-    });
-    return;
+    return response.json(Utilities.dropToLiveChat(query));
   }
 
   recastClient.analyseText(message)
@@ -418,7 +397,7 @@ app.route('/v1/nlp').get(function(request, response) {
       query.intentConfidence = intent && intent.confidence;
       Utilities.logInSheet("nlp", query);
 
-      if (intent && !query.nlp_disabled) {
+      if (intent && intent.confidence >= .75 && !query.nlp_disabled) {
         let blockForIntent = {
           "dossier-submission-method": "Dossier submission method",
           "dossier-list-papers": "Dossier papers list",
@@ -432,33 +411,32 @@ app.route('/v1/nlp').get(function(request, response) {
           "tds-cerfa": "TDS cerfa",
         };
 
-        if (blockForIntent[intent.slug]) {
-          var { prefecture, selected_tds } = query;
+        var { prefecture, selected_tds } = query;
 
-          // grab prefecture/TDS from Recast if they have been defined
-          let { entities } = recastResponse;
-          if (entities) {
-            // TODO: test this
-            // remove "papiers" from the list of prefecture entries - it
-            // recognizes the word "papiers" as the prefecture "Pamiers"
-            let withoutPapiers = _.filter(entities.prefecture, (entry) => {
-              return Utilities.slugishify(entry.raw) !== "papiers";
-            });
-            if (withoutPapiers && withoutPapiers.length > 0) {
-              let newPrefecture = Utilities.mostConfident(withoutPapiers);
-              prefecture = Utilities.slugishify(newPrefecture.value);
-            }
-
-            let recastTds = Utilities.mostConfident(entities["visa-type"]);
-            if (recastTds) {
-              let tds = Utilities.tdsFromRecast(recastTds.value);
-
-              if (tds) {
-                selected_tds = tds;
-              }
-            }
+        // grab prefecture/TDS from Recast if they have been defined
+        let { entities } = recastResponse;
+        if (entities) {
+          // remove "papiers" from the list of prefecture entries - it
+          // recognizes the word "papiers" as the prefecture "Pamiers"
+          let withoutPapiers = _.filter(entities.prefecture, (entry) => {
+            return Utilities.slugify(entry.raw) !== "papiers";
+          });
+          if (withoutPapiers && withoutPapiers.length > 0) {
+            let newPrefecture = Utilities.mostConfident(withoutPapiers);
+            prefecture = Utilities.slugify(newPrefecture.value);
           }
 
+          let recastTds = Utilities.mostConfident(entities["visa-type"]);
+          if (recastTds) {
+            let tds = Utilities.tdsFromRecast(recastTds.value);
+
+            if (tds) {
+              selected_tds = tds;
+            }
+          }
+        }
+
+        if (blockForIntent[intent.slug]) {
           var result = {
             redirect_to_blocks: [ blockForIntent[intent.slug] ],
           };
@@ -476,6 +454,16 @@ app.route('/v1/nlp').get(function(request, response) {
             redirect_to_blocks: [ "TDS Questions" ],
           });
           return;
+        } else if (intent.slug === "change-variable") {
+          let result = {
+            set_attributes: { prefecture, selected_tds }
+          };
+
+          if (query.destination_block) {
+            result.redirect_to_blocks = [ query.destination_block ];
+          }
+
+          return response.json(result);
         } else if (intent.slug === "greetings") {
           response.json({
             messages: [
@@ -500,8 +488,8 @@ app.route('/v1/nlp').get(function(request, response) {
       response.json(Utilities.dropToLiveChat(query));
     })
     .catch(function (error) {
-      return Utilities.handleError(error, response, 500,
-            "Error dealing with recast");
+      return Utilities.httpError(response, "Error dealing with recast",
+          error);
     });
 });
 
@@ -509,18 +497,15 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
   let { selected_tds, prefecture } = request.query;
 
   if (!selected_tds || !prefecture) {
-    var result = Utilities.prefTdsRequired(prefecture, selected_tds);
-
-    result.redirect_to_blocks.push("Dossier submission method");
-
-    response.json(result);
+    response.json(Utilities.prefTdsRequired(prefecture, selected_tds,
+        "Dossier submission method"));
     return;
   }
 
   Utilities.submissionMethodSheet((error, result) => {
     if (error) {
-      return Utilities.handleError(error, response, 500,
-            "Error getting the prefecture submission info");
+      return Utilities.httpError(response,
+          "Error getting the prefecture submission info", error);
     }
 
     let matchingRows = _.chain(result)
@@ -537,7 +522,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
     if (matchingRows.length > 0) {
       let submissionPossibilities = _.map(matchingRows, (row) => {
         let rdvMessage = "Tu n'as pas besoin de prendre RDV. ";
-        if (Utilities.slugishify(matchingRows[0]["besoinrdv"]) === "oui") {
+        if (Utilities.slugify(matchingRows[0]["besoinrdv"]) === "oui") {
           rdvMessage = "Le RDV se prend " +
               `${matchingRows[0]["commentprendrerdv"]}. `;
         }
@@ -552,7 +537,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
           {
             text: "Voici la/les procédure(s) pour déposer un dossier pour " +
             `un titre de séjour ${tdsTypes[selected_tds].name} à ` +
-            `${Data.slugToPrefecture[prefecture]} :`,
+            `${Data.slugToPrefecture[prefecture].name} :`,
           }
         ].concat(submissionPossibilities),
       });
@@ -561,7 +546,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
         messages: [
           {
             text: "Pour le moment nous n'avons la procedure pour la " +
-            `préfecture de ${Data.slugToPrefecture[prefecture]} dans notre ` +
+            `préfecture de ${Data.slugToPrefecture[prefecture].name} dans notre ` +
             "base de données.",
           },
           {
@@ -580,18 +565,15 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
   let { selected_tds, prefecture } = request.query;
 
   if (!selected_tds || !prefecture) {
-    var result = Utilities.prefTdsRequired(prefecture, selected_tds);
-
-    result.redirect_to_blocks.push("Dossier papers list");
-
-    response.json(result);
+    response.json(Utilities.prefTdsRequired(prefecture, selected_tds,
+        "Dossier papers list"));
     return;
   }
 
   Utilities.papersListSheet((error, result) => {
     if (error) {
-      return Utilities.handleError(error, response, 500,
-            "Error getting the submission information");
+      return Utilities.httpError(response,
+          "Error getting the submission information", error);
     }
 
     let matchingRows = _.where(result, {
@@ -606,7 +588,7 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
           {
             text: "Voici la liste de papiers pour un titre de séjour " +
                 `${tdsTypes[selected_tds].name} à ` +
-                `${Data.slugToPrefecture[prefecture]} : ${papersListLink}`,
+                `${Data.slugToPrefecture[prefecture].name} : ${papersListLink}`,
           },
         ],
       });
@@ -620,7 +602,7 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
         messages: [
           {
             text: "Pour le moment nous n'avons la liste pour la préfecture " +
-                `de ${Data.slugToPrefecture[prefecture]} ` +
+                `de ${Data.slugToPrefecture[prefecture].name} ` +
                 "dans notre base de données mais en attendant, je t'invite " +
                 "à regarder la liste de Nanterre car c'est très générique " +
                 "et il se peut qu'elle corresponde à 90% à la liste de ta" +
@@ -647,18 +629,15 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
   let { selected_tds, prefecture } = request.query;
 
   if (!selected_tds || !prefecture) {
-    var result = Utilities.prefTdsRequired(prefecture, selected_tds);
-
-    result.redirect_to_blocks.push("Dossier processing time");
-
-    response.json(result);
+    response.json(Utilities.prefTdsRequired(prefecture, selected_tds,
+        "Dossier processing time"));
     return;
   }
 
   Utilities.processingTimeSheet((error, result) => {
     if (error) {
-      return Utilities.handleError(error, response, 500,
-            "Error getting the submission information");
+      return Utilities.httpError(response,
+          "Error getting the submission information", error);
     }
 
     let matchingRows = _.where(result, {
@@ -674,7 +653,7 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
           {
             text: `Normalement ${delayText} pour le ` +
                 `${tdsTypes[selected_tds].name} à ` +
-                `${Data.slugToPrefecture[prefecture]}`,
+                `${Data.slugToPrefecture[prefecture].name}`,
           },
         ],
       });
@@ -703,8 +682,8 @@ function tdsInformation(request, response, blockName, sheetColumn) {
 
   Utilities.tdsInfoSheet((error, result) => {
     if (error) {
-      return Utilities.handleError(error, response, 500,
-          "Error getting the TDS info");
+      return Utilities.httpError(response, "Error getting the TDS info",
+          error);
     }
 
     let matchingRows = _.where(result, {
@@ -753,8 +732,8 @@ app.route('/v1/tds_all_info').get(function(request, response) {
 
   Utilities.tdsInfoSheet((error, result) => {
     if (error) {
-      return Utilities.handleError(error, response, 500,
-          "Error getting the TDS info");
+      return Utilities.httpError(response, "Error getting the TDS info",
+          error);
     }
 
     let matchingRows = _.where(result, {
@@ -788,8 +767,8 @@ app.route('/v1/tds_cerfa').get(function (request, response) {
 
   Utilities.cerfaSheet((error, result) => {
     if (error) {
-      return Utilities.handleError(error, repsonse, 500,
-          "Error getting the cerfa info");
+      return Utilities.httpError(repsonse, "Error getting the cerfa info",
+          error);
     }
 
     let matchingRows = _.where(result, {

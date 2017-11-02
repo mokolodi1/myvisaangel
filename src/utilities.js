@@ -150,27 +150,34 @@ function removeDiacritics (str) {
   return str;
 }
 
-function slugishify(name) {
+function slugify(name) {
   // remove diacritics, lowercase, replace everything but A-Z and numbers to _
   if (name) {
     return removeDiacritics(name).toLowerCase().replace(/[^A-Za-z0-9]/g, "_");
   }
 }
 
-// use slugishify to generate the slug to prefecture mapping
+// use slugify to generate the slug to prefecture mapping
 _.each(Data.prefectures, (prefecture) => {
-  Data.slugToPrefecture[slugishify(prefecture)] = prefecture;
+  prefecture.slug = slugify(prefecture.name);
+
+  Data.slugToPrefecture[prefecture.slug] = prefecture;
+  prefecture.allSluggedNames = [prefecture.slug];
+
+  _.each(prefecture.alternatives, (alternative) => {
+    prefecture.allSluggedNames.push(slugify(alternative));
+  });
 });
 
 // calculate the words without accents and such
 _.each(Data.countries, (country) => {
-  let names = [country.english, country.french];
+  let allNames = [country.english, country.french];
 
   if (country.alternatives) {
-    names = names.concat(country.alternatives);
+    allNames = allNames.concat(country.alternatives);
   }
 
-  country.slugishNames = _.map(names, slugishify);
+  country.allSluggedNames = _.map(allNames, slugify);
 });
 
 const CACHE_TIMEOUT = 1000 * 60; // one minute
@@ -212,7 +219,7 @@ function getDBSheet(sheetNumber, callback) {
         }
 
         if (row["préfecture"]) {
-          row.prefectureSlug = slugishify(row["préfecture"]);
+          row.prefectureSlug = slugify(row["préfecture"]);
         }
       });
 
@@ -308,16 +315,16 @@ var tdsFuse = new Fuse(tdsMappings, {
   keys: [ "description" ]
 });
 function tdsFromRecast(tdsDescription) {
-  let tdsMatches = tdsFuse.search(slugishify(tdsDescription));
+  let tdsMatches = tdsFuse.search(slugify(tdsDescription));
 
   if (tdsMatches && tdsMatches.length && tdsMatches[0].score < .4) {
     return tdsMatches[0].item.tdsType;
   }
 }
 
-function prefTdsRequired(prefecture, selected_tds) {
+function prefTdsRequired(prefecture, selected_tds, destination_block) {
   var result = {
-    redirect_to_blocks: []
+    redirect_to_blocks: [],
   };
 
   if (!prefecture) {
@@ -336,10 +343,12 @@ function prefTdsRequired(prefecture, selected_tds) {
     ];
   }
 
+  result.redirect_to_blocks.push(destination_block);
+
   return result;
 }
 
-function tdsRequired(lastBlockName) {
+function tdsRequired(destination_block) {
   return {
     messages: [
       {
@@ -349,7 +358,7 @@ function tdsRequired(lastBlockName) {
     ],
     redirect_to_blocks: [
       "Select TDS type",
-      lastBlockName,
+      destination_block,
     ],
   };
 }
@@ -362,13 +371,16 @@ function dropToLiveChat(query) {
     slack.webhook({
       channel: "#livechat",
       username: "teo-clone",
-      text: `New message from ${query["first name"]} ` +
+      // NOTE: be aware of the ternary operator here - I didn't want an if
+      // statement to count agsinst my lines of untested code... ;P
+      text: query ? `New message from ${query["first name"]} ` +
           `${query["last name"]}: https://www.facebook.com/My-Visa-Angel-` +
           "108759689812666/inbox/?selected_item_id=" +
           `${query["messenger user id"]} ` +
-          `\`\`\`${query["last user freeform input"]}\`\`\``,
+          `\`\`\`${query["last user freeform input"]}\`\`\`` :
+          "There was an error, so we've dropped the person into live chat.",
       icon_emoji: ":mailbox_with_mail:",
-    }, function(err, response) {});
+    }, _.noop);
   }
 
   return {
@@ -379,16 +391,32 @@ function dropToLiveChat(query) {
   };
 }
 
-function handleError(error, response, errorNumber, errorMessage) {
-  console.error(`HTTP=${errorNumber}\t${errorMessage}`);
-  console.error(error);
-  response.status(errorNumber).send(errorMessage);
+function logError(message, error) {
+  if (process.env.NODE_ENV !== "dev") {
+    slack.webhook({
+      channel: "#alerts",
+      username: "teo-clone",
+      text: `${message} \`\`\`${error}\`\`\``,
+      icon_emoji: ":robot_face:",
+    }, _.noop);
+  }
+}
+
+function httpError(response, errorMessage, error) {
+  console.error(`${errorMessage}`);
+  if (error) {
+    console.error(error);
+  }
+
+  logError(errorMessage, error);
+
+  response.json(dropToLiveChat());
 }
 
 
 
 module.exports = {
-  slugishify,
+  slugify,
   cleanVisaQuery,
   papersListSheet,
   submissionMethodSheet,
@@ -401,5 +429,6 @@ module.exports = {
   prefTdsRequired,
   tdsRequired,
   dropToLiveChat,
-  handleError,
+  httpError,
+  logError,
 }

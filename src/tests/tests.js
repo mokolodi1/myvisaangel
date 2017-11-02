@@ -12,6 +12,13 @@ var Utilities = require("../utilities.js");
 
 chai.use(chaiHttp);
 
+var silentLiveChat = {
+  redirect_to_blocks: ["Silent creators respond"],
+  set_attributes: {
+    nlp_disabled: "yes",
+  },
+};
+
 describe('My Visa Bot API', () => {
   describe("Make sure the internals work...", () => {
     // Tests for APS
@@ -669,47 +676,49 @@ describe('My Visa Bot API', () => {
                   text: "De quel pays exactement parles-tu ?",
                   quick_replies: [
                     {
-                      title: "Macédoine",
-                      set_attributes: {
-                        nationality: "macedonia",
-                        validated_nationality: "yes",
-                      },
-                    },
-                    {
-                      title: "Malte",
-                      set_attributes: {
-                        nationality: "malta",
-                        validated_nationality: "yes"
-                      },
-                    },
-                    {
-                      title: "Mauritanie",
-                      set_attributes: {
-                        nationality: "mauritania",
-                        validated_nationality: "yes"
-                      },
-                    },
-                    {
                       title: "Maurice",
                       set_attributes: {
                         nationality: "mauritius",
-                        validated_nationality: "yes"
-                      },
+                        validated_nationality: "yes",
+                      }
+                    },
+                    {
+                      title: "Mayotte",
+                      set_attributes: {
+                        nationality: "mayotte",
+                        validated_nationality: "yes",
+                      }
                     },
                     {
                       title: "Martinique",
                       set_attributes: {
                         nationality: "martinique",
-                        validated_nationality: "yes"
-                      },
+                        validated_nationality: "yes",
+                      }
+                    },
+                    {
+                      title: "Maldives",
+                      set_attributes: {
+                        nationality: "maldives",
+                        validated_nationality: "yes",
+                      }
+                    },
+                    {
+                      title: "Malawi",
+                      set_attributes: {
+                        nationality: "malawi",
+                        validated_nationality: "yes",
+                      }
                     },
                     {
                       title: "Autre",
-                      set_attributes: { validated_nationality: "no" },
-                    },
-                  ],
-                },
-              ],
+                      set_attributes: {
+                        validated_nationality: "no"
+                      }
+                    }
+                  ]
+                }
+              ]
             });
 
             done();
@@ -722,18 +731,7 @@ describe('My Visa Bot API', () => {
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                  "l'orthographe stp et dis-moi à nouveau de quel pays " +
-                  "tu viens."
-                },
-              ],
-              set_attributes: {
-                validated_nationality: "no",
-              },
-            });
+            response.body.should.be.deep.eql(silentLiveChat);
 
             done();
         });
@@ -743,7 +741,8 @@ describe('My Visa Bot API', () => {
         chai.request(server)
           .get('/v1/parse_nationality')
           .end((err, response) => {
-            response.should.have.status(400);
+            response.should.have.status(200);
+            response.body.should.be.deep.eql(silentLiveChat);
 
             done();
         });
@@ -753,15 +752,30 @@ describe('My Visa Bot API', () => {
     describe('/GET /v1/parse_prefecture', () => {
       it('should work for Paris', (done) => {
         chai.request(server)
-          .get('/v1/parse_prefecture?prefecture=Paris')
+          .get('/v1/parse_prefecture?prefecture=Paris&destination_block=Dossier submission')
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
               set_attributes: {
                 prefecture: "paris",
-                validated_prefecture: "yes",
-              }
+              },
+            });
+
+            done();
+        });
+      });
+
+      it('should work for an alternative spelling', (done) => {
+        chai.request(server)
+          .get('/v1/parse_prefecture?prefecture=Massy Palaiseau&destination_block=Dossier submission')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                prefecture: "palaiseau",
+              },
             });
 
             done();
@@ -770,14 +784,13 @@ describe('My Visa Bot API', () => {
 
       it('should work for Boulogne-Billancourt', (done) => {
         chai.request(server)
-          .get('/v1/parse_prefecture?prefecture=Boulogne-Billancourt')
+          .get('/v1/parse_prefecture?prefecture=Boulogne-Billancourt&destination_block=Dossier submission')
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.should.be.deep.eql({
               set_attributes: {
                 prefecture: "boulogne_billancourt",
-                validated_prefecture: "yes",
               }
             });
 
@@ -787,7 +800,7 @@ describe('My Visa Bot API', () => {
 
       it('should ask again if they spell it super wrong', (done) => {
         chai.request(server)
-          .get('/v1/parse_prefecture?prefecture=Ppaarriiss')
+          .get('/v1/parse_prefecture?prefecture=Ppaarriiss&destination_block=Dossier submission')
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
@@ -799,9 +812,10 @@ describe('My Visa Bot API', () => {
                   "préfecture tu dépends."
                 }
               ],
-              set_attributes: {
-                validated_prefecture: "no",
-              },
+              redirect_to_blocks: [
+                "Ask for prefecture",
+                "Dossier submission",
+              ],
             });
 
             done();
@@ -810,7 +824,7 @@ describe('My Visa Bot API', () => {
 
       it('should ask again if they spell it super wrong spaces', (done) => {
         chai.request(server)
-          .get("/v1/parse_prefecture?prefecture=I+don't+know")
+          .get("/v1/parse_prefecture?prefecture=I+don't+know&destination_block=Dossier submission")
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
@@ -825,9 +839,10 @@ describe('My Visa Bot API', () => {
                   text: "Essaye d'envoyer seulement le nom de la préfecture."
                 }
               ],
-              set_attributes: {
-                validated_prefecture: "no",
-              },
+              redirect_to_blocks: [
+                "Ask for prefecture",
+                "Dossier submission",
+              ],
             });
 
             done();
@@ -836,7 +851,7 @@ describe('My Visa Bot API', () => {
 
       it("should ask them to specify if it's relatively close", (done) => {
         chai.request(server)
-          .get('/v1/parse_prefecture?prefecture=Boigny')
+          .get('/v1/parse_prefecture?prefecture=Boigny&destination_block=Dossier submission')
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
@@ -849,14 +864,11 @@ describe('My Visa Bot API', () => {
                       title: "Oui 😀",
                       set_attributes: {
                         prefecture: "bobigny",
-                        validated_prefecture: "yes",
                       },
                     },
                     {
                       title: "Non 😔",
-                      set_attributes: {
-                        validated_prefecture: "no",
-                      },
+                      block_names: [ "Ask for prefecture", "Dossier submission" ],
                     },
                   ],
                 }
@@ -869,13 +881,13 @@ describe('My Visa Bot API', () => {
 
       it("shouldn't work with a string like bo", (done) => {
         chai.request(server)
-          .get('/v1/parse_prefecture?prefecture=bo')
+          .get('/v1/parse_prefecture?prefecture=bo&destination_block=Dossier submission')
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
             response.body.messages[0].text.should.be.eql("Je n'arrive pas à " +
-            "comprendre 😔. Vérifie l'orthographe stp et " +
-            "dis-moi à nouveau de quelle préfecture tu dépends.");
+                "comprendre 😔. Vérifie l'orthographe stp et " +
+                "dis-moi à nouveau de quelle préfecture tu dépends.");
 
             done();
         });
@@ -883,22 +895,11 @@ describe('My Visa Bot API', () => {
 
       it("shouldn't work with a blank string", (done) => {
         chai.request(server)
-          .get('/v1/parse_prefecture?prefecture=')
+          .get('/v1/parse_prefecture?prefecture=&destination_block=Dossier submission')
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Je n'arrive pas à comprendre 😔. Vérifie " +
-                  "l'orthographe stp et dis-moi à nouveau de quelle " +
-                  "préfecture tu dépends."
-                },
-              ],
-              set_attributes: {
-                validated_prefecture: "no",
-              },
-            });
+            response.body.should.be.deep.eql(silentLiveChat);
 
             done();
         });
@@ -908,7 +909,19 @@ describe('My Visa Bot API', () => {
         chai.request(server)
           .get('/v1/parse_prefecture')
           .end((err, response) => {
-            response.should.have.status(400);
+            response.should.have.status(200);
+            response.body.should.be.deep.eql(silentLiveChat);
+
+            done();
+        });
+      });
+
+      it("shouldn't work return an error if prefecture spelled wrong and no destination", (done) => {
+        chai.request(server)
+          .get('/v1/parse_prefecture?prefecture=Boigny')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql(silentLiveChat);
 
             done();
         });
@@ -1010,7 +1023,8 @@ describe('My Visa Bot API', () => {
         chai.request(server)
           .get('/v1/nlp')
           .end((err, response) => {
-            response.should.have.status(400);
+            response.should.have.status(200);
+            response.body.should.be.deep.eql(silentLiveChat);
 
             done();
           });
@@ -1021,9 +1035,7 @@ describe('My Visa Bot API', () => {
           .get('/v1/nlp?last+user+freeform+input=' + "a".repeat(513))
           .end((err, response) => {
             response.should.have.status(200);
-            response.body.should.be.deep.eql({
-              redirect_to_blocks: ["Silent creators respond"],
-            });
+            response.body.should.be.deep.eql(silentLiveChat);
 
             done();
           });
@@ -1035,12 +1047,7 @@ describe('My Visa Bot API', () => {
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
-            response.body.should.be.deep.eql({
-              redirect_to_blocks: ["Silent creators respond"],
-              set_attributes: {
-                nlp_disabled: "yes",
-              },
-            });
+            response.body.should.be.deep.eql(silentLiveChat);
 
             done();
           });
@@ -1234,12 +1241,69 @@ describe('My Visa Bot API', () => {
           .end((err, response) => {
             response.should.have.status(200);
 
-            // TODO: this will change!
+            response.body.should.be.deep.eql(silentLiveChat);
+
+            done();
+          });
+      });
+
+      it("should set the prefecture if they want to change it", (done) => {
+        chai.request(server)
+          .get("/v1/nlp?first%20name=Teo&last+user+freeform+input=Ma préfecture c'est Nanterre")
+          .end((err, response) => {
+            response.should.have.status(200);
             response.body.should.be.deep.eql({
-              redirect_to_blocks: ["Silent creators respond"],
               set_attributes: {
-                nlp_disabled: "yes"
-              }
+                prefecture: "nanterre",
+              },
+            });
+
+            done();
+          });
+      });
+
+      it("should set the visa type if they want to change it", (done) => {
+        chai.request(server)
+          .get("/v1/nlp?first%20name=Teo&last+user+freeform+input=Et pour le passeport talent ?")
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                selected_tds: "ptsq",
+              },
+            });
+
+            done();
+          });
+      });
+
+      it("should set both selected_tds and prefecture if they want", (done) => {
+        chai.request(server)
+          .get("/v1/nlp?first%20name=Teo&last+user+freeform+input=Et pour le passeport talent à Paris ?")
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                selected_tds: "ptsq",
+                prefecture: "paris",
+              },
+            });
+
+            done();
+          });
+      });
+
+      it("should set both and redo last action", (done) => {
+        chai.request(server)
+          .get("/v1/nlp?first%20name=Teo&last+user+freeform+input=Et pour le passeport talent à Paris ?&destination_block=Dossier submission method")
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                selected_tds: "ptsq",
+                prefecture: "paris",
+              },
+              redirect_to_blocks: [ "Dossier submission method" ],
             });
 
             done();
@@ -1518,12 +1582,7 @@ describe('My Visa Bot API', () => {
           .end((err, response) => {
             response.should.have.status(200);
 
-            response.body.should.be.deep.eql({
-              redirect_to_blocks: ["Silent creators respond"],
-              set_attributes: {
-                nlp_disabled: "yes",
-              },
-            });
+            response.body.should.be.deep.eql(silentLiveChat);
 
             done();
           });
@@ -1697,12 +1756,7 @@ describe('My Visa Bot API', () => {
           .end((err, response) => {
             response.should.have.status(200);
 
-            response.body.should.be.deep.eql({
-              redirect_to_blocks: ["Silent creators respond"],
-              set_attributes: {
-                nlp_disabled: "yes",
-              },
-            });
+            response.body.should.be.deep.eql(silentLiveChat);
 
             done();
           });
@@ -1786,12 +1840,7 @@ describe('My Visa Bot API', () => {
           .end((err, response) => {
             response.should.have.status(200);
 
-            response.body.should.be.deep.eql({
-              redirect_to_blocks: ["Silent creators respond"],
-              set_attributes: {
-                nlp_disabled: "yes",
-              },
-            });
+            response.body.should.be.deep.eql(silentLiveChat);
 
             done();
           });
