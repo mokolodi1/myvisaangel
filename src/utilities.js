@@ -159,7 +159,7 @@ function slugishify(name) {
 
 // use slugishify to generate the slug to prefecture mapping
 _.each(Data.prefectures, (prefecture) => {
-  Data.slugToPrefecture[slugishify(prefecture)] = prefecture;
+  Data.slugToPrefecture[slugishify(prefecture.name)] = prefecture;
 });
 
 // calculate the words without accents and such

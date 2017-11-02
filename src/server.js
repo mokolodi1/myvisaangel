@@ -551,7 +551,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
           {
             text: "Voici la/les procédure(s) pour déposer un dossier pour " +
             `un titre de séjour ${tdsTypes[selected_tds].name} à ` +
-            `${Data.slugToPrefecture[prefecture]} :`,
+            `${Data.slugToPrefecture[prefecture].name} :`,
           }
         ].concat(submissionPossibilities),
       });
@@ -560,7 +560,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
         messages: [
           {
             text: "Pour le moment nous n'avons la procedure pour la " +
-            `préfecture de ${Data.slugToPrefecture[prefecture]} dans notre ` +
+            `préfecture de ${Data.slugToPrefecture[prefecture].name} dans notre ` +
             "base de données.",
           },
           {
@@ -605,7 +605,7 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
           {
             text: "Voici la liste de papiers pour un titre de séjour " +
                 `${tdsTypes[selected_tds].name} à ` +
-                `${Data.slugToPrefecture[prefecture]} : ${papersListLink}`,
+                `${Data.slugToPrefecture[prefecture].name} : ${papersListLink}`,
           },
         ],
       });
@@ -619,7 +619,7 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
         messages: [
           {
             text: "Pour le moment nous n'avons la liste pour la préfecture " +
-                `de ${Data.slugToPrefecture[prefecture]} ` +
+                `de ${Data.slugToPrefecture[prefecture].name} ` +
                 "dans notre base de données mais en attendant, je t'invite " +
                 "à regarder la liste de Nanterre car c'est très générique " +
                 "et il se peut qu'elle corresponde à 90% à la liste de ta" +
@@ -673,7 +673,7 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
           {
             text: `Normalement ${delayText} pour le ` +
                 `${tdsTypes[selected_tds].name} à ` +
-                `${Data.slugToPrefecture[prefecture]}`,
+                `${Data.slugToPrefecture[prefecture].name}`,
           },
         ],
       });
