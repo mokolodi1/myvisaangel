@@ -411,33 +411,32 @@ app.route('/v1/nlp').get(function(request, response) {
           "tds-cerfa": "TDS cerfa",
         };
 
-        if (blockForIntent[intent.slug]) {
-          var { prefecture, selected_tds } = query;
+        var { prefecture, selected_tds } = query;
 
-          // grab prefecture/TDS from Recast if they have been defined
-          let { entities } = recastResponse;
-          if (entities) {
-            // TODO: test this
-            // remove "papiers" from the list of prefecture entries - it
-            // recognizes the word "papiers" as the prefecture "Pamiers"
-            let withoutPapiers = _.filter(entities.prefecture, (entry) => {
-              return Utilities.slugify(entry.raw) !== "papiers";
-            });
-            if (withoutPapiers && withoutPapiers.length > 0) {
-              let newPrefecture = Utilities.mostConfident(withoutPapiers);
-              prefecture = Utilities.slugify(newPrefecture.value);
-            }
-
-            let recastTds = Utilities.mostConfident(entities["visa-type"]);
-            if (recastTds) {
-              let tds = Utilities.tdsFromRecast(recastTds.value);
-
-              if (tds) {
-                selected_tds = tds;
-              }
-            }
+        // grab prefecture/TDS from Recast if they have been defined
+        let { entities } = recastResponse;
+        if (entities) {
+          // remove "papiers" from the list of prefecture entries - it
+          // recognizes the word "papiers" as the prefecture "Pamiers"
+          let withoutPapiers = _.filter(entities.prefecture, (entry) => {
+            return Utilities.slugify(entry.raw) !== "papiers";
+          });
+          if (withoutPapiers && withoutPapiers.length > 0) {
+            let newPrefecture = Utilities.mostConfident(withoutPapiers);
+            prefecture = Utilities.slugify(newPrefecture.value);
           }
 
+          let recastTds = Utilities.mostConfident(entities["visa-type"]);
+          if (recastTds) {
+            let tds = Utilities.tdsFromRecast(recastTds.value);
+
+            if (tds) {
+              selected_tds = tds;
+            }
+          }
+        }
+
+        if (blockForIntent[intent.slug]) {
           var result = {
             redirect_to_blocks: [ blockForIntent[intent.slug] ],
           };
@@ -455,6 +454,16 @@ app.route('/v1/nlp').get(function(request, response) {
             redirect_to_blocks: [ "TDS Questions" ],
           });
           return;
+        } else if (intent.slug === "change-variable") {
+          let result = {
+            set_attributes: { prefecture, selected_tds }
+          };
+
+          if (query.destination_block) {
+            result.redirect_to_blocks = [ query.destination_block ];
+          }
+
+          return response.json(result);
         } else if (intent.slug === "greetings") {
           response.json({
             messages: [

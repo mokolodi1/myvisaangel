@@ -1246,6 +1246,69 @@ describe('My Visa Bot API', () => {
             done();
           });
       });
+
+      it("should set the prefecture if they want to change it", (done) => {
+        chai.request(server)
+          .get("/v1/nlp?first%20name=Teo&last+user+freeform+input=Ma préfecture c'est Nanterre")
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                prefecture: "nanterre",
+              },
+            });
+
+            done();
+          });
+      });
+
+      it("should set the visa type if they want to change it", (done) => {
+        chai.request(server)
+          .get("/v1/nlp?first%20name=Teo&last+user+freeform+input=Et pour le passeport talent ?")
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                selected_tds: "ptsq",
+              },
+            });
+
+            done();
+          });
+      });
+
+      it("should set both selected_tds and prefecture if they want", (done) => {
+        chai.request(server)
+          .get("/v1/nlp?first%20name=Teo&last+user+freeform+input=Et pour le passeport talent à Paris ?")
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                selected_tds: "ptsq",
+                prefecture: "paris",
+              },
+            });
+
+            done();
+          });
+      });
+
+      it("should set both and redo last action", (done) => {
+        chai.request(server)
+          .get("/v1/nlp?first%20name=Teo&last+user+freeform+input=Et pour le passeport talent à Paris ?&destination_block=Dossier submission method")
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                selected_tds: "ptsq",
+                prefecture: "paris",
+              },
+              redirect_to_blocks: [ "Dossier submission method" ],
+            });
+
+            done();
+          });
+      });
     });
 
     describe('/GET /v1/dossier_submission_method', () => {
