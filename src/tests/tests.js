@@ -757,7 +757,7 @@ describe('My Visa Bot API', () => {
             response.body.should.be.deep.eql({
               set_attributes: {
                 prefecture: "paris",
-              }
+              },
             });
 
             done();
