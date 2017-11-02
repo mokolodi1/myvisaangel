@@ -148,8 +148,8 @@ tmux
 2. Clear the logs (`rm ~/chatbot_logs.txt`) and relaunch on the new box: `BOX_NUMBER=b4 ./scripts/prod_start.sh`
 3. Watch [the logs](https://docs.google.com/spreadsheets/d/1rwp_fErdkFWw-5YNjnbFGPp7XpJjbQFteMxpopdzF1A/edit#gid=1859852654) and `tail -f ~/chatbot_logs.txt`, test `MVA Beta` one last time
 4. Make sure no one is using `My Visa Angel`
-5. Disconnect the beta bot from `MVA Beta` on Chatfuel
-6. Update the `api` record with the latest IP on [Hover](https://www.hover.com/control_panel/domain/myvisaangel.com/dns)
+5. Update the `api` record with the latest IP on [Hover](https://www.hover.com/control_panel/domain/myvisaangel.com/dns)
+6. Disconnect the beta bot from `MVA Beta` on Chatfuel
 7. Open both the `My Visa Angel` and `MVA Beta` in tabs
 8. Disconnect the old prod bot from `My Visa Angel` on Chatfuel
 9. Connect the beta bot to `My Visa Angel` on Chatfuel
