@@ -145,7 +145,7 @@ tmux
 ### Deploying from the beta to production
 
 1. Merge the latest PR, and `git pull` on the new box
-2. Relaunch on the new box: `BOX_NUMBER=b4 ./scripts/prod_start.sh`
+2. Clear the logs (`rm ~/chatbot_logs.txt`) and relaunch on the new box: `BOX_NUMBER=b4 ./scripts/prod_start.sh`
 3. Watch [the logs](https://docs.google.com/spreadsheets/d/1rwp_fErdkFWw-5YNjnbFGPp7XpJjbQFteMxpopdzF1A/edit#gid=1859852654) and `tail -f ~/chatbot_logs.txt`, test `MVA Beta` one last time
 4. Make sure no one is using `My Visa Angel`
 5. Disconnect the beta bot from `MVA Beta` on Chatfuel
