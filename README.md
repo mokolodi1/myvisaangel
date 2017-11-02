@@ -140,7 +140,8 @@ tmux
 8. Connect the beta bot to the `MVA Beta` Facebook page
 9. Go through all the blocks and change the URLs to the new version number. Note that you have to wait a second or two for Chatfuel to validate the URL before it saves.
 10. Verify you've changed all the block's URLs to the new version number. If you miss one that block won't work anymore when we kill what is now the current production box but will seem to work until then.
-11. Take the `MVA Beta` bot out for a whirl while watching the logs.
+11. Take the `MVA Beta` bot out for a whirl while watching the logs
+12. Invite other team members to be admin of the new bot
 
 ### Deploying from the beta to production
 
