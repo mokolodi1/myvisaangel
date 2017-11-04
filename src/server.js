@@ -545,7 +545,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
       response.json({
         messages: [
           {
-            text: "Pour le moment nous n'avons la procedure pour la " +
+            text: "Pour le moment nous n'avons pas la procedure pour la " +
             `préfecture de ${Data.slugToPrefecture[prefecture].name} dans notre ` +
             "base de données.",
           },
@@ -601,8 +601,8 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
       response.json({
         messages: [
           {
-            text: "Pour le moment nous n'avons la liste pour la préfecture " +
-                `de ${Data.slugToPrefecture[prefecture].name} ` +
+            text: "Pour le moment nous n'avons pas la liste pour la " +
+                `préfecture de ${Data.slugToPrefecture[prefecture].name} ` +
                 "dans notre base de données mais en attendant, je t'invite " +
                 "à regarder la liste de Nanterre car c'est très générique " +
                 "et il se peut qu'elle corresponde à 90% à la liste de ta" +

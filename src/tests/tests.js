@@ -1412,8 +1412,8 @@ describe('My Visa Bot API', () => {
             response.body.should.be.deep.eql({
               messages: [
                 {
-                  text: "Pour le moment nous n'avons la procedure pour la " +
-                  "préfecture de NOPE dans notre base de données.",
+                  text: "Pour le moment nous n'avons pas la procedure pour " +
+                  "la préfecture de NOPE dans notre base de données.",
                 },
                 {
                   text: "D'ailleurs, nous te serions très reconnaissants si une " +
@@ -1506,7 +1506,7 @@ describe('My Visa Bot API', () => {
             response.body.should.be.deep.eql({
               messages: [
                 {
-                  text: "Pour le moment nous n'avons la liste pour la " +
+                  text: "Pour le moment nous n'avons pas la liste pour la " +
                   "préfecture de NOPE dans notre base de données mais en " +
                   "attendant, " +
                   "je t'invite à regarder la liste de Nanterre car c'est " +
