@@ -328,7 +328,7 @@ function prefTdsRequired(prefecture, selected_tds, destination_block) {
     redirect_to_blocks: [],
   };
 
-  if (!prefecture) {
+  if (!prefecture || !Data.slugToPrefecture[prefecture]) {
     result.redirect_to_blocks.push("Ask for prefecture");
   }
   if (!selected_tds) {
