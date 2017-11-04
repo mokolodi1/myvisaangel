@@ -496,7 +496,7 @@ app.route('/v1/nlp').get(function(request, response) {
 app.route('/v1/dossier_submission_method').get(function(request, response) {
   let { selected_tds, prefecture } = request.query;
 
-  if (!selected_tds || !prefecture) {
+  if (!selected_tds || !prefecture || !Data.slugToPrefecture[prefecture]) {
     response.json(Utilities.prefTdsRequired(prefecture, selected_tds,
         "Dossier submission method"));
     return;
@@ -564,7 +564,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
 app.route('/v1/dossier_papers_list').get(function(request, response) {
   let { selected_tds, prefecture } = request.query;
 
-  if (!selected_tds || !prefecture) {
+  if (!selected_tds || !prefecture || !Data.slugToPrefecture[prefecture]) {
     response.json(Utilities.prefTdsRequired(prefecture, selected_tds,
         "Dossier papers list"));
     return;
@@ -628,7 +628,7 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
 app.route('/v1/dossier_processing_time').get(function(request, response) {
   let { selected_tds, prefecture } = request.query;
 
-  if (!selected_tds || !prefecture) {
+  if (!selected_tds || !prefecture || !Data.slugToPrefecture[prefecture]) {
     response.json(Utilities.prefTdsRequired(prefecture, selected_tds,
         "Dossier processing time"));
     return;

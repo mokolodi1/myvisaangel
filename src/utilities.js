@@ -300,6 +300,7 @@ var tdsMappings = [
   { tdsType: "aps", description: "autorisation_provisoire_de_sejour" },
   { tdsType: "ptsq", description: "passeport_talent" },
   { tdsType: "vpf", description: "vie_privee_et_familiale" },
+  { tdsType: "vpf", description: "familiale" },
   { tdsType: "salarie_tt", description: "travailleur" },
   { tdsType: "salarie_tt", description: "salarie" },
   { tdsType: "salarie_tt", description: "travailleur_temporaire" },
@@ -327,7 +328,7 @@ function prefTdsRequired(prefecture, selected_tds, destination_block) {
     redirect_to_blocks: [],
   };
 
-  if (!prefecture) {
+  if (!prefecture || !Data.slugToPrefecture[prefecture]) {
     result.redirect_to_blocks.push("Ask for prefecture");
   }
   if (!selected_tds) {

@@ -1336,6 +1336,29 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      it("should fail if invalid parameters", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_submission_method?selected_tds=aps&prefecture=hi')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                      "de quelques informations complémentaires",
+                },
+              ],
+              redirect_to_blocks: [
+                "Ask for prefecture",
+                "Dossier submission method",
+              ],
+            });
+
+            done();
+          });
+      });
+
       it("should help users (Paris, APS)", (done) => {
         chai.request(server)
           .get('/v1/dossier_submission_method?prefecture=paris&selected_tds=aps')
@@ -1431,6 +1454,29 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      it("should fail if invalid parameters", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_papers_list?selected_tds=aps&prefecture=hi')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                      "de quelques informations complémentaires",
+                },
+              ],
+              redirect_to_blocks: [
+                "Ask for prefecture",
+                "Dossier papers list",
+              ],
+            });
+
+            done();
+          });
+      });
+
       it("should help users if they have the info", (done) => {
         chai.request(server)
           .get('/v1/dossier_papers_list?prefecture=paris&selected_tds=aps')
@@ -1503,6 +1549,29 @@ describe('My Visa Bot API', () => {
               redirect_to_blocks: [
                 "Ask for prefecture",
                 "Select TDS type",
+                "Dossier processing time",
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should fail if invalid parameters", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_processing_time?selected_tds=aps&prefecture=hi')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour t'aider j'ai besoin " +
+                      "de quelques informations complémentaires",
+                },
+              ],
+              redirect_to_blocks: [
+                "Ask for prefecture",
                 "Dossier processing time",
               ],
             });
