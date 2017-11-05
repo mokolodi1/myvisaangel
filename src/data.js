@@ -796,7 +796,7 @@ let prefectures = [
   { departmentPostal: "94", prefectureType: "prefecture", department: "Val-de-Marne", name: "Créteil" },
   { departmentPostal: "94", prefectureType: "subprefecture", department: "Val-de-Marne", name: "Nogent-sur-Marne" },
   { departmentPostal: "94", prefectureType: "subprefecture", department: "Val-de-Marne", name: "L'Haÿ-les-Roses" },
-  { departmentPostal: "95", prefectureType: "prefecture", department: "Val-d'Oise", name: "Cergy", alternatives: ["Cergy-Pontoise", "Pontoise"] },
+  { departmentPostal: "95", prefectureType: "prefecture", department: "Val-d'Oise", name: "Pontoise", alternatives: ["Cergy-Pontoise", "Cergy"] },
   { departmentPostal: "95", prefectureType: "subprefecture", department: "Val-d'Oise", name: "Argenteuil" },
   { departmentPostal: "95", prefectureType: "subprefecture", department: "Val-d'Oise", name: "Sarcelles" },
 ];
