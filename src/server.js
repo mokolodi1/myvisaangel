@@ -279,7 +279,7 @@ var prefectureFuse = new Fuse(Data.prefectures, {
   includeScore: true,
   maxPatternLength: 32,
   minMatchCharLength: 2,
-  keys: [ "name", "alternatives" ],
+  keys: [ "allSluggedNames" ],
 });
 app.route('/v1/parse_prefecture').get(function(request, response) {
   let { prefecture, destination_block } = request.query;
@@ -289,12 +289,12 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
         "Missing prefecture or destination parameter");
   }
 
-  let sluggedPrefecture = Utilities.slugify(prefecture);
-  let results = prefectureFuse.search(sluggedPrefecture);
+  let sluggedInput = Utilities.slugify(prefecture);
+  let results = prefectureFuse.search(sluggedInput);
   let bestResult = results[0];
 
   if (bestResult &&
-      _.contains(bestResult.item.allSluggedNames, sluggedPrefecture)) {
+      _.contains(bestResult.item.allSluggedNames, sluggedInput)) {
     response.json({
       set_attributes: {
         prefecture: bestResult.item.slug,
@@ -321,6 +321,33 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
               ],
             },
           ],
+        }
+      ],
+    });
+  } else if (Data.departmentsPrefectures[sluggedInput]) {
+    let prefectureList = Data.departmentsPrefectures[sluggedInput];
+
+    response.json({
+      messages: [
+        {
+          text: "Tu dépends de quelle préfecture en " +
+              `${prefectureList[0].department} ?`,
+          quick_replies: _.map(prefectureList, (prefecture) => {
+            return {
+              title: prefecture.name,
+              set_attributes: {
+                prefecture: prefecture.slug,
+              },
+            };
+          }).concat([
+            {
+              title: "Autre",
+              block_names: [
+                "Ask for prefecture",
+                destination_block,
+              ],
+            },
+          ]),
         }
       ],
     });

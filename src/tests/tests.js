@@ -926,6 +926,44 @@ describe('My Visa Bot API', () => {
             done();
         });
       });
+
+      it("should work with department name", (done) => {
+        chai.request(server)
+          .get('/v1/parse_prefecture?prefecture=val-de-marne&destination_block=Dossier submission')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Tu dépends de quelle préfecture en Val-de-Marne ?",
+                  quick_replies: [
+                    {
+                      title: "Créteil",
+                      set_attributes: { prefecture: "creteil" },
+                    },
+                    {
+                      title: "Nogent-sur-Marne",
+                      set_attributes: { prefecture: "nogent_sur_marne" },
+                    },
+                    {
+                      title: "L'Haÿ-les-Roses",
+                      set_attributes: { prefecture: "l_hay_les_roses" },
+                    },
+                    {
+                      title: "Autre",
+                      block_names: [
+                        "Ask for prefecture",
+                        "Dossier submission",
+                      ],
+                    },
+                  ],
+                },
+              ],
+            });
+
+            done();
+        });
+      });
     });
 
     describe('/GET /v1/select_tds', () => {

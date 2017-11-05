@@ -806,3 +806,4 @@ if (process.env.NODE_ENV === "dev") {
 }
 module.exports.slugToPrefecture = {};
 module.exports.prefectures = prefectures;
+module.exports.departmentsPrefectures = {};

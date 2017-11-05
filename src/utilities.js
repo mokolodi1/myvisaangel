@@ -163,6 +163,13 @@ _.each(Data.prefectures, (prefecture) => {
 
   Data.slugToPrefecture[prefecture.slug] = prefecture;
   prefecture.allSluggedNames = [prefecture.slug];
+  prefecture.sluggedDepartment = slugify(prefecture.department);
+
+  if (Data.departmentsPrefectures[prefecture.sluggedDepartment]) {
+    Data.departmentsPrefectures[prefecture.sluggedDepartment].push(prefecture);
+  } else {
+    Data.departmentsPrefectures[prefecture.sluggedDepartment] = [ prefecture ];
+  }
 
   _.each(prefecture.alternatives, (alternative) => {
     prefecture.allSluggedNames.push(slugify(alternative));
