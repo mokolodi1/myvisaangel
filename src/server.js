@@ -397,6 +397,15 @@ app.route('/v1/nlp').get(function(request, response) {
       query.intentConfidence = intent && intent.confidence;
       Utilities.logInSheet("nlp", query);
 
+      // restart conversation even if nlp is disabled
+      if (intent && intent.confidence >= .75 &&
+          intent.slug == "restart-conversation") {
+        response.json({
+          redirect_to_blocks: [ "Welcome message" ],
+        });
+        return;
+      }
+
       if (intent && intent.confidence >= .75 && !query.nlp_disabled) {
         let blockForIntent = {
           "dossier-submission-method": "Dossier submission method",
@@ -409,6 +418,7 @@ app.route('/v1/nlp').get(function(request, response) {
           "tds-disadvantages": "TDS dis/advantages",
           "tds-duration": "TDS duration",
           "tds-cerfa": "TDS cerfa",
+          "tds-recommendation": "TDS Questions",
         };
 
         var { prefecture, selected_tds } = query;
@@ -448,11 +458,6 @@ app.route('/v1/nlp').get(function(request, response) {
           }
 
           response.json(result);
-          return;
-        } else if (intent.slug === "tds-recommendation") {
-          response.json({
-            redirect_to_blocks: [ "TDS Questions" ],
-          });
           return;
         } else if (intent.slug === "change-variable") {
           let result = {

@@ -1309,6 +1309,20 @@ describe('My Visa Bot API', () => {
             done();
           });
       });
+
+      it("should restart the conversation", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=redemarrer&nlp_disabled=yes')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: [ "Welcome message" ],
+            });
+
+            done();
+          });
+      });
     });
 
     describe('/GET /v1/dossier_submission_method', () => {
