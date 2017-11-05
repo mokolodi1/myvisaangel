@@ -799,7 +799,7 @@ app.route('/v1/tds_cerfa').get(function (request, response) {
 
   Utilities.cerfaSheet((error, result) => {
     if (error) {
-      return Utilities.httpError(repsonse, "Error getting the cerfa info",
+      return Utilities.httpError(response, "Error getting the cerfa info",
           error);
     }
 

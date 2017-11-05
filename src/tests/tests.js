@@ -7,6 +7,10 @@ let server = require('../server');
 let should = chai.should();
 var qs = require('qs');
 
+var nock = require('nock');
+// uncomment this to figure out what HTTP calls need to ne nocked
+// nock.recorder.rec();
+
 var tdsTypes = require("../tdsTypes.js");
 var Utilities = require("../utilities.js");
 
@@ -20,6 +24,12 @@ var silentLiveChat = {
 };
 
 describe('My Visa Bot API', () => {
+  beforeEach(function () {
+    // otherwise nock does weird things because I'm not nocking all
+    // HTTP requests
+    nock.cleanAll();
+  });
+
   describe("Make sure the internals work...", () => {
     // Tests for APS
 
@@ -1091,7 +1101,27 @@ describe('My Visa Bot API', () => {
           });
       });
 
-      it("should work with a rdv request", (done) => {
+      it("should drop to live chat if Recast fails", (done) => {
+        nock('https://api.recast.ai:443')
+          .post('/v2/request')
+          .replyWithError('Recast has failed. This is a test.');
+
+        chai.request(server)
+          .get('/v1/nlp?last+user+freeform+input=comment faire un rdv à Paris ?')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql(silentLiveChat);
+
+            done();
+          });
+      });
+
+      it("should work with a rdv request w/ failed Google Sheets logging", (done) => {
+        // nock('https://spreadsheets.google.com:443', {"encodedQueryParams":true})
+        //   .post('/feeds/list/asdf/2/private/full')
+        //   .replyWithError('Google Sheets failed. This is a test.');
+
         chai.request(server)
           .get('/v1/nlp?last+user+freeform+input=rdv+svp')
           .end((err, response) => {
@@ -1411,6 +1441,38 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      it("should drop to live chat if Google Sheets auth fails", (done) => {
+        nock('https://accounts.google.com:443', {"encodedQueryParams":true})
+          .post('/o/oauth2/token')
+          .replyWithError('Google Sheets failed. This is a test.');
+
+        chai.request(server)
+          .get('/v1/dossier_submission_method?prefecture=paris&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql(silentLiveChat);
+
+            done();
+          });
+      });
+
+      it("should drop to live chat if Google Sheets fails", (done) => {
+        nock('https://spreadsheets.google.com:443', {"encodedQueryParams":true})
+          .post('/feeds/list/asdf/2/private/full')
+          .replyWithError('Google Sheets failed. This is a test.');
+
+        chai.request(server)
+          .get('/v1/dossier_submission_method?prefecture=paris&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql(silentLiveChat);
+
+            done();
+          });
+      });
+
       it("should help users (Paris, APS)", (done) => {
         chai.request(server)
           .get('/v1/dossier_submission_method?prefecture=paris&selected_tds=aps')
@@ -1529,6 +1591,22 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      it("should drop to live chat if Google Sheets fails", (done) => {
+        nock('https://spreadsheets.google.com:443', {"encodedQueryParams":true})
+          .post('/feeds/list/asdf/3/private/full')
+          .replyWithError('Google Sheets failed. This is a test.');
+
+        chai.request(server)
+          .get('/v1/dossier_papers_list?prefecture=paris&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql(silentLiveChat);
+
+            done();
+          });
+      });
+
       it("should help users if they have the info", (done) => {
         chai.request(server)
           .get('/v1/dossier_papers_list?prefecture=paris&selected_tds=aps')
@@ -1632,6 +1710,22 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      it("should drop to live chat if Google Sheets fails", (done) => {
+        nock('https://spreadsheets.google.com:443', {"encodedQueryParams":true})
+          .post('/feeds/list/asdf/4/private/full')
+          .replyWithError('Google Sheets failed. This is a test.');
+
+        chai.request(server)
+          .get('/v1/dossier_processing_time?prefecture=paris&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql(silentLiveChat);
+
+            done();
+          });
+      });
+
       it("should help users if they have the info", (done) => {
         chai.request(server)
           .get('/v1/dossier_processing_time?prefecture=antony&selected_tds=ptsq')
@@ -1692,6 +1786,38 @@ describe('My Visa Bot API', () => {
                 "TDS duration",
               ],
             });
+
+            done();
+          });
+      });
+
+      it("should drop to live chat if Google Sheets fails", (done) => {
+        nock('https://spreadsheets.google.com:443', {"encodedQueryParams":true})
+          .post('/feeds/list/asdf/4/private/full')
+          .replyWithError('Google Sheets failed. This is a test.');
+
+        chai.request(server)
+          .get('/v1/tds_summary?prefecture=paris&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql(silentLiveChat);
+
+            done();
+          });
+      });
+
+      it("all info should drop to live chat if Google Sheets fails", (done) => {
+        nock('https://spreadsheets.google.com:443', {"encodedQueryParams":true})
+          .post('/feeds/list/asdf/4/private/full')
+          .replyWithError('Google Sheets failed. This is a test.');
+
+        chai.request(server)
+          .get('/v1/tds_all_info?prefecture=paris&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql(silentLiveChat);
 
             done();
           });
@@ -1950,6 +2076,22 @@ describe('My Visa Bot API', () => {
                 "TDS cerfa",
               ],
             });
+
+            done();
+          });
+      });
+
+      it("should drop to live chat if Google Sheets fails", (done) => {
+        nock('https://spreadsheets.google.com:443', {"encodedQueryParams":true})
+          .post('/feeds/list/asdf/5/private/full')
+          .replyWithError('Google Sheets failed. This is a test.');
+
+        chai.request(server)
+          .get('/v1/tds_cerfa?selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql(silentLiveChat);
 
             done();
           });
