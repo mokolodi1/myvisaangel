@@ -373,9 +373,9 @@ describe('My Visa Bot API', () => {
                           buttons: [
                             {
                               type: "show_block",
-                              title: "Fiche récapitulative",
+                              title: "Plus d'informations",
                               block_names: [
-                                "TDS all info",
+                                "TDS information",
                               ],
                               set_attributes: {
                                 selected_tds: "aps"
@@ -408,9 +408,9 @@ describe('My Visa Bot API', () => {
                           "buttons": [
                             {
                               type: "show_block",
-                              title: "Fiche récapitulative",
+                              title: "Plus d'informations",
                               block_names: [
-                                "TDS all info",
+                                "TDS information",
                               ],
                               set_attributes: {
                                 selected_tds: "ptsq"
@@ -497,9 +497,9 @@ describe('My Visa Bot API', () => {
                           buttons: [
                             {
                               type: "show_block",
-                              title: "Fiche récapitulative",
+                              title: "Plus d'informations",
                               block_names: [
-                                "TDS all info",
+                                "TDS information",
                               ],
                               set_attributes: {
                                 selected_tds: "aps"
@@ -595,9 +595,9 @@ describe('My Visa Bot API', () => {
                           buttons: [
                             {
                               type: "show_block",
-                              title: "Fiche récapitulative",
+                              title: "Plus d'informations",
                               block_names: [
-                                "TDS all info",
+                                "TDS information",
                               ],
                               set_attributes: {
                                 selected_tds: "commercant"

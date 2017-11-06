@@ -111,9 +111,9 @@ app.route('/v1/get_visas').get(function(request, response) {
               buttons: [
                 {
                   type: "show_block",
-                  title: "Fiche récapitulative",
+                  title: "Plus d'informations",
                   block_names: [
-                    "TDS all info",
+                    "TDS information",
                   ],
                   set_attributes: {
                     selected_tds: tdsSlug
