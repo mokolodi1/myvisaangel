@@ -984,8 +984,8 @@ describe('My Visa Bot API', () => {
               response.body.should.be.deep.eql({
                 messages: [
                   {
-                    text: "J'assume que tu parles de la préfecture de Vienne " +
-                        "près de Lyon et pas le département de Vienne en " +
+                    text: "Je suppose que tu parles de la préfecture de Vienne " +
+                        "près de Lyon et pas du département de Vienne en " +
                         "Nouvelle-Aquitaine",
                   },
                 ],
@@ -1006,8 +1006,8 @@ describe('My Visa Bot API', () => {
               response.body.should.be.deep.eql({
                 messages: [
                   {
-                    text: "J'assume que tu parles de la sous-préfecture de " +
-                        "Mayenne et pas la département de Mayenne où il y a " +
+                    text: "Je suppose que tu parles de la sous-préfecture de " +
+                        "Mayenne et pas du département de Mayenne où il y a " +
                         "trois préfectures",
                   },
                   {
@@ -1396,8 +1396,8 @@ describe('My Visa Bot API', () => {
             response.body.should.be.deep.eql({
               messages: [
                 {
-                  text: "J'assume que tu parles de la préfecture de Vienne " +
-                      "près de Lyon et pas le département de Vienne en " +
+                  text: "Je suppose que tu parles de la préfecture de Vienne " +
+                      "près de Lyon et pas du département de Vienne en " +
                       "Nouvelle-Aquitaine",
                 },
               ],
@@ -1418,8 +1418,8 @@ describe('My Visa Bot API', () => {
             response.body.should.be.deep.eql({
               messages: [
                 {
-                  text: "J'assume que tu parles de la sous-préfecture de Mayenne et pas " +
-                      "la département de Mayenne où il y a trois préfectures",
+                  text: "Je suppose que tu parles de la sous-préfecture de Mayenne et pas " +
+                      "du département de Mayenne où il y a trois préfectures",
                 },
               ],
               set_attributes: {
