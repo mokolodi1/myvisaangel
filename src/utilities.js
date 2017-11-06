@@ -404,13 +404,13 @@ function logError(message, error) {
     slack.webhook({
       channel: "#alerts",
       username: "teo-clone",
-      text: `${message} \`\`\`${error}\`\`\``,
+      text: `${message}` + error ? ` \`\`\`${error}\`\`\`` : "",
       icon_emoji: ":robot_face:",
     }, _.noop);
   }
 }
 
-function httpError(response, errorMessage, error) {
+function reportError(response, errorMessage, error) {
   console.error(`${errorMessage}`);
   if (error) {
     console.error(error);
@@ -455,7 +455,7 @@ module.exports = {
   prefTdsRequired,
   tdsRequired,
   dropToLiveChat,
-  httpError,
+  reportError,
   logError,
   addPrefectureWarning,
 }

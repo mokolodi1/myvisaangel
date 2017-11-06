@@ -93,6 +93,7 @@ app.route('/v1/get_visas').get(function(request, response) {
     result.set_attributes = {
       recommended_tds: recommendedSlugs.join("|"),
     };
+    result.redirect_to_blocks = [ "Main menu" ];
 
     result.messages.push({
       attachment: {
@@ -107,7 +108,7 @@ app.route('/v1/get_visas').get(function(request, response) {
             return {
               title: tdsInfo.name,
               subtitle: tdsInfo.description,
-              buttons: tdsInfo.summary_link && [
+              buttons: [
                 {
                   type: "show_block",
                   title: "Fiche récapitulative",
@@ -146,13 +147,6 @@ app.route('/v1/get_visas').get(function(request, response) {
         }
       }
     });
-
-    result.messages.push({
-      text: "Tu as encore des questions ? Écris ta question directement " +
-          "ci-dessous.\n" +
-          "Par exemple : Comment déposer un dossier pour le passeport " +
-          "talent à Nanterre ?",
-    });
   } else {
     result.redirect_to_blocks = [ "No recommendation" ];
   }
@@ -179,7 +173,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   let { nationality } = request.query;
 
   if (!nationality) {
-    return Utilities.httpError(response, "Missing nationality param");
+    return Utilities.reportError(response, "Missing nationality param");
   }
 
   let results = countriesFuse.search(nationality);
@@ -285,7 +279,7 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
   let { prefecture, destination_block } = request.query;
 
   if (!prefecture || !destination_block) {
-    return Utilities.httpError(response,
+    return Utilities.reportError(response,
         "Missing prefecture or destination parameter");
   }
 
@@ -384,25 +378,44 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
 });
 
 app.route('/v1/select_tds').get(function(request, response) {
+  let { destination_block, recommended_tds } = request.query;
+
+  if (!destination_block) {
+    return Utilities.reportError(response, "Missing destination parameter");
+  }
+
   var tdsChoices = [];
-  if (request.query.recommended_tds) {
-    tdsChoices = request.query.recommended_tds.split("|");
+  if (recommended_tds) {
+    tdsChoices = recommended_tds.split("|");
   } else {
     tdsChoices = Object.keys(tdsTypes);
+  }
+
+  let quick_replies = _.map(tdsChoices, (tdsSlug) => {
+    return {
+      title: tdsTypes[tdsSlug].name,
+      set_attributes: {
+        selected_tds: tdsSlug,
+      },
+    };
+  });
+
+  if (tdsChoices.length !== Object.keys(tdsTypes).length) {
+    quick_replies.push({
+      title: "Autre",
+      // clear the recommended_tds attribute and re-ask
+      set_attributes: {
+        recommended_tds: null,
+      },
+      block_names: [ "Select TDS type", destination_block ],
+    });
   }
 
   response.json({
     messages: [
       {
         text: "Pour quel titre de séjour ?",
-        quick_replies: _.map(tdsChoices, (tdsSlug) => {
-          return {
-            title: tdsTypes[tdsSlug].name,
-            set_attributes: {
-              selected_tds: tdsSlug,
-            },
-          };
-        }),
+        quick_replies
       },
     ],
   });
@@ -414,12 +427,14 @@ app.route('/v1/nlp').get(function(request, response) {
   let message = query["last user freeform input"];
 
   if (!message) {
-    return Utilities.httpError(response, "Missing freeform param");
+    return Utilities.reportError(response, "Missing freeform param");
   }
 
   // Recast has a caracter limit
   if (message.length > 512) {
-    return response.json(Utilities.dropToLiveChat(query));
+    return response.json({
+      redirect_to_blocks: [ "Main menu" ],
+    });
   }
 
   recastClient.analyseText(message)
@@ -501,6 +516,8 @@ app.route('/v1/nlp').get(function(request, response) {
 
           if (query.destination_block) {
             result.redirect_to_blocks = [ query.destination_block ];
+          } else {
+            result.redirect_to_blocks = [ "Main menu" ];
           }
 
           Utilities.addPrefectureWarning(result, prefecture);
@@ -510,8 +527,9 @@ app.route('/v1/nlp').get(function(request, response) {
             messages: [
               {
                 text: `Bonjour, ${query["first name"]} !`
-              }
+              },
             ],
+            redirect_to_blocks: [ "Main menu" ],
           });
           return;
         } else if (intent.slug === "thanks") {
@@ -519,17 +537,25 @@ app.route('/v1/nlp').get(function(request, response) {
             messages: [
               {
                 text: "Je t'en prie. C'etait un plaisir de parler avec toi 🙂"
-              }
+              },
             ],
+            redirect_to_blocks: [ "Come back soon" ],
           });
           return;
         }
       }
 
-      response.json(Utilities.dropToLiveChat(query));
+      if (query.nlp_disabled) {
+        response.json(Utilities.dropToLiveChat(query));
+      } else {
+        // don't do anything - next step on Chatfuel
+        response.json({
+          redirect_to_blocks: [ "Main menu" ],
+        });
+      }
     })
     .catch(function (error) {
-      return Utilities.httpError(response, "Error dealing with recast",
+      return Utilities.reportError(response, "Error dealing with recast",
           error);
     });
 });
@@ -545,7 +571,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
 
   Utilities.submissionMethodSheet((error, result) => {
     if (error) {
-      return Utilities.httpError(response,
+      return Utilities.reportError(response,
           "Error getting the prefecture submission info", error);
     }
 
@@ -559,6 +585,24 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
         return row["besoinrdv"]
       })
       .value();
+
+    let afterResult = {
+      text: "Qu'est-ce que tu veux savoir ?",
+      quick_replies: [
+        {
+          title: "Liste de papiers",
+          block_names: [ "Dossier papers list" ],
+        },
+        {
+          title: "Délai de traitement",
+          block_names: [ "TDS duration" ],
+        },
+        {
+          title: "Autres questions",
+          block_names: [ "Main menu" ],
+        },
+      ],
+    };
 
     if (matchingRows.length > 0) {
       let submissionPossibilities = _.map(matchingRows, (row) => {
@@ -580,7 +624,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
             `un titre de séjour ${tdsTypes[selected_tds].name} à ` +
             `${Data.slugToPrefecture[prefecture].name} :`,
           }
-        ].concat(submissionPossibilities),
+        ].concat(submissionPossibilities).concat([ afterResult ]),
       });
     } else {
       response.json({
@@ -596,6 +640,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
                 "d'expérience sur ta préfecture pour enrichir notre base " +
                 "de données 😍",
           },
+          afterResult,
         ],
       });
     }
@@ -613,7 +658,7 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
 
   Utilities.papersListSheet((error, result) => {
     if (error) {
-      return Utilities.httpError(response,
+      return Utilities.reportError(response,
           "Error getting the submission information", error);
     }
 
@@ -621,6 +666,24 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
       tdsSlug: selected_tds,
       prefectureSlug: prefecture,
     });
+
+    let afterResult = {
+      text: "Qu'est-ce que tu veux savoir ?",
+      quick_replies: [
+        {
+          title: "Procédures de dépôt",
+          block_names: [ "Dossier submission method" ],
+        },
+        {
+          title: "Délai de traitement",
+          block_names: [ "TDS duration" ],
+        },
+        {
+          title: "Autres questions",
+          block_names: [ "Main menu" ],
+        },
+      ],
+    };
 
     if (matchingRows.length > 0 && matchingRows[0]["lien"]) {
       let papersListLink = matchingRows[0]["lien"];
@@ -631,6 +694,7 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
                 `${tdsTypes[selected_tds].name} à ` +
                 `${Data.slugToPrefecture[prefecture].name} : ${papersListLink}`,
           },
+          afterResult,
         ],
       });
     } else {
@@ -659,7 +723,8 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
                 "fois ton dossier déposé, tu pouvais nous faire un retour " +
                 "d'expérience sur ta préfecture pour enrichir notre base " +
                 "de données 😍",
-          }
+          },
+          afterResult,
         ],
       });
     }
@@ -677,7 +742,7 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
 
   Utilities.processingTimeSheet((error, result) => {
     if (error) {
-      return Utilities.httpError(response,
+      return Utilities.reportError(response,
           "Error getting the submission information", error);
     }
 
@@ -685,6 +750,24 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
       tdsSlug: selected_tds,
       prefectureSlug: prefecture,
     });
+
+    let afterResult = {
+      text: "Qu'est-ce que tu veux savoir ?",
+      quick_replies: [
+        {
+          title: "Procédures de dépôt",
+          block_names: [ "Dossier submission method" ],
+        },
+        {
+          title: "Liste de papiers",
+          block_names: [ "Dossier papers list" ],
+        },
+        {
+          title: "Autres questions",
+          block_names: [ "Main menu" ],
+        },
+      ],
+    };
 
     if (matchingRows.length > 0 && matchingRows[0]["délai"]) {
       let delayText = matchingRows[0]["délai"].replace(/\n/g, ' ');
@@ -696,6 +779,7 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
                 `${tdsTypes[selected_tds].name} à ` +
                 `${Data.slugToPrefecture[prefecture].name}`,
           },
+          afterResult,
         ],
       });
     } else {
@@ -705,8 +789,9 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
             text: "Nous n'avons pas encore des retours sur les délais pour " +
                 "cette procédure. N'hésite pas à nous faire un retour " +
                 "d'expérience quand tu auras fait les démarches afin de " +
-                "pouvoir aider la communauté 😉"
-          }
+                "pouvoir aider la communauté 😉",
+          },
+          afterResult,
         ],
       });
     }
@@ -723,7 +808,7 @@ function tdsInformation(request, response, blockName, sheetColumn) {
 
   Utilities.tdsInfoSheet((error, result) => {
     if (error) {
-      return Utilities.httpError(response, "Error getting the TDS info",
+      return Utilities.reportError(response, "Error getting the TDS info",
           error);
     }
 
@@ -738,9 +823,13 @@ function tdsInformation(request, response, blockName, sheetColumn) {
             text: matchingRows[0][sheetColumn],
           },
         ],
+        redirect_to_blocks: [
+          "TDS information"
+        ],
       });
     } else {
-      response.json(Utilities.dropToLiveChat(request.query));
+      Utilities.reportError(response,
+          `Info for tds not defined: ${selected_tds}`);
     }
   });
 }
@@ -773,7 +862,7 @@ app.route('/v1/tds_all_info').get(function(request, response) {
 
   Utilities.tdsInfoSheet((error, result) => {
     if (error) {
-      return Utilities.httpError(response, "Error getting the TDS info",
+      return Utilities.reportError(response, "Error getting the TDS info",
           error);
     }
 
@@ -790,6 +879,9 @@ app.route('/v1/tds_all_info').get(function(request, response) {
           { text: matchingRows[0]["avantages"] },
           { text: matchingRows[0]["inconvénients"] },
           { text: matchingRows[0]["conditions"] },
+        ],
+        redirect_to_blocks: [
+          "Main menu"
         ],
       });
     } else {
@@ -808,7 +900,7 @@ app.route('/v1/tds_cerfa').get(function (request, response) {
 
   Utilities.cerfaSheet((error, result) => {
     if (error) {
-      return Utilities.httpError(response, "Error getting the cerfa info",
+      return Utilities.reportError(response, "Error getting the cerfa info",
           error);
     }
 
@@ -820,6 +912,9 @@ app.route('/v1/tds_cerfa').get(function (request, response) {
       response.json({
         messages: [
           { text: matchingRows[0]["cerfa"] },
+        ],
+        redirect_to_blocks: [
+          "TDS information"
         ],
       });
     } else {

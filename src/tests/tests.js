@@ -151,6 +151,27 @@ describe('My Visa Bot API', () => {
 
         done();
       });
+
+      it('should return not eligible for Equivalent au Master, CDD, >35526,4€ (2x SMIC)', (done) => {
+        let result = tdsTypes.ptsq.eligible({
+          diploma: "masters",
+          smicMultiplier: 2,
+          employmentSituation: "cdd"
+        });
+
+        result.should.be.deep.eql({
+          messages: [
+            {
+              text: "Normalement, si tu as un CDD supérieur à 3 mois, tu es " +
+              "éligible au passeport talent et celui-ci aura une durée égale à " +
+              "celle de ton CDD. Si tu as de la chance, la préfecture peut " +
+              "aussi te donner un passeport talent d'une durée de 4 ans."
+            }
+          ],
+        });
+
+        done();
+      });
     });
 
     describe('Salarié visa', () => {
@@ -425,16 +446,11 @@ describe('My Visa Bot API', () => {
                     }
                   }
                 },
-                {
-                  text: "Tu as encore des questions ? Écris ta question " +
-                      "directement ci-dessous.\n" +
-                      "Par exemple : Comment déposer un dossier pour le " +
-                      "passeport talent à Nanterre ?",
-                }
               ],
               set_attributes: {
                 recommended_tds: "aps|ptsq"
               },
+              redirect_to_blocks: [ "Main menu" ],
             });
 
             done();
@@ -516,16 +532,11 @@ describe('My Visa Bot API', () => {
                     }
                   }
                 },
-                {
-                  text: "Tu as encore des questions ? Écris ta question " +
-                      "directement ci-dessous.\n" +
-                      "Par exemple : Comment déposer un dossier pour le " +
-                      "passeport talent à Nanterre ?",
-                }
               ],
               set_attributes: {
                 recommended_tds: "aps"
               },
+              redirect_to_blocks: [ "Main menu" ],
             });
 
             done();
@@ -550,6 +561,80 @@ describe('My Visa Bot API', () => {
               redirect_to_blocks: [
                 'No recommendation'
               ]
+            });
+
+            done();
+        });
+      });
+
+      it('should work: Senegal, commercant, 1xSMIC, APS, Masters, single', (done) => {
+        chai.request(server)
+          .get('/v1/get_visas?' + qs.stringify({
+            nationality: "senegal",
+            currentTDS: "APS",
+            diploma: "Master",
+            employmentSituation: "Entrepreneur",
+            familySituation: "Célibataire",
+            salary: ">17764€ (1x SMIC)",
+          }))
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  attachment: {
+                    type: "template",
+                    payload: {
+                      template_type: "generic",
+                      elements: [
+                        {
+                          title: "Commerçant",
+                          subtitle: "T'autorise à exercer une activité " +
+                              "commerciale, industrielle ou artisanale",
+                          buttons: [
+                            {
+                              type: "show_block",
+                              title: "Fiche récapitulative",
+                              block_names: [
+                                "TDS all info",
+                              ],
+                              set_attributes: {
+                                selected_tds: "commercant"
+                              },
+                            },
+                            {
+                              block_names: [
+                                "Dossier submission method"
+                              ],
+                              set_attributes: {
+                                selected_tds: "commercant",
+                              },
+                              title: "Comment déposer",
+                              type: "show_block",
+                            },
+                            {
+                              block_names: [
+                                "Dossier papers list",
+                              ],
+                              set_attributes: {
+                                selected_tds: "commercant",
+                              },
+                              title: "Voir liste papiers",
+                              type: "show_block",
+                            },
+                          ],
+                          image_url: "http://dev.myvisaangel.com/static/commercant.jpg",
+                        },
+                      ],
+                    }
+                  }
+                },
+              ],
+              set_attributes: {
+                recommended_tds: "commercant"
+              },
+              redirect_to_blocks: [ "Main menu" ],
             });
 
             done();
@@ -1035,9 +1120,21 @@ describe('My Visa Bot API', () => {
     });
 
     describe('/GET /v1/select_tds', () => {
-      it('should work if they completed the initial user flow', (done) => {
+      it("shouldn't work if no destination block", (done) => {
         chai.request(server)
           .get('/v1/select_tds?recommended_tds=aps|ptsq|commercant')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.a('object');
+            response.body.should.be.deep.eql(silentLiveChat);
+
+            done();
+        });
+      });
+
+      it('should work if they completed the initial user flow', (done) => {
+        chai.request(server)
+          .get('/v1/select_tds?recommended_tds=aps|ptsq|commercant&destination_block=Dossier submission method')
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
@@ -1064,6 +1161,16 @@ describe('My Visa Bot API', () => {
                         selected_tds: "commercant",
                       }
                     },
+                    {
+                      title: "Autre",
+                      set_attributes: {
+                        recommended_tds: null,
+                      },
+                      block_names: [
+                        "Select TDS type",
+                        "Dossier submission method",
+                      ],
+                    },
                   ]
                 }
               ]
@@ -1075,7 +1182,7 @@ describe('My Visa Bot API', () => {
 
       it("should work if they didn't complete the initial user flow", (done) => {
         chai.request(server)
-          .get('/v1/select_tds')
+          .get('/v1/select_tds?destination_block=Dossier submission method')
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
@@ -1136,12 +1243,16 @@ describe('My Visa Bot API', () => {
           });
       });
 
-      it("should drop to live chat with a really long message", (done) => {
+      it("should go to main menu with a reaaaally long message", (done) => {
         chai.request(server)
           .get('/v1/nlp?last+user+freeform+input=' + "a".repeat(513))
           .end((err, response) => {
             response.should.have.status(200);
-            response.body.should.be.deep.eql(silentLiveChat);
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: [
+                "Main menu",
+              ],
+            });
 
             done();
           });
@@ -1153,7 +1264,9 @@ describe('My Visa Bot API', () => {
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.a('object');
-            response.body.should.be.deep.eql(silentLiveChat);
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: [ "Main menu" ],
+            });
 
             done();
           });
@@ -1314,7 +1427,6 @@ describe('My Visa Bot API', () => {
           .end((err, response) => {
             response.should.have.status(200);
 
-            // TODO: this will change!
             response.body.should.be.deep.eql({
               redirect_to_blocks: [ "TDS Questions" ]
             });
@@ -1336,6 +1448,7 @@ describe('My Visa Bot API', () => {
                   "toi 🙂",
                 },
               ],
+              redirect_to_blocks: [ "Come back soon" ],
             });
 
             done();
@@ -1355,6 +1468,7 @@ describe('My Visa Bot API', () => {
                   text: "Bonjour, Teo !",
                 },
               ],
+              redirect_to_blocks: [ "Main menu" ],
             });
 
             done();
@@ -1382,6 +1496,7 @@ describe('My Visa Bot API', () => {
               set_attributes: {
                 prefecture: "nanterre",
               },
+              redirect_to_blocks: [ "Main menu" ],
             });
 
             done();
@@ -1404,6 +1519,7 @@ describe('My Visa Bot API', () => {
               set_attributes: {
                 prefecture: "vienne",
               },
+              redirect_to_blocks: [ "Main menu" ],
             });
 
             done();
@@ -1425,6 +1541,7 @@ describe('My Visa Bot API', () => {
               set_attributes: {
                 prefecture: "mayenne",
               },
+              redirect_to_blocks: [ "Main menu" ],
             });
 
             done();
@@ -1433,13 +1550,14 @@ describe('My Visa Bot API', () => {
 
       it("should set the visa type if they want to change it", (done) => {
         chai.request(server)
-          .get("/v1/nlp?first%20name=Teo&last+user+freeform+input=Et pour le passeport talent ?")
+          .get("/v1/nlp?first%20name=Teo&last+user+freeform+input=Et pour le passeport talent ?&destination_block=Dossier submission method")
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.deep.eql({
               set_attributes: {
                 selected_tds: "ptsq",
               },
+              redirect_to_blocks: [ "Dossier submission method" ],
             });
 
             done();
@@ -1448,7 +1566,7 @@ describe('My Visa Bot API', () => {
 
       it("should set both selected_tds and prefecture if they want", (done) => {
         chai.request(server)
-          .get("/v1/nlp?first%20name=Teo&last+user+freeform+input=Et pour le passeport talent à Paris ?")
+          .get("/v1/nlp?first%20name=Teo&last+user+freeform+input=Pour le passeport talent à Paris ?")
           .end((err, response) => {
             response.should.have.status(200);
             response.body.should.be.deep.eql({
@@ -1456,6 +1574,7 @@ describe('My Visa Bot API', () => {
                 selected_tds: "ptsq",
                 prefecture: "paris",
               },
+              redirect_to_blocks: [ "Main menu" ],
             });
 
             done();
@@ -1543,6 +1662,7 @@ describe('My Visa Bot API', () => {
       });
 
       it("should drop to live chat if Google Sheets auth fails", (done) => {
+        // TODO: unclear if this is actually testing anything...
         nock('https://accounts.google.com:443', {"encodedQueryParams":true})
           .post('/o/oauth2/token')
           .replyWithError('Google Sheets failed. This is a test.');
@@ -1574,6 +1694,24 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      let afterDossierSubmission = {
+        text: "Qu'est-ce que tu veux savoir ?",
+        quick_replies: [
+          {
+            title: "Liste de papiers",
+            block_names: [ "Dossier papers list" ],
+          },
+          {
+            title: "Délai de traitement",
+            block_names: [ "TDS duration" ],
+          },
+          {
+            title: "Autres questions",
+            block_names: [ "Main menu" ],
+          },
+        ],
+      };
+
       it("should help users (Paris, APS)", (done) => {
         chai.request(server)
           .get('/v1/dossier_submission_method?prefecture=paris&selected_tds=aps')
@@ -1591,7 +1729,8 @@ describe('My Visa Bot API', () => {
                     "Chercheurs Internationaux Cité Universitaire - Service " +
                     "APS Master - 17 Bd Jourdan 75014 PARIS"
                 },
-              ]
+                afterDossierSubmission,
+              ],
             });
 
             done();
@@ -1607,12 +1746,15 @@ describe('My Visa Bot API', () => {
             // TODO: this will change!
             response.body.should.be.deep.eql({
               messages: [
-                { text: "Voici la/les procédure(s) pour déposer un dossier " +
-                    "pour un titre de séjour Vie Privée et Familiale à Paris :" },
+                {
+                  text: "Voici la/les procédure(s) pour déposer un dossier " +
+                      "pour un titre de séjour Vie Privée et Familiale à Paris :"
+                },
                 {
                   text: "Le RDV se prend Par téléphone. Dépôt sur place : " +
-                    "34 30 (0,06 €/min + prix d'un appel)"
+                      "34 30 (0,06 €/min + prix d'un appel)"
                 },
+                afterDossierSubmission,
               ]
             });
 
@@ -1638,6 +1780,7 @@ describe('My Visa Bot API', () => {
                       "d'expérience sur ta préfecture pour enrichir notre base " +
                       "de données 😍",
                 },
+                afterDossierSubmission,
               ],
             });
 
@@ -1710,6 +1853,24 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      let afterListPapers = {
+        text: "Qu'est-ce que tu veux savoir ?",
+        quick_replies: [
+          {
+            title: "Procédures de dépôt",
+            block_names: [ "Dossier submission method" ],
+          },
+          {
+            title: "Délai de traitement",
+            block_names: [ "TDS duration" ],
+          },
+          {
+            title: "Autres questions",
+            block_names: [ "Main menu" ],
+          },
+        ],
+      };
+
       it("should help users if they have the info", (done) => {
         chai.request(server)
           .get('/v1/dossier_papers_list?prefecture=paris&selected_tds=aps')
@@ -1722,7 +1883,8 @@ describe('My Visa Bot API', () => {
                   text: "Voici la liste de papiers pour un titre de séjour " +
                   "APS à Paris : https://drive.google.com/open?" +
                   "id=1SaFEnvlhEAuPEm9PyvnRdtJ386OgfLET9nWQoXVrBrA"
-                }
+                },
+                afterListPapers,
               ]
             });
 
@@ -1757,6 +1919,7 @@ describe('My Visa Bot API', () => {
                       "d'expérience sur ta préfecture pour enrichir notre base " +
                       "de données 😍",
                 },
+                afterListPapers,
               ]
             });
 
@@ -1829,6 +1992,24 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      let afterProcessingTime = {
+        text: "Qu'est-ce que tu veux savoir ?",
+        quick_replies: [
+          {
+            title: "Procédures de dépôt",
+            block_names: [ "Dossier submission method" ],
+          },
+          {
+            title: "Liste de papiers",
+            block_names: [ "Dossier papers list" ],
+          },
+          {
+            title: "Autres questions",
+            block_names: [ "Main menu" ],
+          },
+        ],
+      };
+
       it("should help users if they have the info", (done) => {
         chai.request(server)
           .get('/v1/dossier_processing_time?prefecture=antony&selected_tds=ptsq')
@@ -1840,7 +2021,8 @@ describe('My Visa Bot API', () => {
                 {
                   text: "Normalement 5 mois environ (REX d'avril 2017) " +
                       "pour le Passeport Talent Salarié Qualifié à Antony"
-                }
+                },
+                afterProcessingTime,
               ]
             });
 
@@ -1862,6 +2044,7 @@ describe('My Visa Bot API', () => {
                       "d'expérience quand tu auras fait les démarches afin de " +
                       "pouvoir aider la communauté 😉",
                 },
+                afterProcessingTime,
               ]
             });
 
@@ -1959,6 +2142,7 @@ describe('My Visa Bot API', () => {
                       "salaires pratiqués dans la branche. ",
                 },
               ],
+              redirect_to_blocks: [ "TDS information" ],
             });
 
             done();
@@ -1978,6 +2162,7 @@ describe('My Visa Bot API', () => {
                       "qualifié est de 4 ans (renouvelable)",
                 },
               ],
+              redirect_to_blocks: [ "TDS information" ],
             });
 
             done();
@@ -1997,6 +2182,7 @@ describe('My Visa Bot API', () => {
                       "- Mention Travailleur temporaire : 19€",
                 },
               ],
+              redirect_to_blocks: [ "TDS information" ],
             });
 
             done();
@@ -2021,6 +2207,7 @@ describe('My Visa Bot API', () => {
                       "des justificatifs."
                 },
               ],
+              redirect_to_blocks: [ "TDS information" ],
             });
 
             done();
@@ -2042,6 +2229,7 @@ describe('My Visa Bot API', () => {
                       "pour changer de titre de séjour.",
                 },
               ],
+              redirect_to_blocks: [ "TDS information" ],
             });
 
             done();
@@ -2071,6 +2259,7 @@ describe('My Visa Bot API', () => {
                       "d'exercice.",
                 },
               ],
+              redirect_to_blocks: [ "TDS information" ],
             });
 
             done();
@@ -2154,7 +2343,8 @@ describe('My Visa Bot API', () => {
                       "professionnelle, par exemple),\n- Absence de " +
                       "condamnation ou d'interdiction d'exercice."
                 }
-              ]
+              ],
+              redirect_to_blocks: [ "Main menu" ],
             });
 
             done();
@@ -2224,6 +2414,7 @@ describe('My Visa Bot API', () => {
                   text: "Pas besoin de cerfa pour l'APS",
                 },
               ],
+              redirect_to_blocks: [ "TDS information" ],
             });
 
             done();
