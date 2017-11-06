@@ -421,6 +421,24 @@ function httpError(response, errorMessage, error) {
   response.json(dropToLiveChat());
 }
 
+function addPrefectureWarning(result, prefecture) {
+  if (prefecture === "vienne") {
+    result.messages = [
+      {
+        text: "J'assume que tu parles de la préfecture de Vienne " +
+            "près de Lyon et pas le département de Vienne en Nouvelle-Aquitaine",
+      },
+    ];
+  } else if (prefecture === "mayenne") {
+    result.messages = [
+      {
+        text: "J'assume que tu parles de la sous-préfecture de Mayenne et pas " +
+            "la département de Mayenne où il y a trois préfectures",
+      },
+    ];
+  }
+}
+
 
 
 module.exports = {
@@ -439,4 +457,5 @@ module.exports = {
   dropToLiveChat,
   httpError,
   logError,
+  addPrefectureWarning,
 }

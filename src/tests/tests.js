@@ -974,6 +974,64 @@ describe('My Visa Bot API', () => {
             done();
         });
       });
+
+      describe("edge cases (Vienne, Mayenne)", () => {
+        it("should work parsing vienne", (done) => {
+          chai.request(server)
+            .get('/v1/parse_prefecture?prefecture=Vienne&destination_block=Dossier submission')
+            .end((err, response) => {
+              response.should.have.status(200);
+              response.body.should.be.deep.eql({
+                messages: [
+                  {
+                    text: "J'assume que tu parles de la préfecture de Vienne " +
+                        "près de Lyon et pas le département de Vienne en " +
+                        "Nouvelle-Aquitaine",
+                  },
+                ],
+                set_attributes: {
+                  prefecture: "vienne",
+                },
+              });
+
+              done();
+          });
+        });
+
+        it("should work almost spelling mayenne", (done) => {
+          chai.request(server)
+            .get('/v1/parse_prefecture?prefecture=Mayene&destination_block=Dossier submission')
+            .end((err, response) => {
+              response.should.have.status(200);
+              response.body.should.be.deep.eql({
+                messages: [
+                  {
+                    text: "J'assume que tu parles de la sous-préfecture de " +
+                        "Mayenne et pas la département de Mayenne où il y a " +
+                        "trois préfectures",
+                  },
+                  {
+                    text: "Est-ce que tu voulais dire Mayenne ?",
+                    quick_replies: [
+                      {
+                        title: "Oui 😀",
+                        set_attributes: {
+                          prefecture: "mayenne",
+                        },
+                      },
+                      {
+                        title: "Non 😔",
+                        block_names: [ "Ask for prefecture", "Dossier submission" ],
+                      },
+                    ],
+                  }
+                ]
+              });
+
+              done();
+          });
+        });
+      });
     });
 
     describe('/GET /v1/select_tds', () => {
@@ -1330,6 +1388,49 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      it("should set the prefecture if they want to change it (special warning case)", (done) => {
+        chai.request(server)
+          .get("/v1/nlp?first%20name=Teo&last+user+freeform+input=Ma préfecture c'est Vienne")
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "J'assume que tu parles de la préfecture de Vienne " +
+                      "près de Lyon et pas le département de Vienne en " +
+                      "Nouvelle-Aquitaine",
+                },
+              ],
+              set_attributes: {
+                prefecture: "vienne",
+              },
+            });
+
+            done();
+          });
+      });
+
+      it("should set the prefecture if they want to change it (special warning case misspelled)", (done) => {
+        chai.request(server)
+          .get("/v1/nlp?first%20name=Teo&last+user+freeform+input=Ma préfecture c'est Mayene")
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "J'assume que tu parles de la sous-préfecture de Mayenne et pas " +
+                      "la département de Mayenne où il y a trois préfectures",
+                },
+              ],
+              set_attributes: {
+                prefecture: "mayenne",
+              },
+            });
+
+            done();
+          });
+      });
+
       it("should set the visa type if they want to change it", (done) => {
         chai.request(server)
           .get("/v1/nlp?first%20name=Teo&last+user+freeform+input=Et pour le passeport talent ?")
@@ -1484,9 +1585,11 @@ describe('My Visa Bot API', () => {
                 { text: "Voici la/les procédure(s) pour déposer un dossier " +
                     "pour un titre de séjour APS à Paris :" },
                 {
-                  text: "Tu n'as pas besoin de prendre RDV. " +
-                    "Envoi par mail : " +
-                    "pp-dpg-sdae-6eb-aps-etudiant@interieur.gouv.fr"
+                  text: "Tu n'as pas besoin de prendre RDV. Envoi par la " +
+                    "poste (courrier recommandé avec accusé de réception) : " +
+                    "PRÉFECTURE DE POLICE Centre des Étudiants et des " +
+                    "Chercheurs Internationaux Cité Universitaire - Service " +
+                    "APS Master - 17 Bd Jourdan 75014 PARIS"
                 },
               ]
             });

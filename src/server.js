@@ -198,9 +198,9 @@ app.route('/v1/parse_nationality').get(function(request, response) {
   } else if (bestResult && bestResult.score <= .25 &&
       !(results[1] && results[1].score - results[0].score < .05)) {
     response.json({
-      "messages": [
+      messages: [
         {
-          "text":  `Est-ce que tu voulais dire ${bestResult.item.french} ?`,
+          text:  `Est-ce que tu voulais dire ${bestResult.item.french} ?`,
           quick_replies: [
             {
               title: "Oui 😀",
@@ -243,9 +243,9 @@ app.route('/v1/parse_nationality').get(function(request, response) {
     let countryOptions = _.pluck(quick_replies, "title").join(", ");
 
     response.json({
-      "messages": [
+      messages: [
         {
-          "text":  "De quel pays exactement parles-tu ?",
+          text:  "De quel pays exactement parles-tu ?",
           quick_replies,
         }
       ],
@@ -295,35 +295,42 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
 
   if (bestResult &&
       _.contains(bestResult.item.allSluggedNames, sluggedInput)) {
-    response.json({
+    let result = {
       set_attributes: {
         prefecture: bestResult.item.slug,
-      }
-    });
+      },
+    };
+
+    Utilities.addPrefectureWarning(result, sluggedInput);
+
+    response.json(result);
   } else if (bestResult && bestResult.score <= .25 &&
       !(results[1] && results[1].score - results[0].score < .05)) {
-    response.json({
-      "messages": [
+    let result = {
+      messages: [],
+    };
+    Utilities.addPrefectureWarning(result, bestResult.item.slug);
+
+    result.messages.push({
+      text:  `Est-ce que tu voulais dire ${bestResult.item.name} ?`,
+      quick_replies: [
         {
-          "text":  `Est-ce que tu voulais dire ${bestResult.item.name} ?`,
-          quick_replies: [
-            {
-              title: "Oui 😀",
-              set_attributes: {
-                prefecture: bestResult.item.slug,
-              },
-            },
-            {
-              title: "Non 😔",
-              block_names: [
-                "Ask for prefecture",
-                destination_block,
-              ],
-            },
+          title: "Oui 😀",
+          set_attributes: {
+            prefecture: bestResult.item.slug,
+          },
+        },
+        {
+          title: "Non 😔",
+          block_names: [
+            "Ask for prefecture",
+            destination_block,
           ],
-        }
+        },
       ],
     });
+
+    response.json(result);
   } else if (Data.departmentsPrefectures[sluggedInput]) {
     let prefectureList = Data.departmentsPrefectures[sluggedInput];
 
@@ -484,6 +491,7 @@ app.route('/v1/nlp').get(function(request, response) {
             result.set_attributes = { prefecture, selected_tds };
           }
 
+          Utilities.addPrefectureWarning(result, prefecture);
           response.json(result);
           return;
         } else if (intent.slug === "change-variable") {
@@ -495,6 +503,7 @@ app.route('/v1/nlp').get(function(request, response) {
             result.redirect_to_blocks = [ query.destination_block ];
           }
 
+          Utilities.addPrefectureWarning(result, prefecture);
           return response.json(result);
         } else if (intent.slug === "greetings") {
           response.json({
