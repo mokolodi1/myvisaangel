@@ -1619,7 +1619,7 @@ describe('My Visa Bot API', () => {
         set_attributes: {
           prefecture: null,
         },
-        redirect_to_blocks: [ redirectBlock ],
+        block_names: [ redirectBlock ],
       };
     }
 
@@ -1629,7 +1629,7 @@ describe('My Visa Bot API', () => {
         set_attributes: {
           selected_tds: null,
         },
-        redirect_to_blocks: [ redirectBlock ],
+        block_names: [ redirectBlock ],
       };
     }
 
