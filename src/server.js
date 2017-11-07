@@ -685,7 +685,7 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
       text: "Qu'est-ce que tu veux savoir ?",
       quick_replies: [
         {
-          title: "Procédures de dépôt",
+          title: "Procédure de dépôt",
           block_names: [ "Dossier submission method" ],
         },
         {
@@ -783,7 +783,7 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
       text: "Qu'est-ce que tu veux savoir ?",
       quick_replies: [
         {
-          title: "Procédures de dépôt",
+          title: "Procédure de dépôt",
           block_names: [ "Dossier submission method" ],
         },
         {

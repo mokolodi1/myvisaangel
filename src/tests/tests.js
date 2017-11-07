@@ -1879,7 +1879,7 @@ describe('My Visa Bot API', () => {
         text: "Qu'est-ce que tu veux savoir ?",
         quick_replies: [
           {
-            title: "procédure de dépôt",
+            title: "Procédure de dépôt",
             block_names: [ "Dossier submission method" ],
           },
           {
@@ -2020,7 +2020,7 @@ describe('My Visa Bot API', () => {
         text: "Qu'est-ce que tu veux savoir ?",
         quick_replies: [
           {
-            title: "procédure de dépôt",
+            title: "Procédure de dépôt",
             block_names: [ "Dossier submission method" ],
           },
           {
