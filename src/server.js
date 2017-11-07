@@ -595,17 +595,17 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
         },
         {
           title: "Délai de traitement",
-          block_names: [ "TDS duration" ],
+          block_names: [ "Dossier processing time" ],
         },
         {
-          title: "Changer préfecture",
+          title: "Choisir préfecture",
           set_attributes: {
             prefecture: null,
           },
           block_names: [ "Dossier submission method" ],
         },
         {
-          title: "Changer titre",
+          title: "Choisir titre",
           set_attributes: {
             selected_tds: null,
           },
@@ -690,17 +690,17 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
         },
         {
           title: "Délai de traitement",
-          block_names: [ "TDS duration" ],
+          block_names: [ "Dossier processing time" ],
         },
         {
-          title: "Changer préfecture",
+          title: "Choisir préfecture",
           set_attributes: {
             prefecture: null,
           },
           block_names: [ "Dossier papers list" ],
         },
         {
-          title: "Changer titre",
+          title: "Choisir titre",
           set_attributes: {
             selected_tds: null,
           },
@@ -791,14 +791,14 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
           block_names: [ "Dossier papers list" ],
         },
         {
-          title: "Changer préfecture",
+          title: "Choisir préfecture",
           set_attributes: {
             prefecture: null,
           },
           block_names: [ "Dossier processing time" ],
         },
         {
-          title: "Changer titre",
+          title: "Choisir titre",
           set_attributes: {
             selected_tds: null,
           },

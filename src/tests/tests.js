@@ -1461,7 +1461,6 @@ describe('My Visa Bot API', () => {
           .end((err, response) => {
             response.should.have.status(200);
 
-            // TODO: this will change!
             response.body.should.be.deep.eql({
               messages: [
                 {
@@ -1615,7 +1614,7 @@ describe('My Visa Bot API', () => {
 
     function changePrefecture(redirectBlock) {
       return {
-        title: "Changer préfecture",
+        title: "Choisir préfecture",
         set_attributes: {
           prefecture: null,
         },
@@ -1625,7 +1624,7 @@ describe('My Visa Bot API', () => {
 
     function changeTds(redirectBlock) {
       return {
-        title: "Changer titre",
+        title: "Choisir titre",
         set_attributes: {
           selected_tds: null,
         },
@@ -1723,7 +1722,7 @@ describe('My Visa Bot API', () => {
           },
           {
             title: "Délai de traitement",
-            block_names: [ "TDS duration" ],
+            block_names: [ "Dossier processing time" ],
           },
           changePrefecture("Dossier submission method"),
           changeTds("Dossier submission method"),
@@ -1884,7 +1883,7 @@ describe('My Visa Bot API', () => {
           },
           {
             title: "Délai de traitement",
-            block_names: [ "TDS duration" ],
+            block_names: [ "Dossier processing time" ],
           },
           changePrefecture("Dossier papers list"),
           changeTds("Dossier papers list"),
