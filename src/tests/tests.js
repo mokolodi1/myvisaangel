@@ -1793,7 +1793,7 @@ describe('My Visa Bot API', () => {
             response.body.should.be.deep.eql({
               messages: [
                 {
-                  text: "Pour le moment nous n'avons pas la procedure pour " +
+                  text: "Pour le moment nous n'avons pas la procédure pour " +
                   "la préfecture de NOPE dans notre base de données.",
                 },
                 {
@@ -1879,7 +1879,7 @@ describe('My Visa Bot API', () => {
         text: "Qu'est-ce que tu veux savoir ?",
         quick_replies: [
           {
-            title: "Procédures de dépôt",
+            title: "procédure de dépôt",
             block_names: [ "Dossier submission method" ],
           },
           {
@@ -2020,7 +2020,7 @@ describe('My Visa Bot API', () => {
         text: "Qu'est-ce que tu veux savoir ?",
         quick_replies: [
           {
-            title: "Procédures de dépôt",
+            title: "procédure de dépôt",
             block_names: [ "Dossier submission method" ],
           },
           {

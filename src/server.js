@@ -644,7 +644,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
       response.json({
         messages: [
           {
-            text: "Pour le moment nous n'avons pas la procedure pour la " +
+            text: "Pour le moment nous n'avons pas la procédure pour la " +
             `préfecture de ${Data.slugToPrefecture[prefecture].name} dans notre ` +
             "base de données.",
           },
