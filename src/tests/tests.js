@@ -1715,7 +1715,7 @@ describe('My Visa Bot API', () => {
       });
 
       let afterDossierSubmission = {
-        text: "Qu'est-ce que tu veux savoir ?",
+        text: "Que veux-tu savoir ?",
         quick_replies: [
           {
             title: "Liste de papiers",
@@ -1876,7 +1876,7 @@ describe('My Visa Bot API', () => {
       });
 
       let afterListPapers = {
-        text: "Qu'est-ce que tu veux savoir ?",
+        text: "Que veux-tu savoir ?",
         quick_replies: [
           {
             title: "Procédure de dépôt",
@@ -2017,7 +2017,7 @@ describe('My Visa Bot API', () => {
       });
 
       let afterProcessingTime = {
-        text: "Qu'est-ce que tu veux savoir ?",
+        text: "Que veux-tu savoir ?",
         quick_replies: [
           {
             title: "Procédure de dépôt",

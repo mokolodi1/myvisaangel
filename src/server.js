@@ -587,7 +587,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
       .value();
 
     let afterResult = {
-      text: "Qu'est-ce que tu veux savoir ?",
+      text: "Que veux-tu savoir ?",
       quick_replies: [
         {
           title: "Liste de papiers",
@@ -682,7 +682,7 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
     });
 
     let afterResult = {
-      text: "Qu'est-ce que tu veux savoir ?",
+      text: "Que veux-tu savoir ?",
       quick_replies: [
         {
           title: "Procédure de dépôt",
@@ -780,7 +780,7 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
     });
 
     let afterResult = {
-      text: "Qu'est-ce que tu veux savoir ?",
+      text: "Que veux-tu savoir ?",
       quick_replies: [
         {
           title: "Procédure de dépôt",
