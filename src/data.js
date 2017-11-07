@@ -578,7 +578,6 @@ let prefectures = [
   { departmentPostal: "2B ", prefectureType: "subprefecture", department: "Haute-Corse", name: "Corte" },
   { departmentPostal: "30", prefectureType: "prefecture", department: "Gard", name: "Nîmes" },
   { departmentPostal: "30", prefectureType: "subprefecture", department: "Gard", name: "Alès" },
-  { departmentPostal: "30", prefectureType: "subprefecture", department: "Gard", name: "Alès" },
   { departmentPostal: "30", prefectureType: "subprefecture", department: "Gard", name: "Le Vigan" },
   { departmentPostal: "31", prefectureType: "prefecture", department: "Haute-Garonne", name: "Toulouse" },
   { departmentPostal: "31", prefectureType: "subprefecture", department: "Haute-Garonne", name: "Muret" },
@@ -587,7 +586,6 @@ let prefectures = [
   { departmentPostal: "32", prefectureType: "subprefecture", department: "Gers", name: "Condom" },
   { departmentPostal: "32", prefectureType: "subprefecture", department: "Gers", name: "Mirande" },
   { departmentPostal: "33", prefectureType: "prefecture", department: "Gironde", name: "Bordeaux" },
-  { departmentPostal: "33", prefectureType: "subprefecture", department: "Gironde", name: "Arcachon" },
   { departmentPostal: "33", prefectureType: "subprefecture", department: "Gironde", name: "Arcachon" },
   { departmentPostal: "33", prefectureType: "subprefecture", department: "Gironde", name: "Blaye" },
   { departmentPostal: "33", prefectureType: "subprefecture", department: "Gironde", name: "Langon" },
@@ -667,7 +665,6 @@ let prefectures = [
   { departmentPostal: "55", prefectureType: "subprefecture", department: "Meuse", name: "Commercy" },
   { departmentPostal: "55", prefectureType: "subprefecture", department: "Meuse", name: "Verdun" },
   { departmentPostal: "56", prefectureType: "prefecture", department: "Morbihan", name: "Vannes" },
-  { departmentPostal: "56", prefectureType: "subprefecture", department: "Morbihan", name: "Lorient" },
   { departmentPostal: "56", prefectureType: "subprefecture", department: "Morbihan", name: "Lorient" },
   { departmentPostal: "56", prefectureType: "subprefecture", department: "Morbihan", name: "Pontivy" },
   { departmentPostal: "57", prefectureType: "prefecture", department: "Moselle", name: "Metz" },
@@ -796,7 +793,7 @@ let prefectures = [
   { departmentPostal: "94", prefectureType: "prefecture", department: "Val-de-Marne", name: "Créteil" },
   { departmentPostal: "94", prefectureType: "subprefecture", department: "Val-de-Marne", name: "Nogent-sur-Marne" },
   { departmentPostal: "94", prefectureType: "subprefecture", department: "Val-de-Marne", name: "L'Haÿ-les-Roses" },
-  { departmentPostal: "95", prefectureType: "prefecture", department: "Val-d'Oise", name: "Cergy", alternatives: ["Cergy-Pontoise", "Pontoise"] },
+  { departmentPostal: "95", prefectureType: "prefecture", department: "Val-d'Oise", name: "Pontoise", alternatives: ["Cergy-Pontoise", "Cergy"] },
   { departmentPostal: "95", prefectureType: "subprefecture", department: "Val-d'Oise", name: "Argenteuil" },
   { departmentPostal: "95", prefectureType: "subprefecture", department: "Val-d'Oise", name: "Sarcelles" },
 ];
@@ -806,3 +803,4 @@ if (process.env.NODE_ENV === "dev") {
 }
 module.exports.slugToPrefecture = {};
 module.exports.prefectures = prefectures;
+module.exports.departmentsPrefectures = {};

@@ -6,8 +6,6 @@ var Data = require('./data.js');
 var tdsTypes = {
   aps: {
     name: "APS",
-    summary_link: "https://docs.google.com/document/d/" +
-        "1OakbDux-SRj4aqHgkiQRUWgrWTxBVlPxeNYI9bh5mww/",
     description: "L'APS te permet de chercher, exercer un emploi ou créer " +
         "une entreprise",
     photo_url: "http://myvisaangel.com/static/aps.jpg",
@@ -20,16 +18,12 @@ var tdsTypes = {
   },
   ptsq: {
     name: "Passeport Talent Salarié Qualifié",
-    summary_link: "https://docs.google.com/document/d/" +
-        "1TXg9zsDfzhgkPRl6pAWKJ7S0F02giJ-o9R1ry8NqAMo/",
     description: "Ce titre pluriannuel t'autorise à travailler, créer une " +
         "entreprise ou investir",
     photo_url: "http://myvisaangel.com/static/ptsq.jpg",
   },
   salarie_tt: {
     name: "Salarié/Travailleur Temporaire",
-    summary_link: "https://docs.google.com/document/d/" +
-        "1lb-4yLRCsyLbEVO_xUxDnUOHiBF5HC9IJTWA86_JDwo/",
     description: "Porte la mention Salarié si tu as un CDI / Travailler " +
         "temporaire si tu as un CDD",
     photo_url: "http://myvisaangel.com/static/salarie_tt.jpg",
@@ -103,9 +97,21 @@ tdsTypes.ptsq.eligible = (query) => {
 
   if (nationality !== "algeria" &&
       _.contains(["masters", "masters_equiv"], diploma) &&
-      employmentSituation === "cdi" &&
       smicMultiplier >= 2) {
-    return {};
+    if (employmentSituation === "cdi") {
+      return {};
+    } else {
+      return {
+        messages: [
+          {
+            text: "Normalement, si tu as un CDD supérieur à 3 mois, tu es " +
+            "éligible au passeport talent et celui-ci aura une durée égale à " +
+            "celle de ton CDD. Si tu as de la chance, la préfecture peut " +
+            "aussi te donner un passeport talent d'une durée de 4 ans."
+          }
+        ],
+      };
+    }
   }
 }
 

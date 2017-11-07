@@ -163,6 +163,13 @@ _.each(Data.prefectures, (prefecture) => {
 
   Data.slugToPrefecture[prefecture.slug] = prefecture;
   prefecture.allSluggedNames = [prefecture.slug];
+  prefecture.sluggedDepartment = slugify(prefecture.department);
+
+  if (Data.departmentsPrefectures[prefecture.sluggedDepartment]) {
+    Data.departmentsPrefectures[prefecture.sluggedDepartment].push(prefecture);
+  } else {
+    Data.departmentsPrefectures[prefecture.sluggedDepartment] = [ prefecture ];
+  }
 
   _.each(prefecture.alternatives, (alternative) => {
     prefecture.allSluggedNames.push(slugify(alternative));
@@ -397,13 +404,13 @@ function logError(message, error) {
     slack.webhook({
       channel: "#alerts",
       username: "teo-clone",
-      text: `${message} \`\`\`${error}\`\`\``,
+      text: `${message}` + error ? ` \`\`\`${error}\`\`\`` : "",
       icon_emoji: ":robot_face:",
     }, _.noop);
   }
 }
 
-function httpError(response, errorMessage, error) {
+function reportError(response, errorMessage, error) {
   console.error(`${errorMessage}`);
   if (error) {
     console.error(error);
@@ -412,6 +419,24 @@ function httpError(response, errorMessage, error) {
   logError(errorMessage, error);
 
   response.json(dropToLiveChat());
+}
+
+function addPrefectureWarning(result, prefecture) {
+  if (prefecture === "vienne") {
+    result.messages = [
+      {
+        text: "Je suppose que tu parles de la préfecture de Vienne " +
+            "près de Lyon et pas du département de Vienne en Nouvelle-Aquitaine",
+      },
+    ];
+  } else if (prefecture === "mayenne") {
+    result.messages = [
+      {
+        text: "Je suppose que tu parles de la sous-préfecture de Mayenne et " +
+            "pas du département de Mayenne où il y a trois préfectures",
+      },
+    ];
+  }
 }
 
 
@@ -430,6 +455,7 @@ module.exports = {
   prefTdsRequired,
   tdsRequired,
   dropToLiveChat,
-  httpError,
+  reportError,
   logError,
+  addPrefectureWarning,
 }
