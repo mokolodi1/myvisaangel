@@ -463,8 +463,8 @@ app.route('/v1/nlp').get(function(request, response) {
           "tds-summary": "TDS summary",
           "tds-conditions": "TDS conditions",
           "tds-price": "TDS price",
-          "tds-advantages": "TDS dis/advantages",
-          "tds-disadvantages": "TDS dis/advantages",
+          "tds-advantages": "TDS advantages",
+          "tds-disadvantages": "TDS disadvantages",
           "tds-duration": "TDS duration",
           "tds-cerfa": "TDS cerfa",
           "tds-recommendation": "TDS Questions",
@@ -598,6 +598,20 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
           block_names: [ "TDS duration" ],
         },
         {
+          title: "Changer préfecture",
+          set_attributes: {
+            prefecture: null,
+          },
+          redirect_to_blocks: [ "Dossier submission method" ],
+        },
+        {
+          title: "Changer titre",
+          set_attributes: {
+            selected_tds: null,
+          },
+          redirect_to_blocks: [ "Dossier submission method" ],
+        },
+        {
           title: "Autres questions",
           block_names: [ "Main menu" ],
         },
@@ -677,6 +691,20 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
         {
           title: "Délai de traitement",
           block_names: [ "TDS duration" ],
+        },
+        {
+          title: "Changer préfecture",
+          set_attributes: {
+            prefecture: null,
+          },
+          redirect_to_blocks: [ "Dossier papers list" ],
+        },
+        {
+          title: "Changer titre",
+          set_attributes: {
+            selected_tds: null,
+          },
+          redirect_to_blocks: [ "Dossier papers list" ],
         },
         {
           title: "Autres questions",
@@ -763,6 +791,20 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
           block_names: [ "Dossier papers list" ],
         },
         {
+          title: "Changer préfecture",
+          set_attributes: {
+            prefecture: null,
+          },
+          redirect_to_blocks: [ "Dossier processing time" ],
+        },
+        {
+          title: "Changer titre",
+          set_attributes: {
+            selected_tds: null,
+          },
+          redirect_to_blocks: [ "Dossier processing time" ],
+        },
+        {
           title: "Autres questions",
           block_names: [ "Main menu" ],
         },
@@ -843,10 +885,10 @@ app.route('/v1/tds_price').get(function(request, response) {
   tdsInformation(request, response, "TDS price", "coût");
 });
 app.route('/v1/tds_advantages').get(function(request, response) {
-  tdsInformation(request, response, "TDS dis/advantages", "avantages");
+  tdsInformation(request, response, "TDS advantages", "avantages");
 });
 app.route('/v1/tds_disadvantages').get(function(request, response) {
-  tdsInformation(request, response, "TDS dis/advantages", "inconvénients");
+  tdsInformation(request, response, "TDS disadvantages", "inconvénients");
 });
 app.route('/v1/tds_conditions').get(function(request, response) {
   tdsInformation(request, response, "TDS conditions", "conditions");

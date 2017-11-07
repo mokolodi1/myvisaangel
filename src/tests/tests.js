@@ -1613,6 +1613,26 @@ describe('My Visa Bot API', () => {
       });
     });
 
+    function changePrefecture(redirectBlock) {
+      return {
+        title: "Changer préfecture",
+        set_attributes: {
+          prefecture: null,
+        },
+        redirect_to_blocks: [ redirectBlock ],
+      };
+    }
+
+    function changeTds(redirectBlock) {
+      return {
+        title: "Changer titre",
+        set_attributes: {
+          selected_tds: null,
+        },
+        redirect_to_blocks: [ redirectBlock ],
+      };
+    }
+
     describe('/GET /v1/dossier_submission_method', () => {
       it("should fail if missing parameters", (done) => {
         chai.request(server)
@@ -1705,6 +1725,8 @@ describe('My Visa Bot API', () => {
             title: "Délai de traitement",
             block_names: [ "TDS duration" ],
           },
+          changePrefecture("Dossier submission method"),
+          changeTds("Dossier submission method"),
           {
             title: "Autres questions",
             block_names: [ "Main menu" ],
@@ -1864,6 +1886,8 @@ describe('My Visa Bot API', () => {
             title: "Délai de traitement",
             block_names: [ "TDS duration" ],
           },
+          changePrefecture("Dossier papers list"),
+          changeTds("Dossier papers list"),
           {
             title: "Autres questions",
             block_names: [ "Main menu" ],
@@ -2003,6 +2027,8 @@ describe('My Visa Bot API', () => {
             title: "Liste de papiers",
             block_names: [ "Dossier papers list" ],
           },
+          changePrefecture("Dossier processing time"),
+          changeTds("Dossier processing time"),
           {
             title: "Autres questions",
             block_names: [ "Main menu" ],
