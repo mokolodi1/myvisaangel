@@ -119,7 +119,7 @@ Work in progress!
 git clone https://github.com/mokolodi1/myvisaangel
 
 # Install stuff
-BOX_NUMBER=bN ./scripts/new_prod_box.sh
+BOX_NUMBER=bN ./myvisaangel/scripts/new_prod_box.sh
 
 # Go into the new directory
 cd myvisaangel
