@@ -5,12 +5,15 @@ var express = require("express");
 var Fuse = require("fuse.js");
 const recastai = require('recastai')
 
-var app = express();
-var port = process.env.PORT || 3000;
-
 var Data = require("./data.js");
 var Utilities = require("./utilities.js");
 var tdsTypes = require("./tdsTypes.js");
+
+var app = express();
+var port = process.env.PORT || 3000;
+
+app.set('trust proxy', true);
+app.set('trust proxy', 'loopback');
 
 // print some info about the time and such
 app.all('*', (request, response, next) => {
