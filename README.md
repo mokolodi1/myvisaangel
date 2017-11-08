@@ -117,10 +117,12 @@ Once connected to the AWS box, go to the shell that isn't currently running the 
 ```sh
 # Grab the code from GitHub and go into the code's folder
 git clone https://github.com/mokolodi1/myvisaangel
-cd myvisaangel
 
 # Install stuff
-./scripts/new_prod_box.sh
+BOX_NUMBER=bN ./myvisaangel/scripts/new_prod_box.sh
+
+# Go into the new directory
+cd myvisaangel
 
 # Start a new tmux session so the command keeps running
 # after you close the window
