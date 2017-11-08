@@ -346,7 +346,7 @@ let countries = [
   { slug: "cayman_islands", english: "Cayman Islands", country_code: "ky", french: "Îles Caïmans" },
   { slug: "kazakhstan", english: "Kazakhstan", country_code: "kz", french: "Kazakhstan" },
   { slug: "laos", english: "Laos", country_code: "la", french: "Laos" },
-  { slug: "lebanon", english: "Lebanon", country_code: "lb", french: "lebanon" },
+  { slug: "lebanon", english: "Lebanon", country_code: "lb", french: "Liban", alternatives: "République Libanaise" },
   { slug: "saint_lucia", english: "Saint Lucia", country_code: "lc", french: "Sainte-Lucie" },
   { slug: "liechtenstein", english: "Liechtenstein", country_code: "li", french: "Liechtenstein" },
   { slug: "sri_lanka", english: "Sri Lanka", country_code: "lk", french: "Sri Lanka" },
