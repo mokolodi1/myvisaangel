@@ -107,12 +107,12 @@ Once connected to the AWS box, go to the shell that isn't currently running the 
 
 ### Setting up a new beta
 
-Work in progress!
-
-1. Create a new EC2 box (Ubuntu Server 16.04 LTS) with port 80 (HTTP) in the inbound rules for the security group.
-2. Add/edit the `bN` and `dev` records to the DNS with the new box's IP on [hover.com](https://hover.com)
-3. Connect: `ssh -i myvisaangel.pem ubuntu@bN.myvisaangel.com`
-4. Do the following:
+1. Log onto [hover.com](https://hover.com) to get the old prod box's IP, keep tab open
+2. [Terminate the old production box](https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#Instances:sort=instanceId)
+3. Create a new EC2 box (Ubuntu Server 16.04 LTS) with port 80 (HTTP) in the inbound rules for the security group.
+4. Add/edit the `bN` and `dev` records to the DNS with the new box's IP on Hover
+5. Connect: `ssh -i myvisaangel.pem ubuntu@bN.myvisaangel.com`
+6. Do the following:
 
 ```sh
 # Grab the code from GitHub and go into the code's folder
@@ -137,13 +137,13 @@ tmux
 ./scripts/beta_start.sh
 ```
 
-6. Give it a shot: http://b2.myvisaangel.com/v1/ping
-7. Clone the production bot: increment the number and name `beta`
-8. Connect the beta bot to the `MVA Beta` Facebook page
-9. Go through all the blocks and change the URLs to the new version number. Note that you have to wait a second or two for Chatfuel to validate the URL before it saves.
-10. Verify you've changed all the block's URLs to the new version number. If you miss one that block won't work anymore when we kill what is now the current production box but will seem to work until then.
-11. Take the `MVA Beta` bot out for a whirl while watching the logs
-12. Invite other team members to be admin of the new bot
+7. Give it a shot: http://b2.myvisaangel.com/v1/ping
+8. Clone the production bot: increment the number and name `beta`
+9. Connect the beta bot to the `MVA Beta` Facebook page
+10. Go through all the blocks and change the URLs to the new version number
+11. Verify you've changed all the block's URLs to the new version number. If you miss one that block won't work anymore when we kill what is now the current production box but will seem to work until then.
+12. Take the `MVA Beta` bot out for a whirl while watching the logs
+13. Invite other team members to be admin of the new bot
 
 ### Deploying from the beta to production
 
