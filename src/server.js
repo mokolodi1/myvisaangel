@@ -863,11 +863,7 @@ function tdsInformation(request, response, blockName, sheetColumn) {
 
     if (matchingRows.length > 0 && matchingRows[0][sheetColumn]) {
       response.json({
-        messages: [
-          {
-            text: matchingRows[0][sheetColumn],
-          },
-        ],
+        messages: Utilities.splitLongMessage(matchingRows[0][sheetColumn]),
         redirect_to_blocks: [
           "TDS information"
         ],

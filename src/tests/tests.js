@@ -2249,7 +2249,7 @@ describe('My Visa Bot API', () => {
               messages: [
                 {
                   text: "Inconvénients de la carte vie privée et familiale :\n" +
-                      "Tu es lié à ton/ta concubin(e) et si jamais vous vous " +
+                      "- Tu es lié à ton/ta concubin(e) et si jamais vous vous " +
                       "séparez, tu devras demander un changement de statut " +
                       "pour changer de titre de séjour.",
                 },
@@ -2282,6 +2282,45 @@ describe('My Visa Bot API', () => {
                       "professionnelle, par exemple),\n" +
                       "- Absence de condamnation ou d'interdiction " +
                       "d'exercice.",
+                },
+              ],
+              redirect_to_blocks: [ "TDS information" ],
+            });
+
+            done();
+          });
+      });
+
+      it("should give the conditions for passeport talent", (done) => {
+        chai.request(server)
+          .get('/v1/tds_conditions?selected_tds=ptsq')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Conditions pour obtenir un passeport talent mention " +
+                      "salarié qualifié :",
+                },
+                {
+                  text: "- Avoir obtenu en France : Une licence " +
+                      "professionnelle, Un mastère spécialisé, Un master " +
+                      "of science (labellisé par la conférence des grandes " +
+                      "écoles), Un autre diplôme au moins équivalent au " +
+                      "master (DEA, DESS, diplôme d’ingénieur, diplôme " +
+                      "d’institut d’études politiques, diplôme supérieur de " +
+                      "comptabilité et de gestion, diplôme d’expertise " +
+                      "comptable, diplômes d’État de docteur vétérinaire, " +
+                      "docteur en médecine, chirurgie dentaire, pharmacie)",
+                },
+                {
+                  text: "- Avoir une promesse d’embauche ou un contrat " +
+                      "(CDD supérieur à 3 mois ou CDI) signé",
+                },
+                {
+                  text: "- Salaire supérieur ou égal à 35 526,40€ bruts " +
+                      "annuels (2 fois le SMIC)",
                 },
               ],
               redirect_to_blocks: [ "TDS information" ],
@@ -2352,7 +2391,7 @@ describe('My Visa Bot API', () => {
                       "Permet d'exercer une activité non-salariée."
                 },
                 {
-                  text: "Inconvénients de la carte commerçant :\nTu ne peux " +
+                  text: "Inconvénients de la carte commerçant :\n- Tu ne peux " +
                       "pas exercer une activité salariée (CDD, CDI, intérim)."
                 },
                 {

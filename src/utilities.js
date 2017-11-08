@@ -439,6 +439,22 @@ function addPrefectureWarning(result, prefecture) {
   }
 }
 
+function splitLongMessage(text) {
+  if (text.length > 640) {
+    let messages = text.split("\n");
+
+    return _.map(text.split("\n"), (line) => {
+      return {
+        text: line.trim(),
+      };
+    });
+
+    return messages;
+  }
+
+  return [ { text } ];
+}
+
 
 
 module.exports = {
@@ -458,4 +474,5 @@ module.exports = {
   reportError,
   logError,
   addPrefectureWarning,
+  splitLongMessage,
 }
