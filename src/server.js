@@ -477,6 +477,8 @@ app.route('/v1/nlp').get(function(request, response) {
         };
 
         var { prefecture, selected_tds } = query;
+        let recastPrefecture = false;
+        let recastTds = false;
 
         // grab prefecture/TDS from Recast if they have been defined
         let { entities } = recastResponse;
@@ -489,6 +491,7 @@ app.route('/v1/nlp').get(function(request, response) {
           if (withoutPapiers && withoutPapiers.length > 0) {
             let newPrefecture = Utilities.mostConfident(withoutPapiers);
             prefecture = Utilities.slugify(newPrefecture.value);
+            recastPrefecture = true;
           }
 
           let recastTds = Utilities.mostConfident(entities["visa-type"]);
@@ -497,6 +500,7 @@ app.route('/v1/nlp').get(function(request, response) {
 
             if (tds) {
               selected_tds = tds;
+              recastTds = true;
             }
           }
         }
@@ -515,7 +519,8 @@ app.route('/v1/nlp').get(function(request, response) {
           Utilities.addPrefectureWarning(result, prefecture);
           response.json(result);
           return;
-        } else if (intent.slug === "change-variable") {
+        } else if (intent.slug === "change-variable" &&
+              (recastPrefecture || recastTds)) {
           let result = {
             set_attributes: { prefecture, selected_tds }
           };
