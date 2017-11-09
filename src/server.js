@@ -237,8 +237,6 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       }
     });
 
-    let countryOptions = _.pluck(quick_replies, "title").join(", ");
-
     response.json({
       messages: [
         {
@@ -583,6 +581,9 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
     return;
   }
 
+  request.query.requestedInfo = "dossier_submission_method";
+  Utilities.logInSheet("prefectureTds", request.query);
+
   Utilities.submissionMethodSheet((error, result) => {
     if (error) {
       return Utilities.reportError(response,
@@ -689,6 +690,9 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
     return;
   }
 
+  request.query.requestedInfo = "dossier_papers_list";
+  Utilities.logInSheet("prefectureTds", request.query);
+
   Utilities.papersListSheet((error, result) => {
     if (error) {
       return Utilities.reportError(response,
@@ -792,6 +796,9 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
     return;
   }
 
+  request.query.requestedInfo = "dossier_processing_time";
+  Utilities.logInSheet("prefectureTds", request.query);
+
   Utilities.processingTimeSheet((error, result) => {
     if (error) {
       return Utilities.reportError(response,
@@ -872,6 +879,9 @@ function tdsInformation(request, response, blockName, sheetColumn) {
     return;
   }
 
+  request.query.requestedInfo = sheetColumn;
+  Utilities.logInSheet("tdsInfo", request.query);
+
   Utilities.tdsInfoSheet((error, result) => {
     if (error) {
       return Utilities.reportError(response, "Error getting the TDS info",
@@ -914,44 +924,6 @@ app.route('/v1/tds_conditions').get(function(request, response) {
   tdsInformation(request, response, "TDS conditions", "conditions");
 });
 
-app.route('/v1/tds_all_info').get(function(request, response) {
-  let { selected_tds } = request.query;
-
-  if (!selected_tds) {
-    response.json(Utilities.tdsRequired("TDS all info"));
-    return;
-  }
-
-  Utilities.tdsInfoSheet((error, result) => {
-    if (error) {
-      return Utilities.reportError(response, "Error getting the TDS info",
-          error);
-    }
-
-    let matchingRows = _.where(result, {
-      tdsSlug: selected_tds,
-    });
-
-    if (matchingRows.length > 0 && matchingRows[0]) {
-      response.json({
-        messages: [
-          { text: matchingRows[0]["présentation"] },
-          { text: matchingRows[0]["durée"] },
-          { text: matchingRows[0]["coût"] },
-          { text: matchingRows[0]["avantages"] },
-          { text: matchingRows[0]["inconvénients"] },
-          { text: matchingRows[0]["conditions"] },
-        ],
-        redirect_to_blocks: [
-          "Main menu"
-        ],
-      });
-    } else {
-      response.json(Utilities.dropToLiveChat(request.query));
-    }
-  });
-});
-
 app.route('/v1/tds_cerfa').get(function (request, response) {
   let { selected_tds } = request.query;
 
@@ -959,6 +931,9 @@ app.route('/v1/tds_cerfa').get(function (request, response) {
     response.json(Utilities.tdsRequired("TDS cerfa"));
     return;
   }
+
+  request.query.requestedInfo = "cerfa";
+  Utilities.logInSheet("tdsInfo", request.query);
 
   Utilities.cerfaSheet((error, result) => {
     if (error) {
