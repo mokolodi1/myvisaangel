@@ -1744,7 +1744,8 @@ describe('My Visa Bot API', () => {
                 { text: "Voici la/les procédure(s) pour déposer un dossier " +
                     "pour un titre de séjour APS à Paris :" },
                 {
-                  text: "Tu n'as pas besoin de prendre RDV. Envoi par la " +
+                  text: "Tu n'as pas besoin de prendre RDV pour cette " +
+                    "méthode. Envoi par la " +
                     "poste (courrier recommandé avec accusé de réception) : " +
                     "PRÉFECTURE DE POLICE Centre des Étudiants et des " +
                     "Chercheurs Internationaux Cité Universitaire - Service " +
@@ -1783,9 +1784,35 @@ describe('My Visa Bot API', () => {
           });
       });
 
-      it("should help users if we don't have the info yet", (done) => {
+      it("shouldn't throw up at somewhat blank rows", (done) => {
         chai.request(server)
           .get('/v1/dossier_submission_method?prefecture=nope&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour le moment nous n'avons pas la procédure pour " +
+                  "la préfecture de NOPE dans notre base de données.",
+                },
+                {
+                  text: "D'ailleurs, nous te serions très reconnaissants si une " +
+                      "fois ton dossier déposé, tu pouvais nous faire un retour " +
+                      "d'expérience sur ta préfecture pour enrichir notre base " +
+                      "de données 😍",
+                },
+                afterDossierSubmission,
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should help users if we don't have the info yet", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_submission_method?prefecture=nope&selected_tds=ptsq')
           .end((err, response) => {
             response.should.have.status(200);
 

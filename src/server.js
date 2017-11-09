@@ -435,6 +435,9 @@ app.route('/v1/nlp').get(function(request, response) {
 
   // Recast has a caracter limit
   if (message.length > 512) {
+    query.intentSlug = "too-long-for-recast";
+    Utilities.logInSheet("nlp", query);
+
     return response.json({
       redirect_to_blocks: [ "Main menu" ],
     });
@@ -578,17 +581,6 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
           "Error getting the prefecture submission info", error);
     }
 
-    let matchingRows = _.chain(result)
-      .where({
-        tdsSlug: selected_tds,
-        prefectureSlug: prefecture,
-      })
-      .filter((row) => {
-        // XXX: might need better way to tell if row is ready for production
-        return row["besoinrdv"]
-      })
-      .value();
-
     let afterResult = {
       text: "Que veux-tu savoir ?",
       quick_replies: [
@@ -621,10 +613,26 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
       ],
     };
 
+    let matchingRows = _.chain(result)
+      .where({
+        tdsSlug: selected_tds,
+        prefectureSlug: prefecture,
+      })
+      .filter((row) => {
+        if (!row["besoinrdv"]) return false;
+
+        row.needsRDV = row["besoinrdv"].toLowerCase() === "oui";
+
+        return (row.needsRDV && row["commentprendrerdv"] || !row.needsRDV) &&
+            row["dépôtdudossier"] && row["coordonnées"];
+      })
+      .value();
+
     if (matchingRows.length > 0) {
       let submissionPossibilities = _.map(matchingRows, (row) => {
-        let rdvMessage = "Tu n'as pas besoin de prendre RDV. ";
-        if (Utilities.slugify(matchingRows[0]["besoinrdv"]) === "oui") {
+        let rdvMessage = "Tu n'as pas besoin de prendre RDV pour cette " +
+            "méthode. ";
+        if (row.needsRDV) {
           rdvMessage = "Le RDV se prend " +
               `${matchingRows[0]["commentprendrerdv"]}. `;
         }
@@ -679,11 +687,6 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
           "Error getting the submission information", error);
     }
 
-    let matchingRows = _.where(result, {
-      tdsSlug: selected_tds,
-      prefectureSlug: prefecture,
-    });
-
     let afterResult = {
       text: "Que veux-tu savoir ?",
       quick_replies: [
@@ -716,14 +719,24 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
       ],
     };
 
-    if (matchingRows.length > 0 && matchingRows[0]["lien"]) {
-      let papersListLink = matchingRows[0]["lien"];
+    let matchingRows = _.chain(result)
+      .where({
+        tdsSlug: selected_tds,
+        prefectureSlug: prefecture,
+      })
+      .filter((row) => {
+        return row["lien"];
+      })
+      .value();
+
+    if (matchingRows.length > 0) {
       response.json({
         messages: [
           {
             text: "Voici la liste de papiers pour un titre de séjour " +
                 `${tdsTypes[selected_tds].name} à ` +
-                `${Data.slugToPrefecture[prefecture].name} : ${papersListLink}`,
+                `${Data.slugToPrefecture[prefecture].name} : ` +
+                matchingRows[0]["lien"],
           },
           afterResult,
         ],
@@ -777,11 +790,6 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
           "Error getting the submission information", error);
     }
 
-    let matchingRows = _.where(result, {
-      tdsSlug: selected_tds,
-      prefectureSlug: prefecture,
-    });
-
     let afterResult = {
       text: "Que veux-tu savoir ?",
       quick_replies: [
@@ -813,6 +821,11 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
         },
       ],
     };
+
+    let matchingRows = _.where(result, {
+      tdsSlug: selected_tds,
+      prefectureSlug: prefecture,
+    });
 
     if (matchingRows.length > 0 && matchingRows[0]["délai"]) {
       let delayText = matchingRows[0]["délai"].replace(/\n/g, ' ');
