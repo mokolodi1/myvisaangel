@@ -495,9 +495,9 @@ app.route('/v1/nlp').get(function(request, response) {
             recastPrefecture = true;
           }
 
-          let recastTds = Utilities.mostConfident(entities["visa-type"]);
-          if (recastTds) {
-            let tds = Utilities.tdsFromRecast(recastTds.value);
+          let newTds = Utilities.mostConfident(entities["visa-type"]);
+          if (newTds) {
+            let tds = Utilities.tdsFromRecast(newTds.value);
 
             if (tds) {
               selected_tds = tds;
@@ -505,6 +505,8 @@ app.route('/v1/nlp').get(function(request, response) {
             }
           }
         }
+        console.log("recastTds:", recastTds);
+        console.log("recastPrefecture:", recastPrefecture);
 
         if (blockForIntent[intent.slug]) {
           var result = {
