@@ -450,6 +450,7 @@ app.route('/v1/nlp').get(function(request, response) {
 
       query.intentSlug = intent && intent.slug;
       query.intentConfidence = intent && intent.confidence;
+      query.entitiesJson = JSON.stringify(recastResponse.entities);
       Utilities.logInSheet("nlp", query);
 
       // restart conversation even if nlp is disabled
