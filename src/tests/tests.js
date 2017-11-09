@@ -2145,22 +2145,6 @@ describe('My Visa Bot API', () => {
           });
       });
 
-      it("all info should drop to live chat if Google Sheets fails", (done) => {
-        nock('https://spreadsheets.google.com:443', {"encodedQueryParams":true})
-          .post('/feeds/list/asdf/4/private/full')
-          .replyWithError('Google Sheets failed. This is a test.');
-
-        chai.request(server)
-          .get('/v1/tds_all_info?prefecture=paris&selected_tds=aps')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql(silentLiveChat);
-
-            done();
-          });
-      });
-
       it("should drop into live chat if not defined", (done) => {
         chai.request(server)
           .get('/v1/tds_summary?selected_tds=nope')
@@ -2351,91 +2335,6 @@ describe('My Visa Bot API', () => {
                 },
               ],
               redirect_to_blocks: [ "TDS information" ],
-            });
-
-            done();
-          });
-      });
-
-      it("should ask for more info for all info if needed", (done) => {
-        chai.request(server)
-          .get('/v1/tds_all_info?selected_tds=')
-          .end((err, response) => {
-            response.should.have.status(200);
-
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
-                },
-              ],
-              redirect_to_blocks: [
-                "Select TDS type",
-                "TDS all info",
-              ],
-            });
-
-            done();
-          });
-      });
-
-      it("should drop into live chat if all info not defined", (done) => {
-        chai.request(server)
-          .get('/v1/tds_all_info?selected_tds=nope')
-          .end((err, response) => {
-            response.should.have.status(200);
-
-            response.body.should.be.deep.eql(silentLiveChat);
-
-            done();
-          });
-      });
-
-      it("should give all info for commercant", (done) => {
-        chai.request(server)
-          .get('/v1/tds_all_info?selected_tds=commercant')
-          .end((err, response) => {
-            response.should.have.status(200);
-
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "C'est une carte de séjour temporaire qui permet " +
-                      "d'exercer une activité commerciale, industrielle, " +
-                      "artisanale ou autre profession non salariée sur le " +
-                      "territoire français pendant plus de 3 mois."
-                },
-                {
-                  text: "La durée de la carte commerçant est de  1 an " +
-                      "(renouvelable)"
-                },
-                {
-                  text: "Le prix d'une carte de séjour commerçant est de 269€"
-                },
-                {
-                  text: "Avantages d'une carte de séjour commerçant :\n- " +
-                      "Permet d'exercer une activité non-salariée."
-                },
-                {
-                  text: "Inconvénients de la carte commerçant :\n- Tu ne peux " +
-                      "pas exercer une activité salariée (CDD, CDI, intérim)."
-                },
-                {
-                  text: "Conditions pour obtenir une " +
-                      "carte commerçant :\n- Justifier d'une activité " +
-                      "viable sur le plan économique ou, s'il intègre une " +
-                      "entreprise existante, de sa capacité à lui verser " +
-                      "une rémunération suffisante (au moins égale au Smic)," +
-                      "\n- Justifier d'une activité compatible avec la " +
-                      "sécurité, la salubrité et la tranquillité " +
-                      "publique,\n- Respecter les obligations de cette " +
-                      "profession (conditions de diplômes ou d'expérience " +
-                      "professionnelle, par exemple),\n- Absence de " +
-                      "condamnation ou d'interdiction d'exercice."
-                }
-              ],
-              redirect_to_blocks: [ "Main menu" ],
             });
 
             done();

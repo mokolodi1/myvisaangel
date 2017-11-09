@@ -262,14 +262,16 @@ var gitHash = require('child_process')
   .execSync('git rev-parse HEAD')
   .toString().trim();
 function logInSheet(sheetDescription, logObject) {
-  // https://docs.google.com/spreadsheets/d/1rwp_fErdkFWw-5YNjnbFGPp7XpJjbQFteMxpopdzF1A
-  // NOTE: the addRow call should fail when running on a dev/beta machine
+  // prod: https://docs.google.com/spreadsheets/d/1rwp_fErdkFWw-5YNjnbFGPp7XpJjbQFteMxpopdzF1A
+  // beta: https://docs.google.com/spreadsheets/d/115dkP03nEJKvfACjzYqevnRoVWGrN5BlDsvpAu3AXgQ
+  // NOTE: the addRow call should fail when running on a dev machine
   //    because it'll be linked up to a fake Google Sheet
-  var isDevSheets = {
-    true: "asdf",
-    false: "1rwp_fErdkFWw-5YNjnbFGPp7XpJjbQFteMxpopdzF1A",
+  var sheetIds = {
+    undefined: "1rwp_fErdkFWw-5YNjnbFGPp7XpJjbQFteMxpopdzF1A",
+    beta: "115dkP03nEJKvfACjzYqevnRoVWGrN5BlDsvpAu3AXgQ",
+    dev: "asdf",
   };
-  let doc = new GoogleSpreadsheet(isDevSheets[process.env.NODE_ENV === "dev"]);
+  let doc = new GoogleSpreadsheet(sheetIds[process.env.NODE_ENV]);
 
   doc.useServiceAccountAuth(googleCredentials, (error, result) => {
     if (error) {
@@ -377,10 +379,12 @@ const slack = new Slack();
 slack.setWebhook("https://hooks.slack.com/services/" +
     "T6NNVGX1A/B7SNPJD3P/imdZum8DJF2PbSHmXLDF0rHy");
 function dropToLiveChat(query) {
-  if (process.env.NODE_ENV !== "dev") {
+  let { NODE_ENV } = process.env;
+
+  if (NODE_ENV !== "dev") {
     slack.webhook({
       channel: "#livechat",
-      username: "teo-clone",
+      username: "teo-clone" + NODE_ENV === "beta" ? "-beta" : "",
       // NOTE: be aware of the ternary operator here - I didn't want an if
       // statement to count agsinst my lines of untested code... ;P
       text: query ? `New message from ${query["first name"]} ` +
@@ -402,10 +406,12 @@ function dropToLiveChat(query) {
 }
 
 function logError(message, error) {
-  if (process.env.NODE_ENV !== "dev") {
+  let { NODE_ENV } = process.env;
+
+  if (NODE_ENV !== "dev") {
     slack.webhook({
       channel: "#alerts",
-      username: "teo-clone",
+      username: "teo-clone" + NODE_ENV === "beta" ? "-beta" : "",
       text: `${message}` + error ? ` \`\`\`${error}\`\`\`` : "",
       icon_emoji: ":robot_face:",
     }, _.noop);
