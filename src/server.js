@@ -17,6 +17,7 @@ app.set('trust proxy', 'loopback');
 
 // print some info about the time and such
 app.all('*', (request, response, next) => {
+  let start = new Date();
   if (request.path.startsWith("/v1/")) {
     console.log("\n" + new Date(), request.path, request.query);
   }
@@ -25,6 +26,7 @@ app.all('*', (request, response, next) => {
   var oldSend = response.send;
   response.send = function (data) {
     console.log("response:", data);
+    console.log("ms taken:", new Date() - start);
 
     oldSend.apply(response, arguments);
   }
