@@ -108,10 +108,9 @@ app.route('/v1/get_visas').get(function(request, response) {
           elements: _.map(recommendedSlugs, (tdsSlug) => {
             let tdsInfo = tdsTypes[tdsSlug];
 
-            var subdomain = "api";
-            if (process.env.NODE_ENV === "dev" ||
-                process.env.NODE_ENV === "beta") {
-              subdomain = "dev";
+            var subdomain = process.env.BOX_NUMBER;
+            if (!subdomain) {
+              subdomain = "api";
             }
 
             return {
