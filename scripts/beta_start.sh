@@ -7,4 +7,4 @@ fi
 
 npm install
 
-sudo npm run beta 2>&1 >>~/chatbot_logs.txt | tee -a ~/chatbot_logs.txt
+sudo --preserve-env npm run beta 2>&1 >>~/chatbot_logs.txt | tee -a ~/chatbot_logs.txt
