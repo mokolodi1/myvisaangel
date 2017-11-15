@@ -209,6 +209,8 @@ function getDBSheet(sheetNumber, callback) {
     doc.getRows(sheetNumber, { offset: 0, limit: 1000 }, (error, rows) => {
       if (error) { callback(error, undefined); return; }
 
+      console.log(`Got ${rows.length} rows for sheet #${sheetNumber}`);
+
       // add some useful computer-generated info onto the result
       let tdsTypeMap = {
         "APS": "aps",
