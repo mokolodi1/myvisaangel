@@ -187,7 +187,7 @@ _.each(Data.countries, (country) => {
   country.allSluggedNames = _.map(allNames, slugify);
 });
 
-const CACHE_TIMEOUT = 1000 * 60; // one minute
+const CACHE_TIMEOUT = 1000 * 60 * 30; // 30 minutes
 var googleCredentials =
     require('../private/myvisaangel-f24414135324-service-account.json');
 // keyed by doc ID; each entry has lastUpdate and rows attributes
