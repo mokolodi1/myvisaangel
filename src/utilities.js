@@ -187,7 +187,7 @@ _.each(Data.countries, (country) => {
   country.allSluggedNames = _.map(allNames, slugify);
 });
 
-const CACHE_TIMEOUT = 1000 * 60; // one minute
+const CACHE_TIMEOUT = 1000 * 60 * 30; // 30 minutes
 var googleCredentials =
     require('../private/myvisaangel-f24414135324-service-account.json');
 // keyed by doc ID; each entry has lastUpdate and rows attributes
@@ -208,6 +208,8 @@ function getDBSheet(sheetNumber, callback) {
 
     doc.getRows(sheetNumber, { offset: 0, limit: 1000 }, (error, rows) => {
       if (error) { callback(error, undefined); return; }
+
+      console.log(`Got ${rows.length} rows for sheet #${sheetNumber}`);
 
       // add some useful computer-generated info onto the result
       let tdsTypeMap = {
@@ -262,14 +264,16 @@ var gitHash = require('child_process')
   .execSync('git rev-parse HEAD')
   .toString().trim();
 function logInSheet(sheetDescription, logObject) {
-  // https://docs.google.com/spreadsheets/d/1rwp_fErdkFWw-5YNjnbFGPp7XpJjbQFteMxpopdzF1A
-  // NOTE: the addRow call should fail when running on a dev/beta machine
+  // prod: https://docs.google.com/spreadsheets/d/1rwp_fErdkFWw-5YNjnbFGPp7XpJjbQFteMxpopdzF1A
+  // beta: https://docs.google.com/spreadsheets/d/115dkP03nEJKvfACjzYqevnRoVWGrN5BlDsvpAu3AXgQ
+  // NOTE: the addRow call should fail when running on a dev machine
   //    because it'll be linked up to a fake Google Sheet
-  var isDevSheets = {
-    true: "asdf",
-    false: "1rwp_fErdkFWw-5YNjnbFGPp7XpJjbQFteMxpopdzF1A",
+  var sheetIds = {
+    undefined: "1rwp_fErdkFWw-5YNjnbFGPp7XpJjbQFteMxpopdzF1A",
+    beta: "115dkP03nEJKvfACjzYqevnRoVWGrN5BlDsvpAu3AXgQ",
+    dev: "asdf",
   };
-  let doc = new GoogleSpreadsheet(isDevSheets[process.env.NODE_ENV === "dev"]);
+  let doc = new GoogleSpreadsheet(sheetIds[process.env.NODE_ENV]);
 
   doc.useServiceAccountAuth(googleCredentials, (error, result) => {
     if (error) {
@@ -284,6 +288,8 @@ function logInSheet(sheetDescription, logObject) {
     var sheetMap = {
       "get_visas": 1,
       "nlp": 2,
+      "prefectureTds": 3,
+      "tdsInfo": 4,
     };
     doc.addRow(sheetMap[sheetDescription], logObject, (error, result) => {
       // // Uncomment to log for testing
@@ -375,10 +381,12 @@ const slack = new Slack();
 slack.setWebhook("https://hooks.slack.com/services/" +
     "T6NNVGX1A/B7SNPJD3P/imdZum8DJF2PbSHmXLDF0rHy");
 function dropToLiveChat(query) {
-  if (process.env.NODE_ENV !== "dev") {
+  let { NODE_ENV } = process.env;
+
+  if (NODE_ENV !== "dev") {
     slack.webhook({
       channel: "#livechat",
-      username: "teo-clone",
+      username: "teo-clone" + NODE_ENV === "beta" ? "-beta" : "",
       // NOTE: be aware of the ternary operator here - I didn't want an if
       // statement to count agsinst my lines of untested code... ;P
       text: query ? `New message from ${query["first name"]} ` +
@@ -400,10 +408,12 @@ function dropToLiveChat(query) {
 }
 
 function logError(message, error) {
-  if (process.env.NODE_ENV !== "dev") {
+  let { NODE_ENV } = process.env;
+
+  if (NODE_ENV !== "dev") {
     slack.webhook({
       channel: "#alerts",
-      username: "teo-clone",
+      username: "teo-clone" + NODE_ENV === "beta" ? "-beta" : "",
       text: `${message}` + error ? ` \`\`\`${error}\`\`\`` : "",
       icon_emoji: ":robot_face:",
     }, _.noop);
@@ -439,6 +449,22 @@ function addPrefectureWarning(result, prefecture) {
   }
 }
 
+function splitLongMessage(text) {
+  if (text.length > 640) {
+    let messages = text.split("\n");
+
+    return _.map(text.split("\n"), (line) => {
+      return {
+        text: line.trim(),
+      };
+    });
+
+    return messages;
+  }
+
+  return [ { text } ];
+}
+
 
 
 module.exports = {
@@ -458,4 +484,5 @@ module.exports = {
   reportError,
   logError,
   addPrefectureWarning,
+  splitLongMessage,
 }

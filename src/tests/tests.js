@@ -402,7 +402,7 @@ describe('My Visa Bot API', () => {
                               type: "show_block",
                             },
                           ],
-                          image_url: "http://dev.myvisaangel.com/static/aps.jpg",
+                          image_url: "http://api.myvisaangel.com/static/aps.jpg",
                         },
                         {
                           "buttons": [
@@ -440,7 +440,7 @@ describe('My Visa Bot API', () => {
                           "subtitle": "Ce titre pluriannuel t'autorise à " +
                               "travailler, créer une entreprise ou investir",
                           "title": "Passeport Talent Salarié Qualifié",
-                          image_url: "http://dev.myvisaangel.com/static/ptsq.jpg",
+                          image_url: "http://api.myvisaangel.com/static/ptsq.jpg",
                         },
                       ],
                     }
@@ -526,7 +526,7 @@ describe('My Visa Bot API', () => {
                               type: "show_block",
                             },
                           ],
-                          image_url: "http://dev.myvisaangel.com/static/aps.jpg",
+                          image_url: "http://api.myvisaangel.com/static/aps.jpg",
                         },
                       ],
                     }
@@ -624,7 +624,7 @@ describe('My Visa Bot API', () => {
                               type: "show_block",
                             },
                           ],
-                          image_url: "http://dev.myvisaangel.com/static/commercant.jpg",
+                          image_url: "http://api.myvisaangel.com/static/commercant.jpg",
                         },
                       ],
                     }
@@ -1744,7 +1744,8 @@ describe('My Visa Bot API', () => {
                 { text: "Voici la/les procédure(s) pour déposer un dossier " +
                     "pour un titre de séjour APS à Paris :" },
                 {
-                  text: "Tu n'as pas besoin de prendre RDV. Envoi par la " +
+                  text: "Tu n'as pas besoin de prendre RDV pour cette " +
+                    "méthode. Envoi par la " +
                     "poste (courrier recommandé avec accusé de réception) : " +
                     "PRÉFECTURE DE POLICE Centre des Étudiants et des " +
                     "Chercheurs Internationaux Cité Universitaire - Service " +
@@ -1783,9 +1784,35 @@ describe('My Visa Bot API', () => {
           });
       });
 
-      it("should help users if we don't have the info yet", (done) => {
+      it("shouldn't throw up at somewhat blank rows", (done) => {
         chai.request(server)
           .get('/v1/dossier_submission_method?prefecture=nope&selected_tds=aps')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Pour le moment nous n'avons pas la procédure pour " +
+                  "la préfecture de NOPE dans notre base de données.",
+                },
+                {
+                  text: "D'ailleurs, nous te serions très reconnaissants si une " +
+                      "fois ton dossier déposé, tu pouvais nous faire un retour " +
+                      "d'expérience sur ta préfecture pour enrichir notre base " +
+                      "de données 😍",
+                },
+                afterDossierSubmission,
+              ],
+            });
+
+            done();
+          });
+      });
+
+      it("should help users if we don't have the info yet", (done) => {
+        chai.request(server)
+          .get('/v1/dossier_submission_method?prefecture=nope&selected_tds=ptsq')
           .end((err, response) => {
             response.should.have.status(200);
 
@@ -2118,22 +2145,6 @@ describe('My Visa Bot API', () => {
           });
       });
 
-      it("all info should drop to live chat if Google Sheets fails", (done) => {
-        nock('https://spreadsheets.google.com:443', {"encodedQueryParams":true})
-          .post('/feeds/list/asdf/4/private/full')
-          .replyWithError('Google Sheets failed. This is a test.');
-
-        chai.request(server)
-          .get('/v1/tds_all_info?prefecture=paris&selected_tds=aps')
-          .end((err, response) => {
-            response.should.have.status(200);
-            response.body.should.be.a('object');
-            response.body.should.be.deep.eql(silentLiveChat);
-
-            done();
-          });
-      });
-
       it("should drop into live chat if not defined", (done) => {
         chai.request(server)
           .get('/v1/tds_summary?selected_tds=nope')
@@ -2249,7 +2260,7 @@ describe('My Visa Bot API', () => {
               messages: [
                 {
                   text: "Inconvénients de la carte vie privée et familiale :\n" +
-                      "Tu es lié à ton/ta concubin(e) et si jamais vous vous " +
+                      "- Tu es lié à ton/ta concubin(e) et si jamais vous vous " +
                       "séparez, tu devras demander un changement de statut " +
                       "pour changer de titre de séjour.",
                 },
@@ -2291,85 +2302,39 @@ describe('My Visa Bot API', () => {
           });
       });
 
-      it("should ask for more info for all info if needed", (done) => {
+      it("should give the conditions for passeport talent", (done) => {
         chai.request(server)
-          .get('/v1/tds_all_info?selected_tds=')
+          .get('/v1/tds_conditions?selected_tds=ptsq')
           .end((err, response) => {
             response.should.have.status(200);
 
             response.body.should.be.deep.eql({
               messages: [
                 {
-                  text: "Pour t'aider j'ai besoin " +
-                  "de quelques informations complémentaires",
+                  text: "Conditions pour obtenir un passeport talent mention " +
+                      "salarié qualifié :",
+                },
+                {
+                  text: "- Avoir obtenu en France : Une licence " +
+                      "professionnelle, Un mastère spécialisé, Un master " +
+                      "of science (labellisé par la conférence des grandes " +
+                      "écoles), Un autre diplôme au moins équivalent au " +
+                      "master (DEA, DESS, diplôme d’ingénieur, diplôme " +
+                      "d’institut d’études politiques, diplôme supérieur de " +
+                      "comptabilité et de gestion, diplôme d’expertise " +
+                      "comptable, diplômes d’État de docteur vétérinaire, " +
+                      "docteur en médecine, chirurgie dentaire, pharmacie)",
+                },
+                {
+                  text: "- Avoir une promesse d’embauche ou un contrat " +
+                      "(CDD supérieur à 3 mois ou CDI) signé",
+                },
+                {
+                  text: "- Salaire supérieur ou égal à 35 526,40€ bruts " +
+                      "annuels (2 fois le SMIC)",
                 },
               ],
-              redirect_to_blocks: [
-                "Select TDS type",
-                "TDS all info",
-              ],
-            });
-
-            done();
-          });
-      });
-
-      it("should drop into live chat if all info not defined", (done) => {
-        chai.request(server)
-          .get('/v1/tds_all_info?selected_tds=nope')
-          .end((err, response) => {
-            response.should.have.status(200);
-
-            response.body.should.be.deep.eql(silentLiveChat);
-
-            done();
-          });
-      });
-
-      it("should give all info for commercant", (done) => {
-        chai.request(server)
-          .get('/v1/tds_all_info?selected_tds=commercant')
-          .end((err, response) => {
-            response.should.have.status(200);
-
-            response.body.should.be.deep.eql({
-              messages: [
-                {
-                  text: "C'est une carte de séjour temporaire qui permet " +
-                      "d'exercer une activité commerciale, industrielle, " +
-                      "artisanale ou autre profession non salariée sur le " +
-                      "territoire français pendant plus de 3 mois."
-                },
-                {
-                  text: "La durée de la carte commerçant est de  1 an " +
-                      "(renouvelable)"
-                },
-                {
-                  text: "Le prix d'une carte de séjour commerçant est de 269€"
-                },
-                {
-                  text: "Avantages d'une carte de séjour commerçant :\n- " +
-                      "Permet d'exercer une activité non-salariée."
-                },
-                {
-                  text: "Inconvénients de la carte commerçant :\nTu ne peux " +
-                      "pas exercer une activité salariée (CDD, CDI, intérim)."
-                },
-                {
-                  text: "Conditions pour obtenir une " +
-                      "carte commerçant :\n- Justifier d'une activité " +
-                      "viable sur le plan économique ou, s'il intègre une " +
-                      "entreprise existante, de sa capacité à lui verser " +
-                      "une rémunération suffisante (au moins égale au Smic)," +
-                      "\n- Justifier d'une activité compatible avec la " +
-                      "sécurité, la salubrité et la tranquillité " +
-                      "publique,\n- Respecter les obligations de cette " +
-                      "profession (conditions de diplômes ou d'expérience " +
-                      "professionnelle, par exemple),\n- Absence de " +
-                      "condamnation ou d'interdiction d'exercice."
-                }
-              ],
-              redirect_to_blocks: [ "Main menu" ],
+              redirect_to_blocks: [ "TDS information" ],
             });
 
             done();

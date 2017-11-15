@@ -5,15 +5,19 @@ var express = require("express");
 var Fuse = require("fuse.js");
 const recastai = require('recastai')
 
-var app = express();
-var port = process.env.PORT || 3000;
-
 var Data = require("./data.js");
 var Utilities = require("./utilities.js");
 var tdsTypes = require("./tdsTypes.js");
 
+var app = express();
+var port = process.env.PORT || 3000;
+
+app.set('trust proxy', true);
+app.set('trust proxy', 'loopback');
+
 // print some info about the time and such
 app.all('*', (request, response, next) => {
+  let start = new Date();
   if (request.path.startsWith("/v1/")) {
     console.log("\n" + new Date(), request.path, request.query);
   }
@@ -22,6 +26,7 @@ app.all('*', (request, response, next) => {
   var oldSend = response.send;
   response.send = function (data) {
     console.log("response:", data);
+    console.log("ms taken:", new Date() - start);
 
     oldSend.apply(response, arguments);
   }
@@ -103,7 +108,10 @@ app.route('/v1/get_visas').get(function(request, response) {
           elements: _.map(recommendedSlugs, (tdsSlug) => {
             let tdsInfo = tdsTypes[tdsSlug];
 
-            let subdomain = process.env.NODE_ENV === "dev" ? "dev" : "api";
+            var subdomain = process.env.BOX_NUMBER;
+            if (!subdomain) {
+              subdomain = "api";
+            }
 
             return {
               title: tdsInfo.name,
@@ -233,8 +241,6 @@ app.route('/v1/parse_nationality').get(function(request, response) {
         validated_nationality: "no",
       }
     });
-
-    let countryOptions = _.pluck(quick_replies, "title").join(", ");
 
     response.json({
       messages: [
@@ -432,6 +438,9 @@ app.route('/v1/nlp').get(function(request, response) {
 
   // Recast has a caracter limit
   if (message.length > 512) {
+    query.intentSlug = "too-long-for-recast";
+    Utilities.logInSheet("nlp", query);
+
     return response.json({
       redirect_to_blocks: [ "Main menu" ],
     });
@@ -444,6 +453,7 @@ app.route('/v1/nlp').get(function(request, response) {
 
       query.intentSlug = intent && intent.slug;
       query.intentConfidence = intent && intent.confidence;
+      query.entitiesJson = JSON.stringify(recastResponse.entities);
       Utilities.logInSheet("nlp", query);
 
       // restart conversation even if nlp is disabled
@@ -471,6 +481,8 @@ app.route('/v1/nlp').get(function(request, response) {
         };
 
         var { prefecture, selected_tds } = query;
+        let recastPrefecture = false;
+        let recastTds = false;
 
         // grab prefecture/TDS from Recast if they have been defined
         let { entities } = recastResponse;
@@ -483,17 +495,21 @@ app.route('/v1/nlp').get(function(request, response) {
           if (withoutPapiers && withoutPapiers.length > 0) {
             let newPrefecture = Utilities.mostConfident(withoutPapiers);
             prefecture = Utilities.slugify(newPrefecture.value);
+            recastPrefecture = true;
           }
 
-          let recastTds = Utilities.mostConfident(entities["visa-type"]);
-          if (recastTds) {
-            let tds = Utilities.tdsFromRecast(recastTds.value);
+          let newTds = Utilities.mostConfident(entities["visa-type"]);
+          if (newTds) {
+            let tds = Utilities.tdsFromRecast(newTds.value);
 
             if (tds) {
               selected_tds = tds;
+              recastTds = true;
             }
           }
         }
+        console.log("recastTds:", recastTds);
+        console.log("recastPrefecture:", recastPrefecture);
 
         if (blockForIntent[intent.slug]) {
           var result = {
@@ -509,7 +525,8 @@ app.route('/v1/nlp').get(function(request, response) {
           Utilities.addPrefectureWarning(result, prefecture);
           response.json(result);
           return;
-        } else if (intent.slug === "change-variable") {
+        } else if (intent.slug === "change-variable" &&
+              (recastPrefecture || recastTds)) {
           let result = {
             set_attributes: { prefecture, selected_tds }
           };
@@ -569,22 +586,14 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
     return;
   }
 
+  request.query.requestedInfo = "dossier_submission_method";
+  Utilities.logInSheet("prefectureTds", request.query);
+
   Utilities.submissionMethodSheet((error, result) => {
     if (error) {
       return Utilities.reportError(response,
           "Error getting the prefecture submission info", error);
     }
-
-    let matchingRows = _.chain(result)
-      .where({
-        tdsSlug: selected_tds,
-        prefectureSlug: prefecture,
-      })
-      .filter((row) => {
-        // XXX: might need better way to tell if row is ready for production
-        return row["besoinrdv"]
-      })
-      .value();
 
     let afterResult = {
       text: "Que veux-tu savoir ?",
@@ -618,10 +627,26 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
       ],
     };
 
+    let matchingRows = _.chain(result)
+      .where({
+        tdsSlug: selected_tds,
+        prefectureSlug: prefecture,
+      })
+      .filter((row) => {
+        if (!row["besoinrdv"]) return false;
+
+        row.needsRDV = row["besoinrdv"].toLowerCase() === "oui";
+
+        return (row.needsRDV && row["commentprendrerdv"] || !row.needsRDV) &&
+            row["dépôtdudossier"] && row["coordonnées"];
+      })
+      .value();
+
     if (matchingRows.length > 0) {
       let submissionPossibilities = _.map(matchingRows, (row) => {
-        let rdvMessage = "Tu n'as pas besoin de prendre RDV. ";
-        if (Utilities.slugify(matchingRows[0]["besoinrdv"]) === "oui") {
+        let rdvMessage = "Tu n'as pas besoin de prendre RDV pour cette " +
+            "méthode. ";
+        if (row.needsRDV) {
           rdvMessage = "Le RDV se prend " +
               `${matchingRows[0]["commentprendrerdv"]}. `;
         }
@@ -670,16 +695,14 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
     return;
   }
 
+  request.query.requestedInfo = "dossier_papers_list";
+  Utilities.logInSheet("prefectureTds", request.query);
+
   Utilities.papersListSheet((error, result) => {
     if (error) {
       return Utilities.reportError(response,
           "Error getting the submission information", error);
     }
-
-    let matchingRows = _.where(result, {
-      tdsSlug: selected_tds,
-      prefectureSlug: prefecture,
-    });
 
     let afterResult = {
       text: "Que veux-tu savoir ?",
@@ -713,14 +736,24 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
       ],
     };
 
-    if (matchingRows.length > 0 && matchingRows[0]["lien"]) {
-      let papersListLink = matchingRows[0]["lien"];
+    let matchingRows = _.chain(result)
+      .where({
+        tdsSlug: selected_tds,
+        prefectureSlug: prefecture,
+      })
+      .filter((row) => {
+        return row["lien"];
+      })
+      .value();
+
+    if (matchingRows.length > 0) {
       response.json({
         messages: [
           {
             text: "Voici la liste de papiers pour un titre de séjour " +
                 `${tdsTypes[selected_tds].name} à ` +
-                `${Data.slugToPrefecture[prefecture].name} : ${papersListLink}`,
+                `${Data.slugToPrefecture[prefecture].name} : ` +
+                matchingRows[0]["lien"],
           },
           afterResult,
         ],
@@ -768,16 +801,14 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
     return;
   }
 
+  request.query.requestedInfo = "dossier_processing_time";
+  Utilities.logInSheet("prefectureTds", request.query);
+
   Utilities.processingTimeSheet((error, result) => {
     if (error) {
       return Utilities.reportError(response,
           "Error getting the submission information", error);
     }
-
-    let matchingRows = _.where(result, {
-      tdsSlug: selected_tds,
-      prefectureSlug: prefecture,
-    });
 
     let afterResult = {
       text: "Que veux-tu savoir ?",
@@ -810,6 +841,11 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
         },
       ],
     };
+
+    let matchingRows = _.where(result, {
+      tdsSlug: selected_tds,
+      prefectureSlug: prefecture,
+    });
 
     if (matchingRows.length > 0 && matchingRows[0]["délai"]) {
       let delayText = matchingRows[0]["délai"].replace(/\n/g, ' ');
@@ -848,6 +884,9 @@ function tdsInformation(request, response, blockName, sheetColumn) {
     return;
   }
 
+  request.query.requestedInfo = sheetColumn;
+  Utilities.logInSheet("tdsInfo", request.query);
+
   Utilities.tdsInfoSheet((error, result) => {
     if (error) {
       return Utilities.reportError(response, "Error getting the TDS info",
@@ -860,11 +899,7 @@ function tdsInformation(request, response, blockName, sheetColumn) {
 
     if (matchingRows.length > 0 && matchingRows[0][sheetColumn]) {
       response.json({
-        messages: [
-          {
-            text: matchingRows[0][sheetColumn],
-          },
-        ],
+        messages: Utilities.splitLongMessage(matchingRows[0][sheetColumn]),
         redirect_to_blocks: [
           "TDS information"
         ],
@@ -894,44 +929,6 @@ app.route('/v1/tds_conditions').get(function(request, response) {
   tdsInformation(request, response, "TDS conditions", "conditions");
 });
 
-app.route('/v1/tds_all_info').get(function(request, response) {
-  let { selected_tds } = request.query;
-
-  if (!selected_tds) {
-    response.json(Utilities.tdsRequired("TDS all info"));
-    return;
-  }
-
-  Utilities.tdsInfoSheet((error, result) => {
-    if (error) {
-      return Utilities.reportError(response, "Error getting the TDS info",
-          error);
-    }
-
-    let matchingRows = _.where(result, {
-      tdsSlug: selected_tds,
-    });
-
-    if (matchingRows.length > 0 && matchingRows[0]) {
-      response.json({
-        messages: [
-          { text: matchingRows[0]["présentation"] },
-          { text: matchingRows[0]["durée"] },
-          { text: matchingRows[0]["coût"] },
-          { text: matchingRows[0]["avantages"] },
-          { text: matchingRows[0]["inconvénients"] },
-          { text: matchingRows[0]["conditions"] },
-        ],
-        redirect_to_blocks: [
-          "Main menu"
-        ],
-      });
-    } else {
-      response.json(Utilities.dropToLiveChat(request.query));
-    }
-  });
-});
-
 app.route('/v1/tds_cerfa').get(function (request, response) {
   let { selected_tds } = request.query;
 
@@ -939,6 +936,9 @@ app.route('/v1/tds_cerfa').get(function (request, response) {
     response.json(Utilities.tdsRequired("TDS cerfa"));
     return;
   }
+
+  request.query.requestedInfo = "cerfa";
+  Utilities.logInSheet("tdsInfo", request.query);
 
   Utilities.cerfaSheet((error, result) => {
     if (error) {
