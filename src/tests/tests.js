@@ -349,6 +349,7 @@ describe('My Visa Bot API', () => {
           .get('/v1/started')
           .end((err, response) => {
             response.should.have.status(200);
+            response.body.should.be.deep.eql({});
 
             done();
           });

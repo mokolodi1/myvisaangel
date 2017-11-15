@@ -70,7 +70,7 @@ process.on('uncaughtException', function (err) {
 app.route("/v1/started").get(function (request, response) {
   Utilities.logInSheet("started", request.query);
 
-  response.sendStatus(200);
+  response.json({});
 });
 
 /*
