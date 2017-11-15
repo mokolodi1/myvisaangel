@@ -2302,6 +2302,35 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      it("should give the conditions for commercant", (done) => {
+        chai.request(server)
+          .get('/v1/tds_conditions?selected_tds=commercant')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              messages: [
+                {
+                  text: "Conditions pour obtenir une carte commerçant :\n" +
+                      "- Justifier d'une activité viable sur le plan " +
+                      "économique ou, s'il intègre une entreprise existante, " +
+                      "de sa capacité à lui verser une rémunération " +
+                      "suffisante (au moins égale au Smic),\n- Justifier " +
+                      "d'une activité compatible avec la sécurité, la " +
+                      "salubrité et la tranquillité publique,\n- Respecter " +
+                      "les obligations de cette profession (conditions de " +
+                      "diplômes ou d'expérience professionnelle, par " +
+                      "exemple),\n- Absence de condamnation ou " +
+                      "d'interdiction d'exercice.",
+                },
+              ],
+              redirect_to_blocks: [ "TDS information" ],
+            });
+
+            done();
+          });
+      });
+
       it("should give the conditions for passeport talent", (done) => {
         chai.request(server)
           .get('/v1/tds_conditions?selected_tds=ptsq')
