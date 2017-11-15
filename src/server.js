@@ -67,6 +67,11 @@ process.on('uncaughtException', function (err) {
 
 // Now on to the real meat of the app...
 
+app.route("/v1/started").get(function (request, response) {
+  Utilities.logInSheet("started", request.query);
+
+  response.sendStatus(200);
+});
 
 /*
 Figure out which visas the user is eligible for

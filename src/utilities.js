@@ -290,6 +290,7 @@ function logInSheet(sheetDescription, logObject) {
       "nlp": 2,
       "prefectureTds": 3,
       "tdsInfo": 4,
+      "started": 5,
     };
     doc.addRow(sheetMap[sheetDescription], logObject, (error, result) => {
       // // Uncomment to log for testing
