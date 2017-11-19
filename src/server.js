@@ -73,6 +73,27 @@ app.route("/v1/started").get(function (request, response) {
   response.json({});
 });
 
+app.route("/v1/start_live_chat").get(function (request, response) {
+  let { query } = request;
+
+  Utilities.logInSheet("live_chat", query);
+
+  let { NODE_ENV } = process.env;
+  if (NODE_ENV !== "dev") {
+    Utilities.slack.webhook({
+      channel: "#livechat",
+      username: "teo-clone" + NODE_ENV === "beta" ? "-beta" : "",
+      text: `${query["first name"]} ${query["last name"]} wants ` +
+          "to talk to an expert... That's us!" +
+          "https://www.facebook.com/My-Visa-Angel-108759689812666/inbox/?" +
+          `selected_item_id=${query["messenger user id"]}`,
+      icon_emoji: ":mailbox_with_mail:",
+    }, _.noop);
+  }
+
+  response.json({});
+});
+
 /*
 Figure out which visas the user is eligible for
 */

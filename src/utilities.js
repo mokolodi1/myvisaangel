@@ -291,6 +291,7 @@ function logInSheet(sheetDescription, logObject) {
       "prefectureTds": 3,
       "tdsInfo": 4,
       "started": 5,
+      "live_chat": 6,
     };
     doc.addRow(sheetMap[sheetDescription], logObject, (error, result) => {
       // // Uncomment to log for testing
@@ -486,4 +487,5 @@ module.exports = {
   logError,
   addPrefectureWarning,
   splitLongMessage,
+  slack,
 }
