@@ -84,7 +84,7 @@ app.route("/v1/start_live_chat").get(function (request, response) {
       channel: "#livechat",
       username: "teo-clone" + NODE_ENV === "beta" ? "-beta" : "",
       text: `${query["first name"]} ${query["last name"]} wants ` +
-          "to talk to an expert... That's us!" +
+          "to talk to an expert... That's us!\n" +
           "https://www.facebook.com/My-Visa-Angel-108759689812666/inbox/?" +
           `selected_item_id=${query["messenger user id"]}`,
       icon_emoji: ":mailbox_with_mail:",
