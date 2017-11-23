@@ -1468,6 +1468,23 @@ describe('My Visa Bot API', () => {
           });
       });
 
+      it("should stop conversation", (done) => {
+        chai.request(server)
+          .get('/v1/nlp?first%20name=Teo&last+user+freeform+input=stop')
+          .end((err, response) => {
+            response.should.have.status(200);
+
+            response.body.should.be.deep.eql({
+              redirect_to_blocks: [ "Come back soon" ],
+              set_attributes: {
+                pause_conversation: "stopped",
+              },
+            });
+
+            done();
+          });
+      });
+
       it("should respond to hello", (done) => {
         chai.request(server)
           .get('/v1/nlp?first%20name=Teo&last+user+freeform+input=Bonjour, Manu !')

@@ -565,6 +565,15 @@ app.route('/v1/nlp').get(function(request, response) {
 
           Utilities.addPrefectureWarning(result, prefecture);
           return response.json(result);
+        } else if (intent.slug === "stop-talking-to-me") {
+          response.json({
+            redirect_to_blocks: [ "Come back soon" ],
+            set_attributes: {
+              pause_conversation: "stopped",
+            },
+          });
+
+          return;
         } else if (intent.slug === "greetings") {
           response.json({
             messages: [
