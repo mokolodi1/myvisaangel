@@ -254,7 +254,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
     });
   } else if (bestResult && bestResult.score < .4) {
     Utilities.logInSheet("misspelling", _.extend(query, {
-      severity: "select-top-matches"
+      severity: "select-top-matches",
       type: "country",
     }));
 
