@@ -225,7 +225,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
     });
   } else if (bestResult && bestResult.score <= .25 &&
       !(results[1] && results[1].score - results[0].score < .05)) {
-    Utilities.logInSheet("misspelling", _.extend(query, {
+    Utilities.logInSheet("misspelling", _.extend(request.query, {
       severity: "yes-or-no",
       type: "country",
     }));
@@ -253,7 +253,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       ],
     });
   } else if (bestResult && bestResult.score < .4) {
-    Utilities.logInSheet("misspelling", _.extend(query, {
+    Utilities.logInSheet("misspelling", _.extend(request.query, {
       severity: "select-top-matches",
       type: "country",
     }));
@@ -287,7 +287,7 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       ],
     });
   } else {
-    Utilities.logInSheet("misspelling", _.extend(query, {
+    Utilities.logInSheet("misspelling", _.extend(request.query, {
       severity: "fail",
       type: "country",
     }));
@@ -347,7 +347,7 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
     response.json(result);
   } else if (bestResult && bestResult.score <= .25 &&
       !(results[1] && results[1].score - results[0].score < .05)) {
-    Utilities.logInSheet("misspelling", _.extend(query, {
+    Utilities.logInSheet("misspelling", _.extend(request.query, {
       severity: "yes-or-no",
       type: "prefecture",
     }));
@@ -405,7 +405,7 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
       ],
     });
   } else {
-    Utilities.logInSheet("misspelling", _.extend(query, {
+    Utilities.logInSheet("misspelling", _.extend(request.query, {
       severity: "fail",
       type: "prefecture",
     }));
