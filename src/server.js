@@ -225,6 +225,11 @@ app.route('/v1/parse_nationality').get(function(request, response) {
     });
   } else if (bestResult && bestResult.score <= .25 &&
       !(results[1] && results[1].score - results[0].score < .05)) {
+    Utilities.logInSheet("misspelling", _.extend(request.query, {
+      severity: "yes-or-no",
+      type: "country",
+    }));
+
     response.json({
       messages: [
         {
@@ -248,6 +253,11 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       ],
     });
   } else if (bestResult && bestResult.score < .4) {
+    Utilities.logInSheet("misspelling", _.extend(request.query, {
+      severity: "select-top-matches",
+      type: "country",
+    }));
+
     let filterTopFive = _.filter(results.slice(0, 5), (result) => {
       return result.score < .45;
     });
@@ -277,6 +287,11 @@ app.route('/v1/parse_nationality').get(function(request, response) {
       ],
     });
   } else {
+    Utilities.logInSheet("misspelling", _.extend(request.query, {
+      severity: "fail",
+      type: "country",
+    }));
+
     let messages = [
       {
         text: "Je n'arrive pas à comprendre 😔. Vérifie l'orthographe stp et " +
@@ -332,6 +347,11 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
     response.json(result);
   } else if (bestResult && bestResult.score <= .25 &&
       !(results[1] && results[1].score - results[0].score < .05)) {
+    Utilities.logInSheet("misspelling", _.extend(request.query, {
+      severity: "yes-or-no",
+      type: "prefecture",
+    }));
+
     let result = {
       messages: [],
     };
@@ -385,6 +405,11 @@ app.route('/v1/parse_prefecture').get(function(request, response) {
       ],
     });
   } else {
+    Utilities.logInSheet("misspelling", _.extend(request.query, {
+      severity: "fail",
+      type: "prefecture",
+    }));
+
     let messages = [
       {
         text: "Je n'arrive pas à comprendre 😔. Vérifie l'orthographe stp et " +
@@ -622,7 +647,7 @@ app.route('/v1/dossier_submission_method').get(function(request, response) {
   }
 
   request.query.requestedInfo = "dossier_submission_method";
-  Utilities.logInSheet("prefectureTds", request.query);
+  Utilities.logInSheet("prefecture_tds", request.query);
 
   Utilities.submissionMethodSheet((error, result) => {
     if (error) {
@@ -731,7 +756,7 @@ app.route('/v1/dossier_papers_list').get(function(request, response) {
   }
 
   request.query.requestedInfo = "dossier_papers_list";
-  Utilities.logInSheet("prefectureTds", request.query);
+  Utilities.logInSheet("prefecture_tds", request.query);
 
   Utilities.papersListSheet((error, result) => {
     if (error) {
@@ -837,7 +862,7 @@ app.route('/v1/dossier_processing_time').get(function(request, response) {
   }
 
   request.query.requestedInfo = "dossier_processing_time";
-  Utilities.logInSheet("prefectureTds", request.query);
+  Utilities.logInSheet("prefecture_tds", request.query);
 
   Utilities.processingTimeSheet((error, result) => {
     if (error) {
@@ -920,7 +945,7 @@ function tdsInformation(request, response, blockName, sheetColumn) {
   }
 
   request.query.requestedInfo = sheetColumn;
-  Utilities.logInSheet("tdsInfo", request.query);
+  Utilities.logInSheet("tds_info", request.query);
 
   Utilities.tdsInfoSheet((error, result) => {
     if (error) {

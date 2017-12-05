@@ -187,7 +187,7 @@ _.each(Data.countries, (country) => {
   country.allSluggedNames = _.map(allNames, slugify);
 });
 
-const CACHE_TIMEOUT = 1000 * 60 * 30; // 30 minutes
+const CACHE_TIMEOUT = 1000 * 60 * 2; // 2 minutes
 var googleCredentials =
     require('../private/myvisaangel-f24414135324-service-account.json');
 // keyed by doc ID; each entry has lastUpdate and rows attributes
@@ -288,10 +288,11 @@ function logInSheet(sheetDescription, logObject) {
     var sheetMap = {
       "get_visas": 1,
       "nlp": 2,
-      "prefectureTds": 3,
-      "tdsInfo": 4,
+      "prefecture_tds": 3,
+      "tds_info": 4,
       "started": 5,
       "live_chat": 6,
+      "misspelling": 7,
     };
     doc.addRow(sheetMap[sheetDescription], logObject, (error, result) => {
       // // Uncomment to log for testing
