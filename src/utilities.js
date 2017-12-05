@@ -288,10 +288,11 @@ function logInSheet(sheetDescription, logObject) {
     var sheetMap = {
       "get_visas": 1,
       "nlp": 2,
-      "prefectureTds": 3,
-      "tdsInfo": 4,
+      "prefecture_tds": 3,
+      "tds_info": 4,
       "started": 5,
       "live_chat": 6,
+      "misspelling": 7,
     };
     doc.addRow(sheetMap[sheetDescription], logObject, (error, result) => {
       // // Uncomment to log for testing
