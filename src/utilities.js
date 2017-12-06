@@ -461,8 +461,6 @@ function splitLongMessage(text) {
         text: line.trim(),
       };
     });
-
-    return messages;
   }
 
   return [ { text } ];

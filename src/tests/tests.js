@@ -356,6 +356,19 @@ describe('My Visa Bot API', () => {
       });
     });
 
+    describe("Tracking live chat started...", () => {
+      it("should work", (done) => {
+        chai.request(server)
+          .get('/v1/start_live_chat')
+          .end((err, response) => {
+            response.should.have.status(200);
+            response.body.should.be.deep.eql({});
+
+            done();
+          });
+      });
+    });
+
     describe('/GET /v1/get_visas', () => {
       it('should work: US, CDI, 2xSMIC, student, masters, single', (done) => {
         chai.request(server)
