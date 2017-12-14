@@ -91,7 +91,11 @@ app.route("/v1/start_live_chat").get(function (request, response) {
     }, _.noop);
   }
 
-  response.json({});
+  response.json({
+    set_attributes: {
+      nlp_disabled: "yes",
+    },
+  });
 });
 
 /*
