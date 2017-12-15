@@ -362,7 +362,11 @@ describe('My Visa Bot API', () => {
           .get('/v1/start_live_chat')
           .end((err, response) => {
             response.should.have.status(200);
-            response.body.should.be.deep.eql({});
+            response.body.should.be.deep.eql({
+              set_attributes: {
+                nlp_disabled: "yes",
+              },
+            });
 
             done();
           });
