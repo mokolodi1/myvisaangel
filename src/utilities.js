@@ -383,7 +383,7 @@ function tdsRequired(destination_block) {
 
 const slack = new Slack();
 var slackCreds = process.env.SLACK_CRED ?
-                    JSON.parse(process.env.SLACK_CRED) ?
+                    JSON.parse(process.env.SLACK_CRED) :
                     require('../private/slack-credentials.json');
 slack.setWebhook(slackCreds.webhook_url);
 function dropToLiveChat(query) {
