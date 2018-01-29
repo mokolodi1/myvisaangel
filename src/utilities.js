@@ -188,8 +188,7 @@ _.each(Data.countries, (country) => {
 });
 
 const CACHE_TIMEOUT = 1000 * 60 * 2; // 2 minutes
-var googleCredentials =
-    require('../private/google-service-account.json');
+var googleCredentials = require('../private/google-service-account.json');
 // keyed by doc ID; each entry has lastUpdate and rows attributes
 var cachedSheets = {};
 

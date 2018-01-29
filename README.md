@@ -1,6 +1,32 @@
 # My Visa Angel API [![Build Status](https://travis-ci.com/mokolodi1/myvisaangel.svg?token=gSskbph9XcxTrDMf2BS7&branch=master)](https://travis-ci.com/mokolodi1/myvisaangel) [![codecov](https://codecov.io/gh/mokolodi1/myvisaangel/branch/master/graph/badge.svg?token=QcWtpXLB60)](https://codecov.io/gh/mokolodi1/myvisaangel)
 
+My Visa Angel is a service that provides useful long-term visa-related information to non-EU residents in France. [You can try the chatbot for yourself here: m.me/MyVisaAngel](https://m.me/MyVisaAngel)
+
+We created this project in response to the French government's general dysfunction in communicating important visa-related information to the public. Simple information such as the list of papers needed to apply for the most common visa types is usually either not available online or out of date. See below for a full list of features.
+
+The bot is currently only available in French, and we don't currently have plans to translate it to English as 99% of our users are francophones.
+
+Feedback from the bot has been almost entirely positive, and as of this writing My Visa Angel has been used by thousands of people.
+
+### Features
+
+- A questionnaire that tells you which kind of visa you're eligible for
+- Visa-related general information such as price, explanation, requirements, etc.
+- Prefecture-related information such as the list of papers, how to apply, average wait times, etc.
+- Responds to well-formed related questions with some help from Recast AI
+- Contact an expert: talk to a flesh-and-blood immigration expert or let us help you through the entire application process
+
+### Demo
+
+
+
+### License
+
+Note that as there is no license currently associated with this project it is considered "All Rights Reserved" even though it is open source. [Here's some more information as to what that means.](https://choosealicense.com/no-permission/)
+
 ## Getting started
+
+The following section is for my two non-technical cofounders.
 
 ### Downloading this code
 
@@ -181,6 +207,8 @@ To start the app, the command should look something like this: `BOX_NUMBER=b4 ./
 
 Test if the API is up by checking this page: [http://b4.myvisaangel.com/v1/ping](http://b4.myvisaangel.com/v1/ping)
 
+There are two private credential files that I've sent Abdel and Paola in a private message on Slack that you'll have to grab and put in the `private` folder. (One is for Google, one is for Slack integration.)
+
 #### More potentially useful information
 
 The two sections in this README about setting up a new box and deploying should provide you some more information as to how things are managed.
@@ -191,7 +219,7 @@ Teo (aka `mokolodi1`) is the admin of the GitHub repo, so you won't be able to p
 
 If you change the url for the production box you'll have to change it on Chatfuel in each of the places it connects to the API. Paola should be able to help with that.
 
-#### TODO list for Teo if this action plan is ever used
+#### Post-morten list for Teo if this action plan is ever used
 - change the `.pem` files for the production boxes on AWS
 - change my Hover password
 - buy whoever helped us a beer
