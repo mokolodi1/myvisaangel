@@ -18,7 +18,7 @@ Feedback from the bot has been almost entirely positive, and as of this writing 
 
 ### Demo
 
-![My Visa Angel demo](files/mva_demo.gif)
+[Click here for a video of the chatbot in action.](files/mva_demo.mov)
 
 ### License
 
