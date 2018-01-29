@@ -1728,7 +1728,7 @@ describe('My Visa Bot API', () => {
       });
 
       it("should drop to live chat if Google Sheets auth fails", (done) => {
-        // TODO: unclear if this is actually testing anything...
+        // unclear if this is actually testing anything...
         nock('https://accounts.google.com:443', {"encodedQueryParams":true})
           .post('/o/oauth2/token')
           .replyWithError('Google Sheets failed. This is a test.');
@@ -1812,7 +1812,7 @@ describe('My Visa Bot API', () => {
           .end((err, response) => {
             response.should.have.status(200);
 
-            // TODO: this will change!
+            // NOTE: this might change!
             response.body.should.be.deep.eql({
               messages: [
                 {
