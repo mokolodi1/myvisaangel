@@ -1978,8 +1978,8 @@ describe('My Visa Bot API', () => {
               messages: [
                 {
                   text: "Voici la liste de papiers pour un titre de séjour " +
-                  "APS à Paris : https://drive.google.com/open?" +
-                  "id=1SaFEnvlhEAuPEm9PyvnRdtJ386OgfLET9nWQoXVrBrA"
+                  "APS à Paris : https://docs.google.com/document/d/" +
+                  "1AQQplhD5jvgcGOrMpc_7ZhGgXYbD3mn2RvQj0uEb-fc/edit?usp=sharing"
                 },
                 afterListPapers,
               ]
@@ -2007,8 +2007,8 @@ describe('My Visa Bot API', () => {
                 },
                 {
                   text: "Voici la liste de papiers pour un titre de séjour APS à Nanterre : " +
-                  "https://drive.google.com/open?" +
-                  "id=1W0IMm0EeZc5Q_KwYuud-VmDSfvMqRhuj2dnRPIw4Xgs",
+                  "https://docs.google.com/document/d/" +
+                  "18Jn9CEjRbhAIUwBjngyc2VcJR6CVlNZ7C5Yz_78hYmc/edit?usp=sharing",
                 },
                 {
                   text: "D'ailleurs, nous te serions très reconnaissants si une " +
