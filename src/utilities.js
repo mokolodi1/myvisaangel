@@ -188,7 +188,10 @@ _.each(Data.countries, (country) => {
 });
 
 const CACHE_TIMEOUT = 1000 * 60 * 2; // 2 minutes
-var googleCredentials = require('../private/google-service-account.json');
+var googleCredentials = process.env.GOOGLE_CRED ?
+                          JSON.parse(process.env.GOOGLE_CRED) :
+                          require('../private/google-service-account.json');
+process.env.GOOGLE_CRED ||
 // keyed by doc ID; each entry has lastUpdate and rows attributes
 var cachedSheets = {};
 
@@ -380,7 +383,10 @@ function tdsRequired(destination_block) {
 }
 
 const slack = new Slack();
-slack.setWebhook(require('../private/slack-credentials.json').webhook_url);
+var slackCreds = process.env.SLACK_CRED ?
+                    JSON.parse(process.env.SLACK_CRED) ?
+                    require('../private/slack-credentials.json');
+slack.setWebhook(slackCreds.webhook_url);
 function dropToLiveChat(query) {
   let { NODE_ENV } = process.env;
 
