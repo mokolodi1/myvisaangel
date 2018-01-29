@@ -191,7 +191,6 @@ const CACHE_TIMEOUT = 1000 * 60 * 2; // 2 minutes
 var googleCredentials = process.env.GOOGLE_CRED ?
                           JSON.parse(process.env.GOOGLE_CRED) :
                           require('../private/google-service-account.json');
-process.env.GOOGLE_CRED ||
 // keyed by doc ID; each entry has lastUpdate and rows attributes
 var cachedSheets = {};
 
