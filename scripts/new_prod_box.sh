@@ -9,7 +9,7 @@ chmod a+x certbot-auto
 ./certbot-auto certonly --standalone -d $BOX_NUMBER.myvisaangel.com
 
 # Try to renew certificate every day
-(crontab -l 2>/dev/null; echo "0 6 * * * /home/ubuntu/certbot-auto renew --text >> /home/ubuntu/certbot-cron.log && sudo service nginx reload") | crontab -
+(crontab -l 2>/dev/null; echo "0 6 * * * /home/ubuntu/certbot-auto renew /home/ubuntu/certbot-auto renew --pre-hook "service nginx stop" --post-hook "service nginx start" --text--text >> /home/ubuntu/certbot-cron.log") | crontab -
 
 # Install node, npm, tmux
 # TODO: unclear if we need both nodejs and nodejs-legacy
